@@ -1,0 +1,134 @@
+table.track-list {
+	//table-layout:fixed;
+	border-spacing: 0;
+	font-family: monospace;
+
+	th {
+		padding: 10px 7px;
+		padding-right: 20px;
+		border: 1px solid #aaa;
+		border-left: none;
+		border-top: 1px solid #aaa;
+		white-space: nowrap;
+
+		&:first-child {
+			border-left: 1px solid #aaa;
+		}
+
+		h4 {
+			margin: 0;
+		}
+	}
+
+	tbody tr {
+		&:hover td {
+			background-color: rgba(255, 255, 255, 0.05);
+		}
+		&.selected td {
+			background-color: rgba(255, 255, 255, 0.1);
+		}
+		
+	}
+
+	tbody td {
+		font-size: 14px;
+		padding: 0;
+		padding: 4px;
+		padding-left: 7px;
+		padding-right: 20px;
+
+		a, span {
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+		}
+
+		a, span {
+			&.browse {
+				color: orange;
+			}
+			&.play {
+				color: #6F6;
+			}
+		}
+		a {
+			cursor: pointer;
+
+			&.artist {
+				color: #F66;
+			}
+			&.albumartist {
+				color: #F6F;
+			}
+			&.album {
+				color: #09F;
+			}
+			&:hover {
+				text-decoration: underline;
+			}
+		}
+	}
+}
+
+ul.browse-path {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+
+	li {
+		display: inline-block;
+		padding: 0 10px;
+		position: relative;
+
+		div {
+			height: 30px;
+			padding: 0px 10px;
+			background-color: orange;
+			border: none;
+			color: black;
+			line-height: 30px;
+			cursor: pointer;
+			min-width: 20px;
+			text-align: center;
+		}
+		&.current {
+
+			div {
+				background-color: yellow;
+			}
+
+			&:after {
+				border-left-color: yellow;
+			}
+			&:before {
+				border-top-color: yellow;
+				border-bottom-color: yellow;
+				border-right-color: yellow;
+			}
+		}
+		&:after{
+			content: "";
+			border: 15px solid transparent;
+			border-left: 20px solid orange;
+			height: 0;
+			width: 0;
+			position: absolute;
+			right: -24px;
+			top: 0;
+		}
+		&:before {
+			content: "";
+			height: 0;
+			width: 0;
+			position: absolute;
+			left: -9px;
+			top: 0;
+			border: 15px solid orange;
+			border-right: none;
+			border-left: 20px solid transparent;
+		}
+		&:first-child:before {
+			border: none;
+		}
+	}
+}

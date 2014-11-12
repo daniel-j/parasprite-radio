@@ -1,0 +1,95 @@
+//- Config
+- var title = "Parasprite Radio"
+
+doctype html
+html
+	head
+		meta(charset='utf-8')
+		meta(name='og:title', content='#{title}')
+		meta(name='og:image', content='http://radio.djazz.se/img/parasprite-radio.png')
+		meta(name='og:url', content='http://radio.djazz.se')
+		meta(name='og:description', content='Tune in to #{title}!')
+
+		title #{title}
+
+		link(rel='icon', type='image/x-icon', href='/favicon.ico')
+		link(rel='stylesheet', type='text/css', href='/style/main.css')
+	body
+
+		#top
+			.container
+				a(href="/")
+					img#logo(src="img/icons/parasprite-radio.png", alt="#{title}")
+				.left
+					h1
+						a(href="/") #{title}
+					#subtitle by 
+						a(href="https://twitter.com/daniel_hede", target="_blank") djazz
+
+				.player
+					button#playstopbtn Play
+					.right.textright
+						#nowplayingwrap
+							#nowplayingshadow
+								marquee(scrollamount=3, scrolldelay=60)
+									#nowplaying
+						#volume
+							div
+								input#radioVolume(type="range", min=0, max=1, step=0.01, value=1)
+						#visualizer
+						.legend
+							span#listenercount
+							//- TODO: Remove inline JavaScript!
+							a(href="/popup.php", target="_blank", onclick="stopRadio(); window.open('popup.php', 'parasprite-radio-popout', 'width=400,height=220,left=300,top=100'); return false;") popout
+
+		#navigation
+			.container
+				nav#mainmenu
+					span#menuHistory.current(data-page="pageHistory") Play History
+					span#menuPlaylist(data-page="pagePlaylist") Playlist
+					a#menuLivestream(href="http://djazz.se/live/") Livestream
+					
+					a#menuLogout(href="/logout") Logout 
+					
+					a#menuLogout(href="/admin/") Admin
+					
+					a#menuLogin(href="/login") Login
+
+		#content
+			.container
+				//- TODO: Remove inline CSS
+				.page-wrapper(style="height: 350px; overflow: auto;")
+					#pageHistory
+						div
+							string Recently played tracks
+						table#playhistorytable.trackstable
+							thead
+								tr
+									th(width=32)
+									th
+									th
+									th
+							tbody#playhistory
+					//- TODO: Remove inline CSS
+					#pagePlaylist(style="display: none;")
+						div
+							strong
+								span The radio has 
+								span#playlistcount ?
+								span  tracks (
+								span#playhistoryhours ?
+								span  hours of music)
+						table#playlisttable.trackstable
+							thead
+								tr
+									th
+									th
+									th
+							tbody#playlist
+				//- TODO: Remove inline CSS
+				//- iframe#chat(src="https://kiwiirc.com/client/irc.canternet.org/?nick=Pony_?&amp;theme=cli#BronyTalk", style="width:100%; height:450px; border: none;")
+
+		script(type="text/javascript", src="/js/libs.min.js")
+		script(type="text/javascript", src="/js/common.min.js")
+		script(type="text/javascript", src="/js/config.js")
+		script(type="text/javascript", src="/js/main.min.js")

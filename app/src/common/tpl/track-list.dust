@@ -1,0 +1,16 @@
+<thead>
+	<tr>
+		<th><h4 class='textright'>#</h4></th>
+		<th><h4>Title</h4></th>
+		<th><h4>Artist</h4></th>
+		<th><h4>Album Artist</h4></th>
+		<th><h4>Album</h4></th>
+		<th><h4>Directory</h4></th>
+		<th><h4>Filename</h4></th>
+		<th><h4>Time</h4></th>
+		<th><h4>Genre</h4></th>
+		<th><h4>Date</h4></th>
+		<th><h4>Last modified</h4></th>
+	</tr>
+</thead>
+<tbody></tbody>

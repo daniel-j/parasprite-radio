@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+
+process.argv.splice(2, 0, __dirname + "/app/server/index.coffee");
+
+process.env.NODE_ENV = "production";
+
+require(__dirname + '/app/node_modules/coffee-script/lib/coffee-script/command').run();

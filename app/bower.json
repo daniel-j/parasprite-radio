@@ -1,0 +1,26 @@
+{
+  "name": "bower dependencies",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "marionette": "~2.2.2",
+    "moment": "~2.8.3"
+  },
+  "exportsOverride": {
+    "backbone.babysitter": {
+      "": "lib/backbone.babysitter.min.js"
+    },
+    "backbone.wreqr": {
+      "": "lib/backbone.wreqr.min.js"
+    },
+    "marionette": {
+      "": "lib/backbone.marionette.js"
+    },
+    "jquery": {
+      "": "dist/jquery.min.js"
+    },
+    "moment": {
+      "": "min/moment.min.js"
+    }
+  }
+}

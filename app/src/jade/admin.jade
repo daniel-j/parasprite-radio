@@ -1,0 +1,45 @@
+doctype html
+html
+	head
+		meta(charset='utf-8')
+		title Admin Dashboard
+		link(rel='stylesheet', type='text/css', href='/style/admin.css')
+
+	body
+
+		audio#audioTag(controls)
+		img#imgTag(height=100)
+
+		#nav-region
+
+		#content-region
+
+			#statusLayout
+				div soem stauses
+
+			#searchLayout
+				form#searchForm
+					input(name='query', placeholder='Search')
+					select(name='type')
+						option(value='any', selected) Any
+						option(value='file') File
+						option(value='title') Title
+						option(value='artist') Artist
+						option(value='album') Album
+						option(value='albumartist') Album Artist
+						option(value='genre') Genre
+					button(type='submit') Search
+				#searchResult
+
+			#browseLayout
+				#browsePath
+				#fileList
+
+
+
+		script(type="text/javascript", src="/js/libs.min.js")
+		script(type="text/javascript", src="/js/common.min.js")
+		script(type="text/javascript", src="/js/config.js")
+		script(type="text/javascript", src="/js/admin.min.js")
+
+		script(src="http://192.168.0.109:35729/livereload.js")

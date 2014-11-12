@@ -1,0 +1,3 @@
+window.config = {
+	apiPath: '/api'
+}
