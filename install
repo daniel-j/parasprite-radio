@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# http://stackoverflow.com/a/246128
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $DIR
+
+function createConfig {
+	echo "Creating config files..."
+	cp -n config.default.json config.json
+	cp -n liq/credentials.default.liq liq/credentials.liq
+}
+
+getopts ":d" opt
+
+if [ $opt = "d" ]
+then
+
+	echo "Installing for DEVELOPMENT"
+
+	createConfig
+
+	cd app
+
+	echo "Installing node dependencies..."
+	npm install
+
+	echo "Installing bower packages..."
+	bower install
+
+	echo "Updating app/libs/bower/"
+	grunt bower
+
+	echo "Building app for development"
+	grunt build
+
+	echo "Done! Now edit config.json, setup Redis and a MySQL server. Start server with ./radio -d"
+
+else
+
+	echo "Installing for PRODUCTION"
+
+	createConfig
+
+	cd app
+
+	echo "Installing node dependencies..."
+	npm install --production
+
+	echo "Done! Now edit config.json, setup Redis and a MySQL server. Start server with ./radio"
+
+fi
+
