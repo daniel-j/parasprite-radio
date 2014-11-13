@@ -13,6 +13,7 @@ First setup Redis, MySQL and MPD servers. The app uses Twitter authentication, s
 Now edit config.json and start the app with `./radio`
 
 **For developers:**
+
 Install Grunt and Bower globally: `# npm install -g grunt-cli bower`
 
 Install the app in developer mode: `./install -d`
