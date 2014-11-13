@@ -1,5 +1,5 @@
 bower_components/
-lib/
+lib/bower/
 build/
 node_modules/
 *.sublime-project
