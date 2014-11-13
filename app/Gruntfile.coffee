@@ -107,7 +107,7 @@ module.exports = (grunt) ->
 				options:
 					mangle: false
 					sourceMap: false
-					banner: '// <%= pkg.name %> - v<%= pkg.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %> */\n'
+					#banner: '// <%= pkg.name %> - v<%= pkg.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %> */\n'
 				files: uglifyfiles
 
 			libs:
