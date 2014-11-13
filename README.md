@@ -7,10 +7,11 @@ Chat with me: http://djazz.se/chat.php
 
 Installation
 ---
+Install the node dependencies: `./install`
 
-First setup Redis, MySQL and MPD servers. The app uses Twitter authentication, so you have to [set up that too](https://apps.twitter.com/). Then you can install the node dependencies: `./install`
+Setup Redis, MySQL and MPD servers. The app uses Twitter authentication, so you have to [set up that too](https://apps.twitter.com/).
 
-Now edit config.json and start the app with `./radio`
+Now edit config.json and then start the app with `./radio`
 
 **For developers:**
 
