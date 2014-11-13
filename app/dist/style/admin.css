@@ -1,0 +1,150 @@
+body {
+  font-family: sans-serif;
+}
+th {
+  text-align: left;
+}
+.textright {
+  text-align: right;
+}
+table.track-list {
+  border-spacing: 0;
+  font-family: monospace;
+}
+table.track-list th {
+  padding: 10px 7px;
+  padding-right: 20px;
+  border: 1px solid #aaa;
+  border-left: none;
+  border-top: 1px solid #aaa;
+  white-space: nowrap;
+}
+table.track-list th:first-child {
+  border-left: 1px solid #aaa;
+}
+table.track-list th h4 {
+  margin: 0;
+}
+table.track-list tbody tr:hover td {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+table.track-list tbody tr.selected td {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+table.track-list tbody td {
+  font-size: 14px;
+  padding: 0;
+  padding: 4px;
+  padding-left: 7px;
+  padding-right: 20px;
+}
+table.track-list tbody td a,
+table.track-list tbody td span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+table.track-list tbody td a.browse,
+table.track-list tbody td span.browse {
+  color: orange;
+}
+table.track-list tbody td a.play,
+table.track-list tbody td span.play {
+  color: #6F6;
+}
+table.track-list tbody td a {
+  cursor: pointer;
+}
+table.track-list tbody td a.artist {
+  color: #F66;
+}
+table.track-list tbody td a.albumartist {
+  color: #F6F;
+}
+table.track-list tbody td a.album {
+  color: #09F;
+}
+table.track-list tbody td a:hover {
+  text-decoration: underline;
+}
+ul.browse-path {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+ul.browse-path li {
+  display: inline-block;
+  padding: 0 10px;
+  position: relative;
+}
+ul.browse-path li div {
+  height: 30px;
+  padding: 0px 10px;
+  background-color: orange;
+  border: none;
+  color: black;
+  line-height: 30px;
+  cursor: pointer;
+  min-width: 20px;
+  text-align: center;
+}
+ul.browse-path li.current div {
+  background-color: yellow;
+}
+ul.browse-path li.current:after {
+  border-left-color: yellow;
+}
+ul.browse-path li.current:before {
+  border-top-color: yellow;
+  border-bottom-color: yellow;
+  border-right-color: yellow;
+}
+ul.browse-path li:after {
+  content: "";
+  border: 15px solid transparent;
+  border-left: 20px solid orange;
+  height: 0;
+  width: 0;
+  position: absolute;
+  right: -24px;
+  top: 0;
+}
+ul.browse-path li:before {
+  content: "";
+  height: 0;
+  width: 0;
+  position: absolute;
+  left: -9px;
+  top: 0;
+  border: 15px solid orange;
+  border-right: none;
+  border-left: 20px solid transparent;
+}
+ul.browse-path li:first-child:before {
+  border: none;
+}
+#nav-region ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+#nav-region ul li {
+  display: inline-block;
+  padding: 10px;
+  cursor: default;
+}
+#nav-region ul li.current {
+  color: orange;
+  background-color: #320;
+}
+#nav-region ul li:hover {
+  background-color: orange;
+  color: black;
+}
+#content-region > * {
+  display: none;
+}
+body {
+  background-color: black;
+  color: white;
+}

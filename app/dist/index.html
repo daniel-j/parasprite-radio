@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="og:title" content="Parasprite Radio">
+    <meta name="og:image" content="http://radio.djazz.se/img/parasprite-radio.png">
+    <meta name="og:url" content="http://radio.djazz.se">
+    <meta name="og:description" content="Tune in to Parasprite Radio!">
+    <title>Parasprite Radio</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/style/main.css">
+  </head>
+  <body>
+    <div id="top">
+      <div class="container"><a href="/"><img id="logo" src="img/icons/parasprite-radio.png" alt="Parasprite Radio"></a>
+        <div class="left">
+          <h1><a href="/">Parasprite Radio</a></h1>
+          <div id="subtitle">by <a href="https://twitter.com/daniel_hede" target="_blank">djazz</a></div>
+        </div>
+        <div class="player">
+          <button id="playstopbtn">Play</button>
+          <div class="right textright">
+            <div id="nowplayingwrap">
+              <div id="nowplayingshadow">
+                <marquee scrollamount="3" scrolldelay="60">
+                  <div id="nowplaying"></div>
+                </marquee>
+              </div>
+            </div>
+            <div id="volume">
+              <div>
+                <input id="radioVolume" type="range" min="0" max="1" step="0.01" value="1">
+              </div>
+            </div>
+            <div id="visualizer"></div>
+            <div class="legend"><span id="listenercount"></span><a href="/popup.php" target="_blank" onclick="stopRadio(); window.open('popup.php', 'parasprite-radio-popout', 'width=400,height=220,left=300,top=100'); return false;">popout</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="navigation">
+      <div class="container">
+        <nav id="mainmenu"><span id="menuHistory" data-page="pageHistory" class="current">Play History</span><span id="menuPlaylist" data-page="pagePlaylist">Playlist</span><a id="menuLivestream" href="http://djazz.se/live/">Livestream</a><a id="menuLogout" href="/logout">Logout </a><a id="menuLogout" href="/admin/">Admin</a><a id="menuLogin" href="/login">Login</a></nav>
+      </div>
+    </div>
+    <div id="content">
+      <div class="container">
+        <div style="height: 350px; overflow: auto;" class="page-wrapper">
+          <div id="pageHistory">
+            <div>
+              <string>Recently played tracks</string>
+            </div>
+            <table id="playhistorytable" class="trackstable">
+              <thead>
+                <tr>
+                  <th width="32"></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="playhistory"></tbody>
+            </table>
+          </div>
+          <div id="pagePlaylist" style="display: none;">
+            <div><strong><span>The radio has </span><span id="playlistcount">?</span><span> tracks (</span><span id="playhistoryhours">?</span><span> hours of music)</span></strong></div>
+            <table id="playlisttable" class="trackstable">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="playlist"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript" src="/js/libs.min.js"></script>
+    <script type="text/javascript" src="/js/common.min.js"></script>
+    <script type="text/javascript" src="/js/config.js"></script>
+    <script type="text/javascript" src="/js/main.min.js"></script>
+  </body>
+</html>
