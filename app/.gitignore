@@ -1,6 +1,6 @@
+node_modules/
 bower_components/
 lib/bower/
 build/
-node_modules/
 *.sublime-project
 *.sublime-workspace
