@@ -1,2 +1,4 @@
 config.json
 .fuse_hidden*
+.DS_Store
+._*

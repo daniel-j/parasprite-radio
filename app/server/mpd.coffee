@@ -19,7 +19,7 @@ parseArrayMessage = (msg, dividers = ['file', 'directory']) ->
 
 		keyValue[1] = keyValue[1].toLowerCase()
 		n = +keyValue[2]
-		if !isNaN n
+		if !isNaN(n) and keyValue[2].length == n.toString().length
 			keyValue[2] = n
 
 		if dividers.indexOf(keyValue[1]) != -1
@@ -48,7 +48,7 @@ parseKeyValueMessage = (msg) ->
 
 		keyValue[1] = keyValue[1].toLowerCase()
 		n = +keyValue[2]
-		if !isNaN n
+		if !isNaN(n) and keyValue[2].length == n.toString().length
 			keyValue[2] = n
 		
 		result[keyValue[1]] = keyValue[2]
@@ -200,8 +200,12 @@ module.exports = (config) ->
 				if err
 					cb null, []
 				else
-					albums = parseArrayMessage data
-					albums.sort perfectSortKey('album')
+					albums = parseArrayMessage data, 'album'
+					i = 0
+					while i < albums.length
+						albums[i] = albums[i].album
+						i++
+					albums.sort perfectSort
 					
 					cb null, albums
 
@@ -210,10 +214,10 @@ module.exports = (config) ->
 				if err
 					cb null, []
 				else
-					artists = parseArrayMessage data
+					artists = parseArrayMessage data, 'artist'
 					i = 0
 					while i < artists.length
-						artists[i] = artists[i].Artist
+						artists[i] = artists[i].artist
 						i++
 					artists.sort perfectSort
 					cb null, artists
@@ -243,6 +247,21 @@ module.exports = (config) ->
 				if err
 					cb null, []
 				else
+					cb null, parseArrayMessage data
+
+		getPlaylists: (cb) ->
+			mpdCommand 'listplaylists', [], (err, data) ->
+				if err
+					cb err, null
+				else
+					cb null, parseArrayMessage(data, 'playlist')
+
+		getPlaylist: (name, cb) ->
+			mpdCommand 'listplaylistinfo', [name], (err, data) ->
+				if err
+					cb err, null
+				else
+					console.log data
 					cb null, parseArrayMessage data
 
 	API

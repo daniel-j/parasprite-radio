@@ -9,6 +9,8 @@ libs = [
 	'bower/marionette/backbone.marionette'
 	'bower/moment/moment.min'
 	'dust-runtime'
+	'../node_modules/6to5/runtime'
+	'../node_modules/6to5/browser-polyfill'
 ]
 
 
@@ -54,41 +56,60 @@ key = (k, p) ->
 module.exports = (grunt) ->
 	require('time-grunt') grunt
 	require('load-grunt-tasks') grunt
+	require(__dirname+'/grunt-6to5') grunt # Load my custom grunt task
 
 	inProduction = process.env.NODE_ENV == 'production'
 
 	mapfiles = {}
 	uglifyfiles = {}
-	coffeefiles = {}
-	coffeefilesdebug = []
+	#coffeefiles = {}
+	coffeefiles = []
+	jsfiles = []
 	stylefiles = {}
-	watchcoffeefiles = []
-	lintfiles = []
+	watchscriptfiles = []
+	jslintfiles = []
+	coffeelintfiles = []
 
-	lintfiles.push 'src/coffee/**/*.coffee'
+	jslintfiles.push 'src/common/**/*.js'
+	coffeelintfiles.push 'src/common/**/*.coffee'
 
 	for own name, files of applications
 
-		uglifyfiles[distdir+'/js/'+name+'.min.js'] = [builddir+'/'+name+'.core.js']
+		
 
-		coffeefilesdebug.push
+		coffeefiles.push
 			expand: true
-			cwd: 'src/'+name+'/coffee'
+			cwd: 'src/'+name+'/script'
 			src: ['**/*.coffee']
 			dest: builddir+'/js/'+name
 			ext: '.js'
 
-		lintfiles.push 'src/'+name+'/coffee/**/*.coffee'
+		jsfiles.push
+			expand: true
+			cwd: 'src/'+name+'/script'
+			src: ['**/*.js']
+			dest: builddir+'/js/'+name
+			ext: '.js'
+
+		coffeelintfiles.push 'src/'+name+'/script/**/*.coffee'
+		jslintfiles.push 'src/'+name+'/script/**/*.js'
+		watchscriptfiles.push 'src/'+name+'/script/**/*.coffee'
+		watchscriptfiles.push 'src/'+name+'/script/**/*.js'
+
 		stylefiles[distdir+'/style/'+name+'.css'] = 'src/'+name+'/style/style.less'
-		coffeefiles[builddir+'/'+name+'.core.js'] = []
+		#coffeefiles[builddir+'/'+name+'.core.js'] = []
 		#coffeefilesdebug[distdir+'/js/'+name+'.min.js'] = []
 		mapfiles[distdir+'/js/'+name+'.min.js'] = []
 
+		#uglifyfiles[distdir+'/js/'+name+'.min.js'] = [builddir+'/'+name+'.core.js']
+		uglifyfiles[distdir+'/js/'+name+'.min.js'] = []
+
 		files.forEach (f, i) ->
-			coffeefiles[builddir+'/'+name+'.core.js'].push 'src/'+name+'/coffee/'+f+'.coffee'
-			#coffeefilesdebug[distdir+'/js/'+name+'.min.js'][i] = 'src/'+name+'/coffee/'+f+'.coffee'
+			#coffeefiles[builddir+'/'+name+'.core.js'].push 'src/'+name+'/script/'+f+'.coffee'
+			#coffeefilesdebug[distdir+'/js/'+name+'.min.js'][i] = 'src/'+name+'/script/'+f+'.coffee'
 
 			mapfiles[distdir+'/js/'+name+'.min.js'].push builddir+'/js/'+name+'/'+f+'.js.map'
+			uglifyfiles[distdir+'/js/'+name+'.min.js'].push builddir+'/js/'+name+'/'+f+'.js'
 
 
 	libs.forEach (f, i) ->
@@ -110,10 +131,19 @@ module.exports = (grunt) ->
 					#banner: '// <%= pkg.name %> - v<%= pkg.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %> */\n'
 				files: uglifyfiles
 
+			# debug:
+			# 	options:
+			# 		mangle: false
+			# 		beautify: true
+			# 		compress: false
+			# 		sourceMap: true
+			# 	files: jsfiles
+
 			libs:
 				options:
 					mangle: false
 					sourceMap: false
+					sourceRoot: "../../../.."
 				files: key distdir+'/js/libs.min.js', libs
 
 			common:
@@ -123,18 +153,31 @@ module.exports = (grunt) ->
 				files: key(distdir+'/js/common.min.js', [builddir+'/dust.js', builddir+'/common.js'])
 
 
+
+
 		coffee:
-			# TODO: Add debugging mode
 			debug:
 				options:
 					sourceMap: true
-				files: coffeefilesdebug
+				files: coffeefiles
 
 			release:
 				files: coffeefiles
 
 			common:
-				files: key(builddir+'/common.js', ['src/common/coffee/**/*.coffee'])
+				files: key(builddir+'/common.js', ['src/common/script/**/*.coffee'])
+
+		'6to5':
+			debug:
+				options:
+					sourceMap: true
+					runtime: true
+				files: jsfiles
+
+			release:
+				options:
+					runtime: true
+				files: jsfiles
 
 
 		mapcat:
@@ -145,7 +188,7 @@ module.exports = (grunt) ->
 		coffeelint:
 			app:
 				files:
-					src: lintfiles
+					src: coffeelintfiles
 				options:
 					force: true
 					no_tabs:
@@ -154,6 +197,24 @@ module.exports = (grunt) ->
 						level: 'ignore'
 					max_line_length:
 						level: 'ignore'
+
+		jshint:
+			app:
+				files:
+					src: jslintfiles
+				options:
+					force: true
+
+					strict: true
+					curly: true
+					eqeqeq: true
+					eqnull: true
+					browser: true
+					devel: true
+					undef: true
+					esnext: true
+					noarg: true
+
 
 		# sprite:
 		# 	default:
@@ -225,7 +286,7 @@ module.exports = (grunt) ->
 				]
 
 		copy:
-			jade:
+			html:
 				files: [
 					expand: true
 					cwd: builddir+'/html'
@@ -291,13 +352,17 @@ module.exports = (grunt) ->
 				'build:less'
 			]
 
+
+
 	if inProduction
 		gruntconfig.watch.core =
-			files: lintfiles
+			files: watchscriptfiles
 			tasks: [
+				'clean:js'
 				'coffee:release'
+				'6to5:release'
 				'uglify:release'
-				'coffeelint'
+				'lint'
 			]
 			options:
 				debounceDelay: 250
@@ -317,11 +382,11 @@ module.exports = (grunt) ->
 
 	else
 		gruntconfig.watch.core =
-			files: lintfiles
+			files: watchscriptfiles
 			tasks: [
 				'clean:js'
 				'debug'
-				'coffeelint'
+				'lint'
 			]
 			options:
 				debounceDelay: 250
@@ -338,8 +403,8 @@ module.exports = (grunt) ->
 				debounceDelay: 250
 				spawn: false
 
-		gruntconfig.watch.commoncoffe =
-			files: [commondir+'/coffee/**/*.coffee']
+		gruntconfig.watch.commoncoffee =
+			files: [commondir+'/script/**/*.coffee', commondir+'/script/**/*.js']
 			tasks: [
 				'coffee:common'
 				'uglify:common'
@@ -349,6 +414,9 @@ module.exports = (grunt) ->
 				spawn: false
 
 	grunt.initConfig gruntconfig
+
+
+
 
 	if inProduction
 		grunt.registerTask 'build:default', [
@@ -372,7 +440,7 @@ module.exports = (grunt) ->
 
 		grunt.registerTask 'build:jade', [
 			'jade:default'
-			'copy:jade'
+			'copy:html'
 		]
 
 		grunt.registerTask 'build:less', [
@@ -382,6 +450,11 @@ module.exports = (grunt) ->
 
 	grunt.registerTask 'default', ['build:default']
 	grunt.registerTask 'build', ['default']
+
+	grunt.registerTask 'lint', [
+		'jshint'
+		'coffeelint'
+	]
 
 	grunt.registerTask 'edit', [
 		'build:default'
@@ -393,6 +466,7 @@ module.exports = (grunt) ->
 	]
 
 	grunt.registerTask 'debug', [
+		'6to5:debug'
 		'coffee:debug'
 		'mapcat'
 	]
@@ -411,17 +485,18 @@ module.exports = (grunt) ->
 		'coffee:common'
 		'uglify:common'
 		'coffee:release'
+		'6to5:release'
 		'uglify:release'
 	]
 
 	grunt.registerTask 'build:production', [
 		'clean'
 		'concurrent:production'
-		'coffeelint'
+		'lint'
 	]
 
 	grunt.registerTask 'build:development', [
 		'clean'
 		'concurrent:development'
-		'coffeelint'
+		'lint'
 	]

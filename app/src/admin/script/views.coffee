@@ -1,16 +1,16 @@
 @App.module 'View', (View, App, Backbone, Marionette, $, _) ->
 
-	class View.TrackDrag extends Marionette.ItemView
+	class View.Track extends Marionette.ItemView
+		tagName: 'tr'
+		template: 'track-item'
+
 		attributes:
 			draggable: true # can't put in behavior
 
 		behaviors:
 			TrackDrag: {}
 			TrackSelect: {}
-
-	class View.Track extends View.TrackDrag
-		tagName: 'tr'
-		template: 'track-item'
+			TrackMenu: {}
 
 		events:
 			'click a': 'anchorClicked'

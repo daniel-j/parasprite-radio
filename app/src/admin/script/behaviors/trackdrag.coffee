@@ -47,6 +47,10 @@ class Behavior.TrackDrag extends Marionette.Behavior
 		canvas.width = w+20
 		canvas.height = h+8
 
+		ctx.fillStyle = 'white'
+		ctx.fillRect 0, 0, canvas.width, canvas.height
+
+		ctx.fillStyle = 'black'
 		ctx.textBaseline = 'middle'
 		ctx.font = font
 

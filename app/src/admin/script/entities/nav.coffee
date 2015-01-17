@@ -31,11 +31,19 @@
 				query: '#browseLayout'
 				module: 'Browse'
 
+			playlist: new Nav.MenuItem
+				title: "Playlist"
+				name: 'playlist'
+				path: 'playlist'
+				query: '#playlistLayout'
+				module: 'Playlist'
+
 		menu =
 			new Nav.Menu [
-					menuitems.index
+					#menuitems.index
 					menuitems.search
 					menuitems.browse
+					menuitems.playlist
 			]
 
 		App.reqres.setHandler "nav:menu:items", ->

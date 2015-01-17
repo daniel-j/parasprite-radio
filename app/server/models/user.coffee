@@ -1,6 +1,5 @@
 db = require '../db'
 
-
 API =
 	findById: (id, cb) ->
 		db.getConnection (err, conn) ->
@@ -42,6 +41,5 @@ API =
 					cb err, null
 				else
 					API.findById info.id, cb
-
 
 module.exports = API

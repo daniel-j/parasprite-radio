@@ -6,11 +6,14 @@ html
 		link(rel='stylesheet', type='text/css', href='/style/admin.css')
 
 	body
+		//- audio#audioTag(controls)
+				img#imgTag(height=100)		
 
-		audio#audioTag(controls)
-		img#imgTag(height=100)
-
-		#nav-region
+		#side-region
+			#nav-region
+			#playlistsLayout
+				strong Playlists:
+				#playlistsRegion
 
 		#content-region
 
@@ -35,6 +38,10 @@ html
 				#browsePath
 				#fileList
 
+			#playlistLayout
+				#playlistInfo
+				#playlistList
+
 
 
 		script(type="text/javascript", src="/js/libs.min.js")
@@ -42,4 +49,5 @@ html
 		script(type="text/javascript", src="/js/config.js")
 		script(type="text/javascript", src="/js/admin.min.js")
 
-		script(src="http://192.168.0.109:35729/livereload.js")
+		if env == 'development'
+			script(src="http://192.168.0.109:35729/livereload.js")

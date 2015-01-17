@@ -55,7 +55,6 @@
 					if path == '' then path = '/'
 					App.navigate 'browse'+encodeURI(path)
 
-
 			@layout.fileList.show @listView
 			@layout.browsePath.show @pathView
 

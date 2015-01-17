@@ -28,10 +28,10 @@ typeToMime = (type) ->
 imageFromFile = (filename, cb) ->
 	stream = fs.createReadStream filename
 	gotimg = false
-	allowed = ['.mp3', '.ogg', '.flac', '.wma']
-	if allowed.indexOf(path.extname(filename).toLowerCase()) == -1
-		cb 'non-allowed file type'
-		return
+	#allowed = ['.mp3', '.ogg', '.flac', '.wma']
+	#if allowed.indexOf(path.extname(filename).toLowerCase()) == -1
+	#	cb 'non-allowed file type'
+	#	return
 	
 	parser = mm stream
 	
@@ -107,7 +107,7 @@ module.exports = (app, passport, config, mpd) ->
 
 
 	defaultRouter.get '/', (req, res) ->
-		console.log req.session.cookie
+		#console.log req.session.cookie
 		res.sendFile 'index.html', htmloptions
 
 
@@ -152,6 +152,8 @@ module.exports = (app, passport, config, mpd) ->
 
 	adminRouter.get '/admin/*', (req, res) ->
 		res.sendFile 'admin.html', htmloptions
+	adminRouter.get '/admin', (req, res) ->
+		res.redirect '/admin/'
 
 
 	adminRouter.get '/api/update', (req, res) ->
@@ -174,12 +176,21 @@ module.exports = (app, passport, config, mpd) ->
 
 			res.json json
 
+	###
 	adminRouter.get '/api/albums', (req, res) ->
 		mpd.getAlbums (err, albums) ->
 			if err
 				json = []
 			else
 				json = albums
+			res.json json
+
+	adminRouter.get '/api/artists', (req, res) ->
+		mpd.getArtists (err, artists) ->
+			if err
+				json = []
+			else
+				json = artists
 			res.json json
 
 	adminRouter.get '/api/track', (req, res) ->
@@ -194,16 +205,34 @@ module.exports = (app, passport, config, mpd) ->
 					json = info
 
 				res.json json
+	###
 
 	adminRouter.get '/api/files/*', (req, res) ->
 		filename = cleanpath req.params[0]
 		mpd.lsinfo filename, (err, list) ->
 			if err
-					json = error: err
-				else
-					json = list
+				json = error: err
+			else
+				json = list
+			res.json json
 
-				res.json json
+	adminRouter.get '/api/playlists', (req, res) ->
+		mpd.getPlaylists (err, list) ->
+			if err
+				json = []
+			else
+				json = list
+			res.json json
+
+	adminRouter.get '/api/playlist/:name', (req, res) ->
+		name = req.params.name
+		mpd.getPlaylist name, (err, list) ->
+			if err
+				json = error: err
+			else
+				json = list
+			res.json json
+
 
 	adminRouter.get '/stream/*', (req, res) ->
 		filename = cleanpath req.params[0]

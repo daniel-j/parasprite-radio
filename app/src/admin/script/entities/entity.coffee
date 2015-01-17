@@ -93,9 +93,12 @@
 	class Entity.BrowsePath extends Backbone.Collection
 		model: Entity.BrowsePathItem
 
-	App.commands.setHandler 'play:track', (file) ->
-		imgTag = $('#imgTag')[0]
-		imgTag.src = '/api/set/'+file
-		audioTag = $('#audioTag')[0]
-		audioTag.src = '/stream/'+file
-		audioTag.play()
+
+	class Entity.Playlist extends Backbone.Collection
+		idAttribute: 'playlist'
+		url: ->
+			config.apiPath+"/playlist/"+encodeURI(@playlist)
+		
+	class Entity.Playlists extends Backbone.Collection
+		url: config.apiPath+'/playlists'
+

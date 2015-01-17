@@ -4,10 +4,12 @@
 	@addInitializer ->
 		Search.controller = new Search.Controller
 
+
 	class Search.Router extends Marionette.AppRouter
 		appRoutes:
 			'search/:type/*query': 'showSearchResult'
 			#'search/': 'showSearchResult'
+
 
 	class Search.Controller extends App.Base.Controller
 		initialize: (options) ->
@@ -17,7 +19,6 @@
 
 			@currentType = 'any'
 			@currentQuery = ''
-
 
 			@layout = @getLayout()
 

@@ -14,20 +14,24 @@ class Behavior.TracklistSelect extends Marionette.Behavior
 		if e.target.nodeName == 'A' or model.has 'directory'
 			return
 
-		if e.ctrlKey
+		if e.ctrlKey or e.metaKey
 			model.set 'selected', !model.get 'selected'
 			col.lastSelectedModel = model
 			e.preventDefault()
+			console.log 'ctrl'
 		else if e.shiftKey
 			@rangeSelection model
 			e.preventDefault()
+			console.log 'shift'
 		else if !model.get 'selected'
 			@clearSelection model.collection
 			model.set 'selected', true
 			col.lastSelectedModel = model
+			console.log 'a'
 		else
 			@canUp = true
 			col.lastSelectedModel = model
+			console.log 'b'
 
 	rowMouseUp: (view, e) ->
 		unless @canUp then return
@@ -68,7 +72,8 @@ class Behavior.TrackSelect extends Marionette.Behavior
 		@view.trigger 'mousedown:row', e
 
 	mouseUp: (e) ->
-		@view.trigger 'mouseup:row', e
+		if e.button == 0
+			@view.trigger 'mouseup:row', e
 
 	selectedChanged: ->
 		if @view.model.get 'selected'
