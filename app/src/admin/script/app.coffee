@@ -22,6 +22,7 @@
 		App.module('Playlist').start()
 		App.module('Search').start()
 		App.module('Browse').start()
+		App.module('Queue').start()
 
 		App.module('Nav').start
 			region: @navRegion
@@ -45,6 +46,21 @@
 		audioTag = $('#audioTag')[0]
 		audioTag.src = '/stream/'+file
 		audioTag.play()
+
+
+	$(document).ready () ->
+		$('#fullCalendar').fullCalendar
+			googleCalendarApiKey: 'AIzaSyCy9wZk9I3SmTV7PZB9oF7L9MbOHqThAcA'
+			events:
+				googleCalendarId: 'nj4dn0ck0u66t6f38qtqnj324k@group.calendar.google.com'
+
+			header:
+				left: 'prev,next today'
+				center: 'title'
+				right: 'month,agendaWeek,agendaDay'
+			defaultView: 'agendaWeek'
+			editable: false
+			weekNumbers: true
 
 
 	App

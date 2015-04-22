@@ -15,6 +15,13 @@ isAdmin = (req, res, next) ->
 		res.writeHead 401
 		res.end '401 Unauthorized'
 
+isInternal = (req, res, next) ->
+	if req.ip == "127.0.0.1" or req.ip == "::1"
+		next()
+	else
+		res.writeHead 401
+		res.end '401 Unauthorized. Only localhost!'
+
 typeToMime = (type) ->
 	switch type
 		when 'jpg' then type = 'image/jpeg'
@@ -23,6 +30,9 @@ typeToMime = (type) ->
 		else type = null
 	type
 
+cors = (res) ->
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
 
 imageFromFile = (filename, cb) ->
@@ -99,16 +109,25 @@ htmloptions =
 	maxAge: 365*24*60*60*1000
 
 
-module.exports = (app, passport, config, mpd) ->
+module.exports = (app, passport, config, mpd, liquid, icecast) ->
 	inDev = app.get('env') == 'development'
 
+	internalRouter = express.Router()
 	defaultRouter = express.Router()
 	adminRouter = express.Router()
+
+
+	internalRouter.post '/liquidsoap-meta', (req, res) ->
+		liquid.setMeta req.body
+		res.end('ok')
 
 
 	defaultRouter.get '/', (req, res) ->
 		#console.log req.session.cookie
 		res.sendFile 'index.html', htmloptions
+
+	defaultRouter.get '/stream', (req, res) ->
+		res.redirect config.streamurl
 
 
 	defaultRouter.get '/login', (req, res) ->
@@ -131,7 +150,6 @@ module.exports = (app, passport, config, mpd) ->
 		res.redirect '/'
 
 
-
 	defaultRouter.get '/api/user', (req, res) ->
 		user = req.user or {}
 		json =
@@ -146,8 +164,44 @@ module.exports = (app, passport, config, mpd) ->
 	defaultRouter.get '/api/flash/:name', (req, res) ->
 		res.json req.flash req.params.name
 
+	defaultRouter.get '/api/now/art/:size', (req, res) ->
+		size = req.params.size
+		sizes = ['tiny', 'small', 'medium', 'full']
+		if sizes.indexOf(size) == -1
+			res.status(404).end('That image size was not found')
+			return
+		fs.readFile __dirname+'/../util/now/type.txt', (err, data) ->
+			if err
+				res.sendFile 'pr-cover-'+size+'.png', root: __dirname + '/../www/img/cover/'
+			else
+				if size == 'tiny'
+					res.sendFile 'image-tiny.png', root: __dirname+'/../util/now/'
+				else if size == 'small'
+					res.sendFile 'image-small.png', root: __dirname+'/../util/now/'
+				else if size == 'full'
+					res.setHeader "Content-Type", data.toString()
+					res.sendFile 'image-full', root: __dirname+'/../util/now/'
+				else
+					res.redirect 'full'
+					#res.status(404).end('That image size was not found')
 
+	defaultRouter.get '/api/now/json', (req, res) ->
+		cors(res)
+		res.setHeader "Content-Type", "application/json"
+		res.sendFile 'json', root: __dirname+'/../util/now/'
 
+	defaultRouter.get '/api/status', (req, res) ->
+		cors(res)
+		o =
+			meta: liquid.getMeta()
+			info: icecast.getInfo()
+		res.json o
+
+	defaultRouter.get '/api/icecast/json', (req, res) ->
+		cors(res)
+		res.setHeader "Content-Type", "application/json"
+		json = icecast.getInfo()
+		res.json json
 
 
 	adminRouter.get '/admin/*', (req, res) ->
@@ -255,7 +309,7 @@ module.exports = (app, passport, config, mpd) ->
 		stream.on 'error', (err) ->
 			res.end ''+err
 
-	adminRouter.get '/api/set/*', (req, res) ->
+	###adminRouter.get '/api/set/*', (req, res) ->
 		filename = cleanpath req.params[0]
 		imageFromFile path.join(config.media_dir, filename), (err, type, data) ->
 			if err
@@ -264,7 +318,7 @@ module.exports = (app, passport, config, mpd) ->
 				res.setHeader "Content-Type", type
 				res.end data
 		
-		###id3 {file: config.media_dir+'/'+filename, type: id3.OPEN_LOCAL}, (err, tags) ->
+		##id3 {file: config.media_dir+'/'+filename, type: id3.OPEN_LOCAL}, (err, tags) ->
 			if err
 				res.status(500).end err+''
 			else
@@ -276,15 +330,39 @@ module.exports = (app, passport, config, mpd) ->
 				else
 					res.end 'no image data'###
 
+	adminRouter.get '/api/queue/list', (req, res) ->
+		liquid.queue.getList (err, list) ->
+			if err
+				json = error: err
+			else
+				json = list
+			res.json json
+
+	adminRouter.get '/api/queue/add/*', (req, res) ->
+		filename = cleanpath req.params[0]
+		liquid.queue.add filename, (err) ->
+			if err
+				json = error: err
+			else
+				json = error: null
+			res.json json
+
+	adminRouter.get '/api/announce/message/*', (req, res) ->
+		liquid.announceMessage req.params[0], (err) ->
+			if err
+				json = error: err
+			else
+				json = error: null
+			res.json json
 
 
 	app.use '/', defaultRouter
-	app.use '/js/', express.static __dirname + '/../dist/js/', { maxAge: 365*24*60*60*1000 }
-	app.use '/style/', express.static __dirname + '/../dist/style/', { maxAge: 365*24*60*60*1000 }
+	app.use '/dist/', express.static __dirname + '/../dist/', { maxAge: 365*24*60*60*1000 }
 
 	if inDev
 		app.use '/src/', express.static __dirname + '/../src/', { maxAge: 365*24*60*60*1000 }
 
 	app.use '/', express.static __dirname + '/../www', { maxAge: 365*24*60*60*1000 }
 
+	app.use '/', isInternal, internalRouter
 	app.use '/', isAdmin, adminRouter

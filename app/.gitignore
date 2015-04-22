@@ -4,3 +4,4 @@ lib/bower/
 build/
 *.sublime-project
 *.sublime-workspace
+.sass-cache

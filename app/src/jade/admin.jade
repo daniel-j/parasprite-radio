@@ -3,7 +3,7 @@ html
 	head
 		meta(charset='utf-8')
 		title Admin Dashboard
-		link(rel='stylesheet', type='text/css', href='/style/admin.css')
+		link(rel='stylesheet', type='text/css', href='/dist/style/admin.css')
 
 	body
 		//- audio#audioTag(controls)
@@ -42,12 +42,17 @@ html
 				#playlistInfo
 				#playlistList
 
+			#scheduleLayout
+				#fullCalendar
+
+			#queueLayout
+				#queueList
 
 
-		script(type="text/javascript", src="/js/libs.min.js")
-		script(type="text/javascript", src="/js/common.min.js")
-		script(type="text/javascript", src="/js/config.js")
-		script(type="text/javascript", src="/js/admin.min.js")
+
+		script(type="text/javascript", src="/dist/js/libs.min.js")
+		script(type="text/javascript", src="/dist/js/common.min.js")
+		script(type="text/javascript", src="/dist/js/admin.min.js")
 
 		if env == 'development'
 			script(src="http://192.168.0.109:35729/livereload.js")

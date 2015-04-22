@@ -10,43 +10,25 @@ function createConfig {
 	cp -n liq/credentials.default.liq liq/credentials.liq
 }
 
-getopts ":d" opt
+echo "Installing dependencies and building Parasprite Radio..."
 
-if [ $opt = "d" ]
-then
+createConfig
 
-	echo "Installing for DEVELOPMENT"
+cd app
 
-	createConfig
+echo "Installing node dependencies..."
+npm install
 
-	cd app
+echo "Installing bower packages..."
+bower install
 
-	echo "Installing node dependencies..."
-	npm install
+echo "Updating app/libs/bower/"
+grunt bower
 
-	echo "Installing bower packages..."
-	bower install
+echo "Building app for development"
+grunt build
 
-	echo "Updating app/libs/bower/"
-	grunt bower
+echo "Done! Now edit config.json, setup Redis and a MySQL server. Start server with ./radio -d (remove the -d when in production)"
 
-	echo "Building app for development"
-	grunt build
 
-	echo "Done! Now edit config.json, setup Redis and a MySQL server. Start server with ./radio -d"
-
-else
-
-	echo "Installing for PRODUCTION"
-
-	createConfig
-
-	cd app
-
-	echo "Installing node dependencies..."
-	npm install --production
-
-	echo "Done! Now edit config.json, setup Redis and a MySQL server. Start server with ./radio"
-
-fi
 

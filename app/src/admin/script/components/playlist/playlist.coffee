@@ -8,7 +8,7 @@
 		appRoutes:
 			'playlist/*name': 'showPlaylist'
 
-	class Playlist.Controller extends App.Base.Controller
+	class Playlist.Controller extends Base.Controller
 		initialize: (options) ->
 
 			new Playlist.Router

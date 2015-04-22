@@ -14,7 +14,7 @@
 
 		events:
 			'click a': 'anchorClicked'
-			'dblclick': 'doubleClicked'
+			'click': 'doubleClicked'
 
 		templateHelpers: ->
 			if !@model.get('directory')

@@ -23,12 +23,15 @@ compression = require 'compression'
 passport = require 'passport'
 flash = require 'connect-flash'
 session = require 'express-session'
+bodyParser = require 'body-parser'
 RedisStore = require('connect-redis')(session)
 cookieParser = require 'cookie-parser'
 #lessMiddleware = require 'less-middleware'
 
 require(__dirname+'/passport')(passport)
 mpd = require(__dirname+'/mpd')(config)
+liquid = require(__dirname+'/liquid')(config)
+icecast = require(__dirname+'/icecast')(config)
 
 # handle the arguments
 config.port = args.port
@@ -42,7 +45,6 @@ app = express()
 inDev = app.get('env') == 'development'
 
 redisStore = new RedisStore config.redis
-
 
 app.use logger 'dev'
 app.use favicon __dirname + '/../www/img/icons/favicon.ico'
@@ -60,6 +62,8 @@ app.use passport.initialize()
 app.use passport.session()
 app.use flash()
 
+app.use bodyParser.json() # for parsing application/json
+
 app.use compression()
 app.set 'views', __dirname + '/views'
 
@@ -72,7 +76,7 @@ app.set 'views', __dirname + '/views'
 # 	once: !inDev
 
 
-require(__dirname+'/routes')(app, passport, config, mpd)
+require(__dirname+'/routes')(app, passport, config, mpd, liquid, icecast)
 
 
 #	# No stacktraces
@@ -92,5 +96,5 @@ require(__dirname+'/routes')(app, passport, config, mpd)
 
 
 # launch the server!
-server = app.listen config.port, ->
+server = app.listen config.port, "0.0.0.0", ->
 	console.log 'Parasprite Radio http server listening on port %d', server.address().port

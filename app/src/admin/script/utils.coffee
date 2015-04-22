@@ -15,3 +15,10 @@
 	
 	App.reqres.setHandler "format:time", (s) ->
 		readableTime s
+
+
+	App.commands.setHandler "queue:track", (track) ->
+		path = track.get 'file'
+		$.ajax
+			url: config.apiPath+"/queue/add/"+encodeURI(path).replace(/#/, "%23")
+

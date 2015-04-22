@@ -3,7 +3,7 @@
 Backbone.Marionette.Renderer.render = (template, data) ->
 
 	template || throwError("Cannot render the template since its false, "+
-		"null or undefined.","TemplateNotFoundError");
+		"null or undefined.","TemplateNotFoundError")
 
 	html = null
 	# Template must be compiled and in the dust cache. Recommend pre-compiling
@@ -13,6 +13,6 @@ Backbone.Marionette.Renderer.render = (template, data) ->
 			console.error err
 			html = err
 		else
-			html = out;
+			html = out
 	
 	html

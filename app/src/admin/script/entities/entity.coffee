@@ -88,7 +88,7 @@
 		url: ->
 			while @path.indexOf('/') == 0
 				@path = @path.substr 1
-			config.apiPath+"/files/"+encodeURI(@path)
+			config.apiPath+"/files/"+encodeURI(@path).replace(/#/, "%23")
 
 	class Entity.BrowsePath extends Backbone.Collection
 		model: Entity.BrowsePathItem
@@ -97,8 +97,13 @@
 	class Entity.Playlist extends Backbone.Collection
 		idAttribute: 'playlist'
 		url: ->
-			config.apiPath+"/playlist/"+encodeURI(@playlist)
+			config.apiPath+"/playlist/"+encodeURI(@playlist).replace(/#/, "%23")
 		
 	class Entity.Playlists extends Backbone.Collection
 		url: config.apiPath+'/playlists'
+
+	class Entity.QueueList extends Backbone.Collection
+		idAttribute: 'rid'
+		url: ->
+			config.apiPath+"/queue/list"
 

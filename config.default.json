@@ -1,6 +1,24 @@
 {
 	"port": 8000,
-	"media_dir": "",
+	"media_dir": "/audio",
+
+	"title": "Parasprite Radio",
+	"baseurl": "http://radiodev.djazz.se/",
+	"streamurl": "http://icecast.djazz.se:5000/radio",
+
+	"icecast": {
+		"host": "localhost",
+		"port": 8000,
+		"mounts": ["radio", "radio_mobile"],
+		"username": "admin",
+		"password": "hackme"
+	},
+
+	"liquidsoap": {
+		"host": "localhost",
+		"port": 1234,
+		"harbor_port": 7000
+	},
 
 	"mpd": {
 		"host": "localhost",
@@ -14,6 +32,7 @@
 		"password": "",
 		"database": "paraspriteradio"
 	},
+
 	"redis": {
 		"host": "localhost",
 		"port": 6379,

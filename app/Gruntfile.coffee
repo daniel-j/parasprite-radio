@@ -8,7 +8,9 @@ libs = [
 	'bower/backbone/backbone'
 	'bower/marionette/backbone.marionette'
 	'bower/moment/moment.min'
-	'dust-runtime'
+	'bower/fullcalendar/fullcalendar.min'
+	'bower/fullcalendar/gcal'
+	'../build/dust-runtime'
 	'../node_modules/6to5/runtime'
 	'../node_modules/6to5/browser-polyfill'
 ]
@@ -32,10 +34,6 @@ applications =
 	admin: structure
 
 
-jadedata =
-	env: process.env.NODE_ENV || 'development'
-
-
 builddir = 'build'
 distdir = 'dist' # put the compiled code here
 libdir = 'lib'
@@ -54,9 +52,13 @@ key = (k, p) ->
 	o
 
 module.exports = (grunt) ->
-	require('time-grunt') grunt
+	#require('time-grunt') grunt
 	require('load-grunt-tasks') grunt
 	require(__dirname+'/grunt-6to5') grunt # Load my custom grunt task
+
+	jadedata =
+		config: grunt.file.readJSON '../config.json'
+		env: process.env.NODE_ENV || 'development'
 
 	inProduction = process.env.NODE_ENV == 'production'
 
@@ -72,10 +74,10 @@ module.exports = (grunt) ->
 
 	jslintfiles.push 'src/common/**/*.js'
 	coffeelintfiles.push 'src/common/**/*.coffee'
+	watchscriptfiles.push 'src/common/**/*.coffee'
+	watchscriptfiles.push 'src/common/**/*.js'
 
 	for own name, files of applications
-
-		
 
 		coffeefiles.push
 			expand: true
@@ -96,7 +98,7 @@ module.exports = (grunt) ->
 		watchscriptfiles.push 'src/'+name+'/script/**/*.coffee'
 		watchscriptfiles.push 'src/'+name+'/script/**/*.js'
 
-		stylefiles[distdir+'/style/'+name+'.css'] = 'src/'+name+'/style/style.less'
+		stylefiles[distdir+'/style/'+name+'.css'] = 'src/'+name+'/style/style.scss'
 		#coffeefiles[builddir+'/'+name+'.core.js'] = []
 		#coffeefilesdebug[distdir+'/js/'+name+'.min.js'] = []
 		mapfiles[distdir+'/js/'+name+'.min.js'] = []
@@ -114,7 +116,6 @@ module.exports = (grunt) ->
 
 	libs.forEach (f, i) ->
 		libs[i] = libdir+'/'+f+'.js'
-
 
 
 	gruntconfig =
@@ -227,17 +228,33 @@ module.exports = (grunt) ->
 		# 		cssTemplate: 'src/less/sprites.less.mustache'
 
 
-		less:
+		# less:
+		# 	development:
+		# 		options:
+		# 			sourceMap: true
+		# 			sourceMapFileInline: true
+		# 		files: stylefiles
+
+		# 	production:
+		# 		options:
+		# 			#paths: [lessdir]
+		# 			cleancss: true
+		# 			compress: true
+
+		# 		files: stylefiles
+
+		sass:
 			development:
+				options:
+					style: 'expanded'
+
 				files: stylefiles
 
 			production:
 				options:
-					#paths: [lessdir]
-					cleancss: true
-					compress: true
-
-				files: stylefiles
+					sourcemap: 'none'
+					style: 'compressed'
+					noCache: true
 
 
 		dust:
@@ -246,6 +263,13 @@ module.exports = (grunt) ->
 					wrapper: false
 					basePath: tpldir
 					runtime: false
+				files: key(builddir+'/dust.js', [tpldir+'/**/*.dust'])
+
+			runtime:
+				options:
+					wrapper: false
+					basePath: tpldir
+					runtime: true
 				files: key(builddir+'/dust.js', [tpldir+'/**/*.dust'])
 
 
@@ -310,29 +334,27 @@ module.exports = (grunt) ->
 						production: true
 
 		watch:
+			options:
+				spawn: false
+				debounceDelay: 250
 
 			#	gruntfile:
 			#		files: ['Gruntfile.coffee']
 
 
 			jade:
-				files: [jadedir+'/**/*.jade']
+				files: [jadedir+'/**/*.jade', '../config.json']
 				tasks: [
 					'build:jade'
 				]
-				options:
-					debounceDelay: 250
-					spawn: false
 
-			less:
+			sass:
 			#	files: ['src/**/*.less', spritedir+'/**/*.png']
-				files: ['src/*/style/**/*.less', 'common/style/**/*.less']
+				files: ['src/*/style/**/*.scss']
 				tasks: [
-					'build:less'
+					'build:sass'
 				]
 				options:
-					debounceDelay: 250
-					spawn: false
 					livereload: true
 
 			# env specific watchers below
@@ -344,12 +366,12 @@ module.exports = (grunt) ->
 			production: [
 				'build:release'
 				'build:jade'
-				'build:less'
+				'build:sass'
 			]
 			development: [
 				'build:debug'
 				'build:jade'
-				'build:less'
+				'build:sass'
 			]
 
 
@@ -364,20 +386,14 @@ module.exports = (grunt) ->
 				'uglify:release'
 				'lint'
 			]
-			options:
-				debounceDelay: 250
-				spawn: false
 
 		gruntconfig.watch.tpl =
 			files: [tpldir+'/**/*.dust']
 			tasks: [
-				'dust'
+				'dust:default'
 				'coffee:common'
 				'uglify:common'
 			]
-			options:
-				debounceDelay: 250
-				spawn: false
 
 
 	else
@@ -388,20 +404,14 @@ module.exports = (grunt) ->
 				'debug'
 				'lint'
 			]
-			options:
-				debounceDelay: 250
-				spawn: false
 
 		gruntconfig.watch.tpl =
 			files: [tpldir+'/**/*.dust']
 			tasks: [
-				'dust'
+				'dust:default'
 				'coffee:common'
 				'uglify:common'
 			]
-			options:
-				debounceDelay: 250
-				spawn: false
 
 		gruntconfig.watch.commoncoffee =
 			files: [commondir+'/script/**/*.coffee', commondir+'/script/**/*.js']
@@ -409,9 +419,6 @@ module.exports = (grunt) ->
 				'coffee:common'
 				'uglify:common'
 			]
-			options:
-				debounceDelay: 250
-				spawn: false
 
 	grunt.initConfig gruntconfig
 
@@ -428,9 +435,9 @@ module.exports = (grunt) ->
 			'htmlmin:jade'
 		]
 
-		grunt.registerTask 'build:less', [
+		grunt.registerTask 'build:sass', [
 		#	'sprite'
-			'less:production'
+			'sass:production'
 		]
 
 	else
@@ -443,9 +450,9 @@ module.exports = (grunt) ->
 			'copy:html'
 		]
 
-		grunt.registerTask 'build:less', [
+		grunt.registerTask 'build:sass', [
 		#	'sprite'
-			'less:development'
+			'sass:development'
 		]
 
 	grunt.registerTask 'default', ['build:default']
@@ -472,16 +479,16 @@ module.exports = (grunt) ->
 	]
 
 	grunt.registerTask 'build:debug', [
+		'dust:runtime'
 		'libs'
-		'dust'
 		'coffee:common'
 		'uglify:common'
 		'debug'
 	]
 
 	grunt.registerTask 'build:release', [
+		'dust:runtime'
 		'libs'
-		'dust'
 		'coffee:common'
 		'uglify:common'
 		'coffee:release'
@@ -491,12 +498,18 @@ module.exports = (grunt) ->
 
 	grunt.registerTask 'build:production', [
 		'clean'
-		'concurrent:production'
+		#'concurrent:production'
+		'build:release'
+		'build:jade'
+		'build:sass'
 		'lint'
 	]
 
 	grunt.registerTask 'build:development', [
 		'clean'
-		'concurrent:development'
+		#'concurrent:development'
+		'build:debug'
+		'build:jade'
+		'build:sass'
 		'lint'
 	]

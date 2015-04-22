@@ -5,7 +5,7 @@
 	@addInitializer (options) ->
 		new Nav.Controller options
 
-	class Nav.Controller extends App.Base.Controller
+	class Nav.Controller extends Base.Controller
 		initialize: (options) ->
 			@contentRegion = options.contentRegion
 

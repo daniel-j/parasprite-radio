@@ -11,7 +11,7 @@
 			#'search/': 'showSearchResult'
 
 
-	class Search.Controller extends App.Base.Controller
+	class Search.Controller extends Base.Controller
 		initialize: (options) ->
 
 			new Search.Router

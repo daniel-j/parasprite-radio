@@ -8,7 +8,7 @@
 		appRoutes:
 			'browse/*path': 'showPath'
 
-	class Browse.Controller extends App.Base.Controller
+	class Browse.Controller extends Base.Controller
 		initialize: (options) ->
 
 			new Browse.Router

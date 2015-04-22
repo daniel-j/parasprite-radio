@@ -74,6 +74,7 @@ class Behavior.TrackDrag extends Marionette.Behavior
 	drop: (e) ->
 		e.preventDefault()
 		@leave e
+		console.log "drop!", e
 		#currentIndex = @$el.index()
 
 		#@model.collection.remove @parent.draggedModel

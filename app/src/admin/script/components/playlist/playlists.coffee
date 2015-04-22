@@ -5,7 +5,7 @@
 		Playlists.controller = new Playlists.Controller
 		
 
-	class Playlists.Controller extends App.Base.Controller
+	class Playlists.Controller extends Base.Controller
 		initialize: (options) ->
 
 			@layout = @getLayout()

@@ -31,6 +31,13 @@
 				query: '#browseLayout'
 				module: 'Browse'
 
+			queue: new Nav.MenuItem
+				title: "Queue"
+				name: 'queue'
+				path: "queue"
+				query: '#queueLayout'
+				module: 'Queue'
+
 			playlist: new Nav.MenuItem
 				title: "Playlist"
 				name: 'playlist'
@@ -38,12 +45,21 @@
 				query: '#playlistLayout'
 				module: 'Playlist'
 
+			schedule: new Nav.MenuItem
+				title: "Schedule"
+				name: 'schedule'
+				path: 'schedule'
+				query: '#scheduleLayout'
+				module: 'Schedule'
+
 		menu =
 			new Nav.Menu [
 					#menuitems.index
 					menuitems.search
 					menuitems.browse
+					menuitems.queue
 					menuitems.playlist
+					menuitems.schedule
 			]
 
 		App.reqres.setHandler "nav:menu:items", ->

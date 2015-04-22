@@ -1,67 +1,73 @@
 //- Config
-- var title = "Parasprite Radio"
 
 doctype html
 html
 	head
 		meta(charset='utf-8')
-		meta(name='og:title', content='#{title}')
-		meta(name='og:image', content='http://radio.djazz.se/img/parasprite-radio.png')
-		meta(name='og:url', content='http://radio.djazz.se')
-		meta(name='og:description', content='Tune in to #{title}!')
+		meta(name='og:title', content='#{config.title}')
+		meta(name='og:image', content='#{config.baseurl}img/icons/parasprite-radio.png')
+		meta(name='og:url', content='#{config.baseurl}')
+		meta(name='og:description', content='Tune in to #{config.title}!')
 
-		title #{title}
+		title #{config.title}
 
 		link(rel='icon', type='image/x-icon', href='/favicon.ico')
-		link(rel='stylesheet', type='text/css', href='/style/main.css')
+		link(rel='stylesheet', type='text/css', href='/dist/style/main.css')
 	body
 
 		#top
 			.container
-				a(href="/")
-					img#logo(src="img/icons/parasprite-radio.png", alt="#{title}")
+				a(href='/')
+					img#logo(src='img/icons/parasprite-radio.png', alt='#{config.title}')
 				.left
 					h1
-						a(href="/") #{title}
+						a(href='/') #{config.title}
 					#subtitle by 
-						a(href="https://twitter.com/daniel_hede", target="_blank") djazz
+						a(href='https://twitter.com/daniel_hede', target='_blank') djazz
 
-				.player
+				#player
+					a(href='/api/now/art/full', target='_blank')
+						img#cover(src='/api/now/art/tiny')
+
 					button#playstopbtn Play
 					.right.textright
 						#nowplayingwrap
-							#nowplayingshadow
-								marquee(scrollamount=3, scrolldelay=60)
-									#nowplaying
+							#nowtitle
+							#nowartist
+
+						#popout
+							//- TODO: Remove inline JavaScript!
+							a(href='/popup', target='_blank', onclick="stopRadio(); window.open('popup.php', 'parasprite-radio-popout','width=450,height=240,left=300,top=100'); return false;")
+								img(src='img/icons/popout.svg')
 						#volume
 							div
-								input#radioVolume(type="range", min=0, max=1, step=0.01, value=1)
+								input#radioVolume(type='range', min=0, max=1, step=0.01, value=0.8)
 						#visualizer
 						.legend
 							span#listenercount
-							//- TODO: Remove inline JavaScript!
-							a(href="/popup.php", target="_blank", onclick="stopRadio(); window.open('popup.php', 'parasprite-radio-popout', 'width=400,height=220,left=300,top=100'); return false;") popout
+							img.listenersicon(src='img/icons/listeners.png')
 
-		#navigation
-			.container
-				nav#mainmenu
-					span#menuHistory.current(data-page="pageHistory") Play History
-					span#menuPlaylist(data-page="pagePlaylist") Playlist
-					a#menuLivestream(href="http://djazz.se/live/") Livestream
-					
-					a#menuLogout(href="/logout") Logout 
-					
-					a#menuLogout(href="/admin/") Admin
-					
-					a#menuLogin(href="/login") Login
+
+		#navigation.container
+
+			nav#mainmenu
+				a#menuHistory.current(data-page='pageHistory') Play History
+				a#menuPlaylist(data-page='pagePlaylist') Playlist
+				a#menuLivestream(href='http://djazz.se/live/', target='_blank') Livestream
+
+				div(class='right')
+					a#menuLogin(href='/login') Login
+					a#menuLogout(href='/logout') Logout
+					a#menuAdmin(href='/admin/') Admin
+
 
 		#content
 			.container
 				//- TODO: Remove inline CSS
-				.page-wrapper(style="height: 350px; overflow: auto;")
+				.page-wrapper(style='height: 350px; overflow: auto;')
 					#pageHistory
 						div
-							string Recently played tracks
+							strong Recently played tracks
 						table#playhistorytable.trackstable
 							thead
 								tr
@@ -71,7 +77,7 @@ html
 									th
 							tbody#playhistory
 					//- TODO: Remove inline CSS
-					#pagePlaylist(style="display: none;")
+					#pagePlaylist(style='display: none;')
 						div
 							strong
 								span The radio has 
@@ -86,10 +92,72 @@ html
 									th
 									th
 							tbody#playlist
-				//- TODO: Remove inline CSS
-				//- iframe#chat(src="https://kiwiirc.com/client/irc.canternet.org/?nick=Pony_?&amp;theme=cli#BronyTalk", style="width:100%; height:450px; border: none;")
 
-		script(type="text/javascript", src="/js/libs.min.js")
-		script(type="text/javascript", src="/js/common.min.js")
-		script(type="text/javascript", src="/js/config.js")
-		script(type="text/javascript", src="/js/main.min.js")
+				//- TODO: Remove inline CSS
+				iframe#chat(src='https://kiwiirc.com/client/irc.canternet.org/?nick=Pony_?&theme=cli#BronyTalk', style='width:100%; height:450px; border: none;')
+
+				.page-wrapper
+					//- TODO: Remove inline CSS
+					strong(style='font-size: 18px; margin-left: 12px;') Friends & tech:
+					#badges
+						a(target='_blank', href='http://www.bronydom.net/')
+							img(src='http://www.bronydom.net/resources/Affiliate_Logo.png')
+						a(target='_blank', href='http://canternet.org')
+							img(src='http://i.imgur.com/s3nSkSn.png')
+						a(target='_blank', href='https://eqbeats.org')
+							img(src='http://i.imgur.com/MJ82ZhS.png')
+
+						a(target='_blank', href='http://liquidsoap.fm/')
+							img(src='http://i.imgur.com/qdHKMWs.png')
+						a(target='_blank', href='http://nodejs.org')
+							img(src='http://i.imgur.com/sjAgFEW.png')
+						a(target='_blank', href='http://icecast.org/')
+							img(src='http://i.imgur.com/6pF2Nbz.png')
+
+					a(target='_blank', href='http://tun.in/sffEA') TuneIn
+					= ' - '
+					a(target='_blank', href='http://www.last.fm/user/djazzradio') last.fm page
+					= ' - '
+					a(target='_blank', href='http://www.last.fm/user/djazzradio/library') music library
+					= ' - '
+					a(target='_blank', href='http://www.last.fm/user/djazzradio/tracks') full play history
+					= ' - '
+					a(target='_blank', href='http://www.last.fm/user/djazzradio/library/recent') recently added tracks
+					= ' - '
+					a(target='_blank', href='img/parasprite-radio-badge.png') parasprite radio badge
+
+					br
+					br
+
+					| Direct stream url (for VLC and other media players): #{''}
+					a(target='_blank', href='#{config.baseurl}stream') #{config.baseurl}stream
+
+					br
+
+					= 'Powered by '
+					a(target='_blank', href='http://liquidsoap.fm') Liquidsoap
+					= ', '
+					a(target='_blank', href='http://nodejs.org') node.js
+					= ', '
+					a(target='_blank', href='http://www.icecast.org') Icecast
+					= ', '
+					a(target='_blank', href='http://www.musicpd.org') MPD
+					= ' and '
+					a(target='_blank', href='http://www.last.fm') last.fm
+
+
+		script.
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+			ga('create', 'UA-5181445-5', 'auto');
+			ga('send', 'pageview');
+
+		script(type='text/javascript', src='/dist/js/libs.min.js')
+		script(type='text/javascript', src='/dist/js/common.min.js')
+		script(type='text/javascript', src='/dist/js/main.min.js')
+
+		if env == 'development'
+			script(src='http://192.168.0.109:35729/livereload.js')
