@@ -10,7 +10,7 @@ def tunein.submit(~partner_id="",~partner_key="",~station_id="",m)
 
 		if title != "" and artist != "" then
 			url = "#{server}?partnerId="^url.encode(partner_id)^"&partnerKey="^url.encode(partner_key)^"&id="^url.encode(station_id)^"&title="^url.encode(title)^"&artist="^url.encode(artist)^"&album="^url.encode(album)
-			print(http.get(url))
+			ignore(http.get(url))
 		end
 	end
 end

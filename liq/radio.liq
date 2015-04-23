@@ -105,7 +105,7 @@ def get_meta(~protocol,~data,~headers,uri) =
 end
 
 # playlists
-songs = mksafe(audio_to_stereo(playlist(reload_mode="watch", reload=600, prefix="/mnt/", "/home/djazz/.mpd/playlists/radio.m3u")))
+songs = mksafe(audio_to_stereo(playlist(reload_mode="watch", reload=600, prefix="/audio/", "/home/djazz/.mpd/playlists/radio.m3u")))
 friendship = audio_to_stereo(playlist(reload_mode="watch", reload=600, "friendship.m3u"))
 
 # queue: requests; announce: plays over music
@@ -152,46 +152,45 @@ source = smart_crossfade(start_next=2., fade_in=2., fade_out=3., width=3., sourc
 
 
 
-
-
-
-output.icecast(
-	%mp3.abr(
-		bitrate = 320,
-		stereo_mode = "joint_stereo",
-		internal_quality = 3,
-		id3v2 = true
-	),
-
+out = output.icecast(
 	host     = icecast_host,
 	port     = icecast_port,
-
-	mount    = "radio",
 	password = icecast_password,
 
 	name        = radio_name,
 	description = description,
 	url         = radio_url,
 	genre       = radio_genre,
-	encoding    = encoding,
+	encoding    = encoding
+)
 
+
+out(
+	mount = "radio",
+	%mp3.cbr(
+		bitrate = 320,
+		stereo_mode = "joint_stereo",
+		internal_quality = 0,
+		id3v2 = true
+	),
 	source
 )
 
-output.icecast(
-	%fdkaac(bitrate=64),
+out(
+	mount = "radio_mobile",
+	%fdkaac(
+		bitrate = 64
+	),
+	source
+)
 
-	host     = icecast_host,
-	port     = icecast_port,
-
-	mount    = "radio_mobile",
-	password = icecast_password,
-
-	name        = radio_name,
-	description = description,
-	url         = radio_url,
-	genre       = radio_genre,
-	encoding    = encoding,
-
+out(
+	mount = "radio_flac",
+	%ogg(%flac(
+		samplerate  = 44100,
+		channels    = 2,
+		compression = 7
+	)),
+	start = false,
 	source
 )
