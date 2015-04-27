@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+'use strict';
 
 var url = require('url')
 var https = require('https')
@@ -26,7 +27,7 @@ function fetchJSON(url, callback) {
 	})
 }
 
-var root = "https://eqbeats.org";
+var root = "https://eqbeats.org"
 
 var u = url.parse(process.argv[2], true)
 
@@ -49,10 +50,10 @@ function handleAPI(url, cb) {
 }
 
 function outputTrack(track) {
-	var id = track.id;
-	var arturl = track.download.art || track.artist.avatar;
+	var id = track.id
+	var arturl = track.download.art || track.artist.avatar
 
-	console.log('annotate:title='+JSON.stringify(track.title)+',artist='+JSON.stringify(track.artist.name)+',url='+JSON.stringify(track.link)+(arturl?',art="https://eqbeats.org/track/'+id+'/art"':'')/*+(track.description?',comment='+JSON.stringify(track.description):'')*/+':https://eqbeats.org/track/'+id+'/mp3?file.mp3');
+	console.log('annotate:title='+JSON.stringify(track.title)+',artist='+JSON.stringify(track.artist.name)+',url='+JSON.stringify(track.link)+(arturl?',art="https://eqbeats.org/track/'+id+'/art"':'')/*+(track.description?',comment='+JSON.stringify(track.description):'')*/+':https://eqbeats.org/track/'+id+'/mp3?file.mp3')
 }
 
 function outputFirstTrack(tracks) {

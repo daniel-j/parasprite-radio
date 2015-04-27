@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+'use strict';
 
 var url = require('url')
 var https = require('https')
@@ -26,7 +27,7 @@ function fetchJSON(url, callback) {
 	})
 }
 
-var root = "https://pony.fm";
+var root = "https://pony.fm"
 
 var u = url.parse(process.argv[2], true)
 
@@ -56,7 +57,7 @@ function outputTrack(info) {
 
 	var audiourl = root+"/t"+id+"/dl.mp3"
 
-	console.log('annotate:title='+JSON.stringify(track.title)+',artist='+JSON.stringify(track.user.name)+',url='+JSON.stringify(track.url)+(arturl?',art="'+arturl+'"':'')+',time="'+track.duration+'",year="'+year+'":'+audiourl);
+	console.log('annotate:title='+JSON.stringify(track.title)+',artist='+JSON.stringify(track.user.name)+',url='+JSON.stringify(track.url)+(arturl?',art="'+arturl+'"':'')+',time="'+track.duration+'",year="'+year+'":'+audiourl)
 }
 
 

@@ -3,7 +3,7 @@
 
 var spawn = require('child_process').spawn
 
-var yturl = process.argv[2];
+var yturl = process.argv[2]
 
 var yt = spawn('youtube-dl', ['--no-playlist', '--playlist-end', 1, '-j', '-f', 'bestaudio', yturl])
 
