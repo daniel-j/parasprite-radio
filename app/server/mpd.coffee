@@ -181,7 +181,7 @@ module.exports = (config) ->
 				else
 					tracks = parseArrayMessage data
 					i = 0
-					while i < tracks.length
+					while i < Math.min(tracks.length, 50)
 						if tracks[i].hasOwnProperty 'file'
 							i++
 						else

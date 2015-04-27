@@ -20,7 +20,7 @@ isInternal = (req, res, next) ->
 		next()
 	else
 		res.writeHead 401
-		res.end '401 Unauthorized. Only localhost!'
+		res.end '401 Unauthorized. Only internal!'
 
 typeToMime = (type) ->
 	switch type
@@ -117,9 +117,43 @@ module.exports = (app, passport, config, mpd, liquid, icecast) ->
 	adminRouter = express.Router()
 
 
-	internalRouter.post '/liquidsoap-meta', (req, res) ->
+	internalRouter.post '/meta', (req, res) ->
 		liquid.setMeta req.body
 		res.end('ok')
+
+	# internalRouter.get '/liq/yt', (req, res) ->
+	# 	url = req.query.url
+	# 	console.log 'Remuxing youtube video '+url
+	# 	ytdl = child_process.spawn 'youtube-dl', ['--restrict-filenames', '-f', 'bestaudio', '-g', url]
+	# 	d = ""
+	# 	ytdl.stdout.on 'data', (data) ->
+	# 		d += data.toString 'utf8'
+	# 	ytdl.once 'close', ->
+	# 		https.get d.trim(), (aacdata) ->
+	# 			tmpfile = temp.createWriteStream()
+	# 			console.log 'Running ffmpeg...'
+	# 			ffmpeg = child_process.spawn 'ffmpeg', ['-y', '-loglevel', 'warning', '-i', '-', '-acodec', 'copy', '-f', 'mp4', tmpfile.path], stdio: 'pipe'
+	# 			ffmpeg.stderr.pipe process.stderr
+	# 			ffmpeg.stdout.pipe process.stdout
+	# 			aacdata.pipe ffmpeg.stdin
+
+
+	# 			ffmpeg.once 'close', ->
+	# 				console.log 'Remuxing complete! Sending...'
+	# 				res.setHeader "Content-Type", "audio/mp4"
+	# 				s = fs.createReadStream tmpfile.path
+	# 				s.pipe res
+
+	# 				s.once 'close', ->
+	# 					fs.unlink tmpfile.path, ->
+	# 						console.log 'Sent and removed temporary file!'
+	# 	###child_process.exec "wget -qO- $(youtube-dl --restrict-filenames -f bestaudio -g "+url+") | ffmpeg -loglevel panic -i - -f mp3 -", maxBuffer: 1024 * 1024 * 500, (err, stdout, stderr) ->
+	# 		if err
+	# 			res.status(502).end(""+err)
+	# 		else
+	# 			res.setHeader "Content-Type", "audio/mpeg"
+	# 			res.end stdout
+	# 	###
 
 
 	defaultRouter.get '/', (req, res) ->
@@ -364,5 +398,5 @@ module.exports = (app, passport, config, mpd, liquid, icecast) ->
 
 	app.use '/', express.static __dirname + '/../www', { maxAge: 365*24*60*60*1000 }
 
-	app.use '/', isInternal, internalRouter
+	app.use '/internal/', isInternal, internalRouter
 	app.use '/', isAdmin, adminRouter

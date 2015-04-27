@@ -17,7 +17,7 @@ module.exports = (config) ->
 		liqReady = true
 
 	liqOnData = (data) ->
-		s = data.toString('binary')
+		s = data.toString('utf8')
 		liqData += s
 
 		a = s.split "\r\n"
@@ -55,6 +55,10 @@ module.exports = (config) ->
 		liqData = ""
 		cmdQueue = []
 
+	liqOnTimeout = ->
+		console.log 'Liquidsoap: Socket timeout'
+		client.end()
+
 	liqConnect = ->
 		console.log "Liquidsoap: Connecting.."
 		client = net.connect
@@ -63,7 +67,9 @@ module.exports = (config) ->
 		client.once 'connect', liqOnReady
 		client.on 'data', liqOnData
 		client.once 'error', liqOnError
+		client.once 'timeout', liqOnTimeout
 		client.once 'end', liqOnEnd
+		client.setTimeout 10*1000
 
 
 	liqCheck = (cb) ->
@@ -120,18 +126,21 @@ module.exports = (config) ->
 		queue:
 			getList: (cb) ->
 				liqCommand "request.queue", "", (err, data) ->
-					if data == ""
+					if err or data == ""
 						cb err, []
 					else
 						list = data.split " "
 						meta = []
 						f = (i) ->
 							liqCommand "request.metadata", list[i], (err, data) ->
-								if err or !data.filename
+								if err
 									
 								else
-									data.file = data.filename.replace(config.media_dir+"/", "")
-									delete data.filename
+									if typeof data == 'string'
+										data = error: data, file: ""
+									else
+										data.file = data.filename and data.filename.replace(config.media_dir+"/", "") or data.initial_uri
+										delete data.filename
 									meta.push data
 								++i
 								if i < list.length
@@ -163,6 +172,7 @@ module.exports = (config) ->
 			metadata.albumartist = m.albumartist or null
 			metadata.url    = m.url or null
 			metadata.year   = +m.year or null
+			metadata.art    = m.art or null
 
 		updateMeta: (cb) ->
 			fetchJSON 'http://'+config.liquidsoap.host+':'+config.liquidsoap.harbor_port+'/getmeta', (err, data) =>

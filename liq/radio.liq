@@ -14,8 +14,27 @@ set("server.telnet.bind_addr", "0.0.0.0")
 set("server.telnet.port", 1234)
 set("harbor.bind_addr", "0.0.0.0")
 
+#set("decoder.debug",true)
+#set("extproto.use_server_name",true)
+
+
 %include "credentials.liq"
 %include "tunein.liq"
+
+
+
+
+def test_ffmpeg(file) = -1 end
+
+ffmpeg_p = "/usr/bin/ffmpeg -loglevel panic -i - -f wav -"
+add_decoder(
+	name="FFMPEG",
+	description="Decode files using the ffmpeg decoder binary",
+	test=test_ffmpeg,
+	ffmpeg_p
+)
+
+set("decoder.file_decoders",["META","WAV","AIFF","MIDI","IMAGE","FLAC","MAD","OGG","FFMPEG","GSTREAMER"])
 
 
 radio_name  = "Parasprite Radio"
@@ -32,34 +51,41 @@ harbor_port = 7000
 
 meta = ref []
 
-# Mixes two streams, with faded transitions between the state when only the
-# normal stream is available and when the special stream gets added on top of
-# it.
-# @category Source / Track Processing
-# @param ~delay   Delay before starting the special source.
-# @param ~p       Portion of amplitude of the normal source in the mix.
-# @param ~normal  The normal source, which could be called the carrier too.
-# @param ~special The special source.
-def smooth_add(~delay=0.5,~p=0.2,~normal,~special)
-	d = delay
-	fade.final = fade.final(duration=d*2.)
-	fade.initial = fade.initial(duration=d*2.)
-	q = 1. - p
-	c = amplify
-	fallback(track_sensitive=false,
-	[special,normal],
-	transitions=[
-		fun(normal,special)->
-			add(normalize=false,
-					[c(p,normal),
-					 c(q,fade.final(type="sin",normal)),
-					 sequence([blank(duration=d),c(q,special)])]),
-		fun(special,normal)->
-			add(normalize=false,
-					[c(p,normal),
-					 c(q,fade.initial(type="sin",normal))])
-	])
+# Add a skip function to a source
+# when it does not have one
+# by default
+def add_skip_command(~command,s)
+	# Register the command:
+	server.register(
+		usage="skip",
+		description="Skip the current song in source.",
+		command,
+		fun(_) -> begin source.skip(s) "Done!" end
+	)
 end
+
+# protocols
+def eqbeats_protocol(arg,delay)
+	r = get_process_lines("node scripts/eqbeats "^quote(arg))
+	print(r)
+	r
+end
+add_protocol("eqbeats", temporary=true, eqbeats_protocol)
+
+def ponyfm_protocol(arg,delay)
+	r = get_process_lines("node scripts/ponyfm "^quote(arg))
+	print(r)
+	r
+end
+add_protocol("ponyfm", temporary=true, ponyfm_protocol)
+
+def youtube_protocol(arg,delay)
+	r = get_process_lines("node scripts/youtube "^quote(arg))
+	print(r)
+	r
+end
+add_protocol("youtube", temporary=true, youtube_protocol)
+
 
 
 def scrobble(~user,~password,m)
@@ -71,14 +97,13 @@ end
 
 
 def update_nowplaying(m)
-	# is this needed? oh well..
 	recode = string.recode(out_enc="UTF-8")
 	def f(x) =
 		(recode(fst(x)),recode(snd(x)))
 	end
 	meta := list.map(f,m)
 
-	data = json_of(compact=true, m)
+	data = json_of(compact=true, !meta)
 
 	# send metadata to script
 	system("node ../app/util/track-change.js "^quote(base64.encode(data)))
@@ -88,43 +113,43 @@ def update_nowplaying(m)
 		data    = data,
 		headers = [("Content-Type", "application/json; charset=utf-8")],
 		timeout = 5.0,
-		"http://127.0.0.1:8000/liquidsoap-meta"
+		"http://127.0.0.1:8000/internal/meta"
 	))
 end
 
 # Return the json content
 # of meta
-def get_meta(~protocol,~data,~headers,uri) =
-	m = !meta
+def get_meta(~protocol,~data,~headers,uri)
 	http_response(
 		protocol = protocol,
 		code     = 200,
 		headers  = [("Content-Type","application/json; charset=utf-8")],
-		data     = json_of(compact=true, m)
+		data     = json_of(compact=true, !meta)
 	)
 end
+harbor.http.register(port=harbor_port, method="GET", "/getmeta", get_meta)
+
 
 # playlists
-songs = mksafe(audio_to_stereo(playlist(reload_mode="watch", reload=600, prefix="/audio/", "/home/djazz/.mpd/playlists/radio.m3u")))
-friendship = audio_to_stereo(playlist(reload_mode="watch", reload=600, "friendship.m3u"))
+songs = mksafe(audio_to_stereo(playlist(id="songs", reload_mode="watch", reload=600, prefix="/nas/audio/", "/home/djazz/.mpd/playlists/radio.m3u")))
+friendship = audio_to_stereo(amplify(1.3, playlist(id="friendship", reload_mode="watch", reload=600, "friendship.m3u")))
 
 # queue: requests; announce: plays over music
-queue = audio_to_stereo(request.queue(id="request"))
-announce = audio_to_stereo(request.queue(id="announce"))
+queue = audio_to_stereo(request.equeue(id="request", length=30., timeout=60.))
+announce = audio_to_stereo(amplify(1.3, request.equeue(id="announce")))
 
 source = fallback([queue, songs])
 
 # scrobble music (last.fm & tunein) but not jingles etc..
 source = on_metadata(scrobble(user=lastfm_username, password=lastfm_password), source)
 
+add_skip_command(command="skip", source)
+
 # TODO: replace with jingles
-source = rotate(weights=[1,10], [friendship, source])
+source = rotate(weights=[1,7], [friendship, source])
 
 # update now playing (and generate cover art..)
 source = on_metadata(update_nowplaying, source)
-
-# http endpoint to get metadata
-harbor.http.register(port=harbor_port, method="GET", "/getmeta", get_meta)
 
 # submit to Liquidsoap Flow
 source = register_flow(
@@ -143,12 +168,14 @@ source = register_flow(
 	source
 )
 
+
 # play announcements over the music
-source = smooth_add(delay=0.8, p=0.15, normal=source, special=announce)
+source = smooth_add(delay=1., p=0.1, normal=source, special=announce)
 
 # audio tweaking
 #source = normalize(gain_max=3., gain_min=-3., source)
 source = smart_crossfade(start_next=2., fade_in=2., fade_out=3., width=3., source)
+
 
 
 
@@ -181,6 +208,7 @@ out(
 	%fdkaac(
 		bitrate = 64
 	),
+	start = false,
 	source
 )
 

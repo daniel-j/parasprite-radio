@@ -121,7 +121,8 @@ var json = {
 	album: liq.album || null,
 	albumartist: liq.albumartist || null,
 	url: liq.url || null,
-	year: +liq.year || null
+	year: +liq.year || null,
+	art: liq.art || null
 }
 
 fs.writeFile(__dirname+'/now/json', JSON.stringify(json), 'utf8')
