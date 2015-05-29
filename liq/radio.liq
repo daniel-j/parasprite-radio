@@ -110,6 +110,7 @@ def update_nowplaying(m)
 
 	m = list.map(f,m)
 	m = list.remove_assoc("cover", m)
+	m = list.remove_assoc("picture", m)
 	meta := m
 
 	data = json_of(compact=true, m)
@@ -139,20 +140,29 @@ end
 harbor.http.register(port=port_harbor, method="GET", "/getmeta", get_meta)
 
 
+
 def auth_live(user,password)
 	print("LIVE: User "^user^" is trying to connect..")
 
-	data = get_process_output("node scripts/auth_live "^quote(user)^" "^quote(password))
+	m = !live_meta
+	if m["live_connected"] == "" then
 
-	ret = of_json(default=[("error", "JSON error")], data)
+		data = get_process_output("node scripts/auth_live "^quote(user)^" "^quote(password))
 
-	if ret["error"] == "" then
-		print("LIVE: User "^ret["live_username"]^" authenticated successfully")
-		live_meta := ret
-		true
+		ret = of_json(default=[("error", "JSON error")], data)
+
+		if ret["error"] == "" then
+			print("LIVE: User "^ret["live_username"]^" authenticated successfully")
+			live_meta := ret
+			true
+		else
+			print("LIVE: User failed to authenticate: "^ret["error"])
+			print(data)
+			false
+		end
+
 	else
-		print("LIVE: User failed to authenticate: "^ret["error"])
-		print(data)
+		print("LIVE: A user is already connected!")
 		false
 	end
 end
@@ -164,36 +174,56 @@ def user_connected(headers)
 		("live_name", headers["ice-name"]),
 		("live_description", headers["ice-description"]),
 		("genre", headers["ice-genre"]),
-		("live_url", headers["ice-url"])
+		("live_url", headers["ice-url"]),
+		("live_connected", "yes")
 	], !live_meta)
+
+	# cleanup
+	def filter(x)
+		value = snd(x)
+		if value == "(none)" or value == " " then
+			false
+		else
+			true
+		end
+	end
+
+	m = list.filter(filter, m)
 
 	live_meta := m
 end
 
 def user_disconnected()
-	print("LIVE: User "^list.assoc("live_username", !live_meta)^" disconnected")
+	m = !live_meta
+	print("LIVE: User "^m["live_username"]^" disconnected")
+	m = list.remove_assoc("live_connected", m)
+	live_meta := m
 end
+
 
 def live_start_recording(mm)
 	m = !live_meta
 	ls = !live_src
 
-	filename = "archive/"^m["live_username"]^"/%Y-%m-%d/%Y-%m-%d-%H_%M_%S "^m["live_name"]^".mp3"
+	if m["live_username"] != "" then
 
-	# Record the live stream
-	outfile = output.file(
-		%mp3.vbr(quality=0, stereo_mode="joint_stereo", internal_quality=0, id3v2=true),
-		on_start={print("LIVE: Starting recording... #{filename}")}, # would be nice to get the actual filename here aswell..
-		on_close=fun(f) -> print("LIVE: Recording finished! #{f}"),
-		fallible=true,
-		filename,
-		ls
-	)
+		filename = "archive/"^m["live_username"]^"/%Y-%m-%d/%Y-%m-%d-%H_%M_%S "^m["live_name"]^".mp3"
 
-	live_stop_record := fun() -> source.shutdown(outfile)
+		# Record the live stream
+		outfile = output.file(
+			%mp3.vbr(quality=0, stereo_mode="joint_stereo", internal_quality=0, id3v2=true),
+			on_start={print("LIVE: Starting recording... #{filename}")}, # would be nice to get the actual filename here aswell..
+			on_close=fun(f) -> print("LIVE: Recording finished! #{f}"),
+			fallible=true,
+			filename,
+			ls
+		)
+
+		live_stop_record := fun() -> source.shutdown(outfile)
+	end
 end
+
 def live_end_recording(t, m)
-	live_meta := []
 	print("LIVE: Stream ended!")
 	print(m)
 	f = !live_stop_record

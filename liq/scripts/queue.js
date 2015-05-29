@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 'use strict'
 var net = require('net')
-var config = require(__dirname+'/../../config.json')
+var config = require(__dirname+'/../../app/util/config')
 
-var client = net.connect(config.liquidsoap.port, config.liquidsoap.host)
+var client = net.connect(config.liquidsoap.port_telnet, config.liquidsoap.host)
 
 client.pipe(process.stdout)
 
