@@ -202,12 +202,11 @@ end
 
 
 def live_start_recording(mm)
-	m = !live_meta
 	ls = !live_src
 
-	if m["live_username"] != "" then
+	if mm["live_username"] != "" then
 
-		filename = "archive/"^m["live_username"]^"/%Y-%m-%d/%Y-%m-%d-%H_%M_%S "^m["live_name"]^".mp3"
+		filename = "archive/"^mm["live_username"]^"/%Y-%m-%d/%Y-%m-%d-%H_%M_%S "^mm["live_name"]^".mp3"
 
 		# Record the live stream
 		outfile = output.file(
@@ -273,7 +272,7 @@ end
 
 
 
-live = audio_to_stereo(input.harbor("live", port=port_input, auth=auth_live, on_connect=user_connected, on_disconnect=user_disconnected))
+live = audio_to_stereo(input.harbor("live", buffer=5., port=port_input, auth=auth_live, on_connect=user_connected, on_disconnect=user_disconnected))
 live = map_metadata(fun(m) -> !live_meta, live)
 
 live = map_metadata(fun(m) -> begin
