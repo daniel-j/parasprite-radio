@@ -54,7 +54,7 @@ var utils = {
 		}
 		var list = [];
 		for (var key in o) {
-			if (o.hasOwnProperty(key) && key !== 'source') {
+			if (o.hasOwnProperty(key) && key !== 'source' && o[key] !== null && o[key] !== undefined) {
 				list.push(key+'='+JSON.stringify(o[key]))
 			}
 		}

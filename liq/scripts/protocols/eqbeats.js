@@ -18,23 +18,23 @@ function protocol(arg, parsedUrl, handleCb) {
 
 
 
-function outputTrack(track) {
-	var id = track.id
-	var arturl = track.download.art || track.artist.avatar
+	function outputTrack(track) {
+		var id = track.id
+		var arturl = track.download.art || track.artist.avatar
 
-	handleCb({
-		title: track.title,
-		artist: track.artist.name,
-		url: track.link,
-		art: arturl,
+		handleCb({
+			title: track.title,
+			artist: track.artist.name,
+			url: track.link,
+			art: arturl,
 
-		source: 'https://eqbeats.org/track/'+id+'/mp3?file.mp3'
-	})
-}
+			source: 'https://eqbeats.org/track/'+id+'/mp3?file.mp3'
+		})
+	}
 
-function outputFirstTrack(tracks) {
-	outputTrack(tracks[0])
-}
+	function outputFirstTrack(tracks) {
+		outputTrack(tracks[0])
+	}
 
 }
 

@@ -34,6 +34,10 @@ switch (parsedUrl.protocol) {
 				handler = require('./protocols/ponyfm')
 				break
 
+			case "bronytunes.com":
+				handler = require('./protocols/bronytunes')
+				break
+
 			case "open.spotify.com":
 			case "play.spotify.com":
 				handler = require('./protocols/spotify')
