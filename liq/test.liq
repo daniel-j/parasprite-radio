@@ -1,14 +1,26 @@
 set("log.file", false)
 
+l = []
+
+l = list.append([("abc", 123)], l)
+l = list.append([("dfg", 456)], l)
+l = list.append([("abc", 999)], l)
+
+#l = list.remove(("abc", l["abc"]), l)
+ignore(l)
+#print(l)
+
+
+
 #file = "{\"a\" : 4, \"b\" : 5}"
 
-file = get_process_output("curl https://eqbeats.org/track/1234/json")
+file = get_process_output("node scripts/get-config")
 
-#file = "{\"port\" : 8000, \"media_dir\" : 123}"
+#file = "{\"port\" : \"abc\", \"media_dir\" : \"lol\"}"
 
-print(file)
+#print(file)
 
-config=of_json(default=[("x",0)],file)
+config=of_json(default=[("error", "json")],file)
 
 
 print(config)

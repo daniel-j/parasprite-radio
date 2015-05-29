@@ -76,7 +76,7 @@ module.exports = (config) ->
 		console.log 'MPD: Ready!'
 		mpdReady = true
 
-		if typeof config.mpd.password is 'string'
+		if typeof config.mpd.password is 'string' and config.mpd.password != ""
 			client.sendCommand mpd.cmd('password', [config.mpd.password]), (err, data) ->
 				if err
 					console.warn "MPD: Password INCORRECT"

@@ -70,7 +70,7 @@ module.exports = (config) ->
 			method: 'STATS'
 			host: config.icecast.host
 			port: config.icecast.port
-			auth: config.icecast.username+':'+config.icecast.password
+			auth: config.icecast.admin.user+':'+config.icecast.admin.password
 
 		client = http.request(opts, (res) ->
 			if res.statusCode == 200

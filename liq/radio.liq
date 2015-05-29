@@ -3,53 +3,54 @@
 # Put the log file in some directory
 set("log.file.path","./radio.log")
 set("log.file", false)
-
-# Print log messages to the console,
-# can also be done by passing the -v option to liquidsoap.
 set("log.stdout", true)
+#set("log.level", 4)
+
+%include "config.liq"
 
 # Use the telnet server for requests
 set("server.telnet", true)
 set("server.telnet.bind_addr", "0.0.0.0")
-set("server.telnet.port", 1234)
+set("server.telnet.port", confint("liquidsoap.port_telnet", 1234))
+
+
+port_harbor = confint("liquidsoap.port_harbor", 7000)
+port_input = confint("liquidsoap.port_input", 8001)
+
 set("harbor.bind_addr", "0.0.0.0")
+
+set("mpd.host", "127.0.0.1")
+set("mpd.port", 6600)
+set("mpd.path", confstr("general.media_dir"))
+set("mpd.randomize", true)
+
+set("alsa.alsa_buffer", 1)
+set("alsa.buffer_length", 20)
+set("alsa.periods", 0)
 
 #set("decoder.debug",true)
 #set("extproto.use_server_name",true)
 
 
-%include "credentials.liq"
+%include "utils.liq"
 %include "tunein.liq"
+%include "protocols.liq"
 
 
-
-
-def test_ffmpeg(file) = -1 end
-
-ffmpeg_p = "/usr/bin/ffmpeg -loglevel panic -i - -f wav -"
 add_decoder(
 	name="FFMPEG",
-	description="Decode files using the ffmpeg decoder binary",
-	test=test_ffmpeg,
-	ffmpeg_p
+	description="Decode audio files using the ffmpeg decoder binary",
+	test=fun(file) -> -1,
+	"/usr/bin/ffmpeg -loglevel panic -i - -f wav -"
 )
+set("decoder.file_decoders", ["META","WAV","AIFF","MIDI","IMAGE","FLAC","MAD","OGG","FFMPEG","GSTREAMER"])
 
-set("decoder.file_decoders",["META","WAV","AIFF","MIDI","IMAGE","FLAC","MAD","OGG","FFMPEG","GSTREAMER"])
-
-
-radio_name  = "Parasprite Radio"
-description = "Brony music 24/7!"
-radio_url   = "http://radio.djazz.se/"
-radio_genre = "Pony"
-
-icecast_host = "icecast.djazz.se"
-icecast_port = 5000
-encoding = "UTF-8"
-tunein_station_id = "s225092"
-
-harbor_port = 7000
 
 meta = ref []
+live_meta = ref []
+live_stop_record = ref (fun () -> ())
+
+live_src = ref blank()
 
 # Add a skip function to a source
 # when it does not have one
@@ -60,60 +61,68 @@ def add_skip_command(~command,s)
 		usage="skip",
 		description="Skip the current song in source.",
 		command,
-		fun(_) -> begin source.skip(s) "Done!" end
+		fun(_) -> begin
+			print("Skipping...")
+			source.skip(s)
+			"OK!"
+		end
 	)
 end
 
-# protocols
-def eqbeats_protocol(arg,delay)
-	r = get_process_lines("node scripts/eqbeats "^quote(arg))
-	print(r)
-	r
+server.register(
+	usage="smartqueue <url/file>",
+	description="Smart queue command.",
+	"smartqueue",
+	fun(arg) -> begin
+		print("Queueing #{arg}")
+		ignore(server.execute("request.push smart:"^arg))
+		"OK!"
+	end
+)
+
+
+
+
+# temporary solution https://github.com/savonet/liquidsoap/issues/217
+def track_ended(time, m)
+	if m["temporary"] == "true" and m["filename"] != "" then
+		#print("time left: #{time}")
+		print("rm "^quote(m["filename"]))
+		system("rm "^quote(m["filename"]))
+		#print(m)
+	end
 end
-add_protocol("eqbeats", temporary=true, eqbeats_protocol)
-
-def ponyfm_protocol(arg,delay)
-	r = get_process_lines("node scripts/ponyfm "^quote(arg))
-	print(r)
-	r
-end
-add_protocol("ponyfm", temporary=true, ponyfm_protocol)
-
-def youtube_protocol(arg,delay)
-	r = get_process_lines("node scripts/youtube "^quote(arg))
-	print(r)
-	r
-end
-add_protocol("youtube", temporary=true, youtube_protocol)
 
 
+def scrobble(m)
+	audioscrobbler.nowplaying(user=confstr("lastfm.username"), password=confstr("lastfm.password"), m)
+	audioscrobbler.submit(user=confstr("lastfm.username"), password=confstr("lastfm.password"), m)
 
-def scrobble(~user,~password,m)
-	audioscrobbler.nowplaying(user=user, password=password, m)
-	audioscrobbler.submit(user=user, password=password, m)
-
-	tunein.submit(partner_id=tunein_partner_id, partner_key=tunein_partner_key, station_id=tunein_station_id, m)
+	tunein.submit(partner_id=confstr("tunein.partnerId"), partner_key=confstr("tunein.partnerKey"), station_id=confstr("tunein.stationId"), m)
 end
 
 
 def update_nowplaying(m)
 	recode = string.recode(out_enc="UTF-8")
-	def f(x) =
+	def f(x)
 		(recode(fst(x)),recode(snd(x)))
 	end
-	meta := list.map(f,m)
 
-	data = json_of(compact=true, !meta)
+	m = list.map(f,m)
+	m = list.remove_assoc("cover", m)
+	meta := m
+
+	data = json_of(compact=true, m)
 
 	# send metadata to script
-	system("node ../app/util/track-change.js "^quote(base64.encode(data)))
+	system("node ../app/util/track-change "^quote(data))
 
 	# update the info on server
 	ignore(http.post(
 		data    = data,
 		headers = [("Content-Type", "application/json; charset=utf-8")],
-		timeout = 5.0,
-		"http://127.0.0.1:8000/internal/meta"
+		timeout = 10.0,
+		"http://#{confstr('server.host', 'localhost')}:#{confint('server.port', 8000)}/internal/meta"
 	))
 end
 
@@ -127,46 +136,133 @@ def get_meta(~protocol,~data,~headers,uri)
 		data     = json_of(compact=true, !meta)
 	)
 end
-harbor.http.register(port=harbor_port, method="GET", "/getmeta", get_meta)
+harbor.http.register(port=port_harbor, method="GET", "/getmeta", get_meta)
+
+
+def live_record()
+	m = !live_meta
+	filename = "archive/"^m["live_username"]^"/%Y-%m-%d/%Y-%m-%d-%H_%M_%S "^m["live_name"]^".ogg"
+
+	ls = !live_src
+
+	# Record the live stream
+	outfile = output.file(
+		%mp3.vbr(samplerate=44100, quality=0, stereo_mode="joint_stereo", internal_quality=0, id3v2=true),
+		filename,
+		on_start={print("LIVE: Starting recording to file #{filename}")},
+		on_stop={print("LIVE: Stopping recording to file #{filename}")},
+		mksafe(ls)
+	)
+
+	live_stop_record := fun() -> source.shutdown(outfile)
+end
+
+def auth_live(user,password)
+	print("LIVE: User "^user^" is trying to connect..")
+
+	data = get_process_output("node scripts/auth_live "^quote(user)^" "^quote(password))
+
+	ret = of_json(default=[("error", "JSON error")], data)
+
+	if ret["error"] == "" then
+		print("LIVE: User "^ret["live_username"]^" authenticated successfully")
+		live_meta := ret
+		true
+	else
+		print("LIVE: User failed to authenticate: "^ret["error"])
+		print(data)
+		false
+	end
+end
+
+def user_connected(headers)
+	print("live headers")
+	print(headers)
+	m = list.set_list([
+		("live_name", headers["ice-name"]),
+		("live_description", headers["ice-description"]),
+		("genre", headers["ice-genre"]),
+		("live_url", headers["ice-url"])
+	], !live_meta)
+
+	live_meta := m
+
+	live_record()
+end
+
+def user_disconnected()
+	print("LIVE: User "^list.assoc("live_username", !live_meta)^" disconnected")
+	live_meta := []
+	f = !live_stop_record
+	f()
+end
 
 
 # playlists
-songs = mksafe(audio_to_stereo(playlist(id="songs", reload_mode="watch", reload=600, prefix="/nas/audio/", "/home/djazz/.mpd/playlists/radio.m3u")))
-friendship = audio_to_stereo(amplify(1.3, playlist(id="friendship", reload_mode="watch", reload=600, "friendship.m3u")))
+songs = audio_to_stereo(mksafe(playlist(id="songs", reload_mode="watch", reload=600, timeout=60., prefix="copy:/nas/audio/", "/home/djazz/.mpd/playlists/radio.m3u")))
+friendship = audio_to_stereo(amplify(1.1, playlist(id="friendship", reload_mode="watch", reload=600, "friendship.m3u")))
 
 # queue: requests; announce: plays over music
-queue = audio_to_stereo(request.equeue(id="request", length=30., timeout=60.))
-announce = audio_to_stereo(amplify(1.3, request.equeue(id="announce")))
+queue = audio_to_stereo(request.equeue(id="request", conservative=true, length=300., timeout=300.))
+announce = audio_to_stereo(amplify(1.1, request.equeue(id="announce", conservative=true, length=300., timeout=300.)))
+
 
 source = fallback([queue, songs])
 
 # scrobble music (last.fm & tunein) but not jingles etc..
-source = on_metadata(scrobble(user=lastfm_username, password=lastfm_password), source)
+source = on_metadata(scrobble, source)
 
 add_skip_command(command="skip", source)
 
 # TODO: replace with jingles
 source = rotate(weights=[1,7], [friendship, source])
 
+source = on_end(delay=0., track_ended, source)
+announce = on_end(delay=0., track_ended, announce)
+
+# crossfade songs!
+source = smart_crossfade(conservative=true, start_next=2., fade_in=2., fade_out=3., width=3., source)
+
+
+
+def to_live(old,new)
+	old = fade.final(duration=2., old)
+	new = fade.initial(duration=2., new)
+	sequence(merge=true, [old,new])
+end
+
+def to_songs(old,new)
+	old = fade.final(duration=3., old)
+	new = fade.initial(duration=3., new)
+	#source.skip(new)
+	sequence([old,new])
+end
+
+
+
+live = audio_to_stereo(input.harbor("live", port=port_input, auth=auth_live, on_connect=user_connected, on_disconnect=user_disconnected))
+live = map_metadata(fun(m) -> !live_meta, live)
+
+live = map_metadata(fun(m) -> begin
+	l = ref []
+	if m["title"] != "" then
+		l := list.add(("title", m["live_name"]^" - "^m["title"]), !l)
+	else
+		l := list.add(("title", m["live_name"]), !l)
+	end
+
+	list.append([
+		("artist", m["live_displayname"]),
+		("album", m["live_description"])
+	], !l)
+end, live)
+
+live_src := live
+
+source = fallback(track_sensitive=false, transitions=[to_live, to_songs], [live, source])
+
 # update now playing (and generate cover art..)
 source = on_metadata(update_nowplaying, source)
-
-# submit to Liquidsoap Flow
-source = register_flow(
-	radio       = radio_name,
-	description = description,
-	website     = radio_url,
-	genre       = radio_genre,
-
-	user     = flow_username,
-	password = flow_password,
-
-	streams = [
-		("mp3/320k", "http://radio.djazz.se/stream/"),
-		("aac/64k", "http://radio.djazz.se/stream/?mobile")
-	],
-	source
-)
 
 
 # play announcements over the music
@@ -174,28 +270,30 @@ source = smooth_add(delay=1., p=0.1, normal=source, special=announce)
 
 # audio tweaking
 #source = normalize(gain_max=3., gain_min=-3., source)
-source = smart_crossfade(start_next=2., fade_in=2., fade_out=3., width=3., source)
-
-
 
 
 out = output.icecast(
-	host     = icecast_host,
-	port     = icecast_port,
-	password = icecast_password,
+	host     = confstr("icecast.host", "localhost"),
+	port     = confint("icecast.port", 8000),
+	user     = confstr("icecast.mount.username", "source"),
+	password = confstr("icecast.mount.password", "hackme"),
 
-	name        = radio_name,
-	description = description,
-	url         = radio_url,
-	genre       = radio_genre,
-	encoding    = encoding
+	name        = confstr("radio.title", "Parasprite Radio"),
+	description = confstr("radio.description", "Liquidsoap Radio!"),
+	url         = confstr("radio.url", "http://liquidsoap.fm/"),
+	genre       = confstr("radio.genre", "Misc"),
+	encoding    = confstr("icecast.encoding", ""),
+
+	connection_timeout = 20.,
+	fallible = true
 )
-
 
 out(
 	mount = "radio",
 	%mp3.cbr(
 		bitrate = 320,
+		#quality = 2,
+		stereo = true,
 		stereo_mode = "joint_stereo",
 		internal_quality = 0,
 		id3v2 = true
@@ -208,7 +306,7 @@ out(
 	%fdkaac(
 		bitrate = 64
 	),
-	start = false,
+	start = true,
 	source
 )
 
@@ -222,3 +320,7 @@ out(
 	start = false,
 	source
 )
+
+
+# to FM transmitter
+output.alsa(bufferize=true, fallible = true, compress(source))

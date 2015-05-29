@@ -117,7 +117,7 @@
 			this.audioTag.volume = volume;
 		}
 		
-
+		this.audioTag.crossOrigin = 'anonymous';
 		this.audioTag.src = this.url;
 		this.audioTag.play();
 		checkNotify();

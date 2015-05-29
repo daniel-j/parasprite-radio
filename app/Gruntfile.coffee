@@ -57,7 +57,7 @@ module.exports = (grunt) ->
 	require(__dirname+'/grunt-6to5') grunt # Load my custom grunt task
 
 	jadedata =
-		config: grunt.file.readJSON '../config.json'
+		config: require './util/config'
 		env: process.env.NODE_ENV || 'development'
 
 	inProduction = process.env.NODE_ENV == 'production'

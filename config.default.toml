@@ -1,0 +1,93 @@
+# Parasprite Radio config file
+
+[general]
+media_dir = "/nas/audio"
+baseurl   = "http://radiodev.djazz.se/"
+streamurl = "http://icecast.djazz.se:5000/radio"
+
+# info about radio - used on the site and for Icecast metadata
+[radio]
+title       = "Parasprite Radio"
+description = ""
+genre       = "Misc"
+url         = "http://radio.djazz.se"
+
+# the nodejs server
+[server]
+host = "localhost"
+port = 8000
+cookieSecret  = ""
+sessionSecret = ""
+
+
+# streaming server
+[icecast]
+host     = "localhost"
+port     = 5000
+
+# what mounts too look for listeners on
+mounts   = [ "radio", "radio_mobile" ]
+encoding = "UTF-8"
+
+[icecast.mount]
+user     = "source"
+password = "hackme"
+
+[icecast.admin]
+user     = "admin"
+password = "hackme"
+
+
+
+
+[liquidsoap]
+host = "localhost"
+port_telnet = 1234
+port_harbor = 7000
+port_input  = 8001
+
+
+# music database
+[mpd]
+host     = "localhost"
+port     = 6600
+password = ""
+
+
+[mysql]
+host     = "localhost"
+user     = "root"
+password = ""
+database = "paraspriteradio"
+
+
+[redis]
+host = "localhost"
+port = 6379
+prefix = "pr-sess"
+
+[twitter]
+consumerKey = ""
+consumerSecret = ""
+callbackURL = "http://radiodev.djazz.se/auth/twitter/callback"
+
+
+
+# scrobbling
+[lastfm]
+username = "djazzradio"
+password = ""
+
+[tunein]
+stationId  = "s225092"
+partnerId  = ""
+partnerKey = ""
+
+
+# external sources
+[soundcloud]
+clientId = ""
+
+[spotify]
+username = "ParaspriteRadio"
+password = ""

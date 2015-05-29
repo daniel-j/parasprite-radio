@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-'use strict';
+'use strict'
 
 var fs = require('fs')
 var path = require('path')
@@ -111,9 +111,9 @@ function imageFromFile(filename, cb) {
 }
 
 
-var liq = JSON.parse(new Buffer(process.argv[2], "base64").toString('utf8'))
+var liq = JSON.parse(process.argv[2])
 
-console.log(liq);
+console.log(liq)
 
 var json = {
 	title: liq.title || path.basename(liq.filename, path.extname(liq.filename)),
@@ -127,48 +127,47 @@ var json = {
 
 fs.writeFile(__dirname+'/now/json', JSON.stringify(json), 'utf8')
 
-console.log("Generating art...")
-imageFromFile(liq.filename, function (err, type, data) {
-	if (err) {
-		console.log("Failed to generate art! "+err)
-		fs.unlink(__dirname+'/now/image-full', function () {})
-		fs.unlink(__dirname+'/now/image-small.png', function () {})
-		fs.unlink(__dirname+'/now/image-tiny.png', function () {})
-		fs.unlink(__dirname+'/now/type.txt', function () {})
-	}
-	else {
-		
+if (!liq.art && liq.filename) {
+	console.log("Generating art...")
+	imageFromFile(liq.filename, function (err, type, data) {
+		if (err) {
+			console.log("Failed to generate art! "+err)
+			fs.unlink(__dirname+'/now/image-full', function () {})
+			fs.unlink(__dirname+'/now/image-small.png', function () {})
+			fs.unlink(__dirname+'/now/image-tiny.png', function () {})
+			fs.unlink(__dirname+'/now/type.txt', function () {})
+		}
+		else {
 
-		fs.writeFile(__dirname+'/now/image-full', data, function (err) {
-			if (err) throw err
-			console.log("Saved full art")
-		})
-		fs.writeFile(__dirname+'/now/type.txt', type)
+			fs.writeFile(__dirname+'/now/image-full', data, function (err) {
+				if (err) throw err
+				console.log("Saved full art")
+			})
+			fs.writeFile(__dirname+'/now/type.txt', type)
 
-		var t = type.split('/')[1] === 'png' ? 'png':'jpg'
-		lwip.open(data, t, function (err, image) {
-			if (err) console.log(err)
-			else {
-				image.batch()
-					.cover(80, 80)
-					.writeFile(__dirname+'/now/image-tiny.png', function (err) {
-						if (err) throw err
-						console.log("Saved tiny art")
-					})
-			}
-		})
-		lwip.open(data, t, function (err, image) {
-			if (err) console.log(err)
-			else {
-				image.batch()
-					.cover(350, 350)
-					.writeFile(__dirname+'/now/image-small.png', function (err) {
-						if (err) throw err
-						console.log("Saved small art")
-					})
-				
-			}
-		})
-
-	}
-})
+			var t = type.split('/')[1] === 'png' ? 'png':'jpg'
+			lwip.open(data, t, function (err, image) {
+				if (err) console.log(err)
+				else {
+					image.batch()
+						.cover(80, 80)
+						.writeFile(__dirname+'/now/image-tiny.png', function (err) {
+							if (err) throw err
+							console.log("Saved tiny art")
+						})
+				}
+			})
+			lwip.open(data, t, function (err, image) {
+				if (err) console.log(err)
+				else {
+					image.batch()
+						.cover(350, 350)
+						.writeFile(__dirname+'/now/image-small.png', function (err) {
+							if (err) throw err
+							console.log("Saved small art")
+						})
+				}
+			})
+		}
+	})
+}

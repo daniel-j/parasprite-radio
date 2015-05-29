@@ -1,6 +1,6 @@
 TwitterStrategy = require('passport-twitter').Strategy
 User = require __dirname+'/models/user'
-config = require __dirname + '/../../config.json'
+config = require __dirname + '/../util/config'
 
 module.exports = (passport) ->
 

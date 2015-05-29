@@ -40,7 +40,10 @@ module.exports = (config) ->
 						if pos != -1
 							key = line.substr 0, pos
 							val = line.substr pos+1
-							o[key] = JSON.parse val
+							try
+								o[key] = JSON.parse val
+							catch err
+								# do nothing
 					d = o
 					
 				cb null, d
@@ -63,7 +66,7 @@ module.exports = (config) ->
 		console.log "Liquidsoap: Connecting.."
 		client = net.connect
 			host: config.liquidsoap.host || "localhost"
-			port: config.liquidsoap.port || 1234
+			port: config.liquidsoap.port_telnet || 1234
 		client.once 'connect', liqOnReady
 		client.on 'data', liqOnData
 		client.once 'error', liqOnError
@@ -139,7 +142,7 @@ module.exports = (config) ->
 									if typeof data == 'string'
 										data = error: data, file: ""
 									else
-										data.file = data.filename and data.filename.replace(config.media_dir+"/", "") or data.initial_uri
+										data.file = data.filename and data.filename.replace(config.general.media_dir+"/", "") or data.initial_uri
 										delete data.filename
 									meta.push data
 								++i
@@ -151,7 +154,7 @@ module.exports = (config) ->
 						f 0
 
 			add: (path, cb) ->
-				liqCommand "request.push", config.media_dir+"/"+path, (err, data) ->
+				liqCommand "request.push", "copy:"+config.general.media_dir+"/"+path, (err, data) ->
 					cb err
 
 			ignore: (rid, cb) ->
@@ -175,7 +178,7 @@ module.exports = (config) ->
 			metadata.art    = m.art or null
 
 		updateMeta: (cb) ->
-			fetchJSON 'http://'+config.liquidsoap.host+':'+config.liquidsoap.harbor_port+'/getmeta', (err, data) =>
+			fetchJSON 'http://'+config.liquidsoap.host+':'+config.liquidsoap.port_harbor+'/getmeta', (err, data) =>
 				if err
 					console.log "Liquidsoap: Couldn't fetch metadata: "+err
 				else

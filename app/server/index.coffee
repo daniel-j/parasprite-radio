@@ -3,17 +3,23 @@
 commander = require 'commander'
 
 pjson = require __dirname + '/../package.json'
-config = require __dirname + '/../../config.json'
+config = require __dirname + '/../util/config'
 
 args = commander
 	.command 'radio'
 	.version pjson.version
 	.option('-d, --dev', 'run in development/debug mode')
-	.option('-p, --port <number>', 'set the server http port', config.port || 8000)
+	.option('-p, --port <number>', 'set the server http port', config.server.port || 8000)
 	.parse process.argv
 
 # process will exit here if commander help is displayed
 
+# handle the arguments
+config.server.port = args.port
+
+if args.dev
+	process.env.NODE_ENV = 'development'
+	console.log 'running in development mode'
 
 # continue to load modules
 express = require 'express'
@@ -33,12 +39,6 @@ mpd = require(__dirname+'/mpd')(config)
 liquid = require(__dirname+'/liquid')(config)
 icecast = require(__dirname+'/icecast')(config)
 
-# handle the arguments
-config.port = args.port
-
-if args.dev
-	process.env.NODE_ENV = 'development'
-	console.log 'running in development mode'
 
 
 app = express()
@@ -49,9 +49,9 @@ redisStore = new RedisStore config.redis
 app.use logger 'dev'
 app.use favicon __dirname + '/../www/img/icons/favicon.ico'
 
-app.use cookieParser config.cookieSecret
+app.use cookieParser config.server.cookieSecret
 app.use session
-	secret: config.sessionSecret
+	secret: config.server.sessionSecret
 	resave: true
 	saveUninitialized: true
 	store: redisStore
@@ -96,5 +96,5 @@ require(__dirname+'/routes')(app, passport, config, mpd, liquid, icecast)
 
 
 # launch the server!
-server = app.listen config.port, "0.0.0.0", ->
+server = app.listen config.server.port, "0.0.0.0", ->
 	console.log 'Parasprite Radio http server listening on port %d', server.address().port
