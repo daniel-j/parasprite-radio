@@ -172,19 +172,18 @@ end
 
 def user_disconnected()
 	print("LIVE: User "^list.assoc("live_username", !live_meta)^" disconnected")
-	live_meta := []
 end
 
 def live_start_recording(mm)
 	m = !live_meta
-	filename = "archive/"^m["live_username"]^"/%Y-%m-%d/%Y-%m-%d-%H_%M_%S "^m["live_name"]^".mp3"
-
 	ls = !live_src
+
+	filename = "archive/"^m["live_username"]^"/%Y-%m-%d/%Y-%m-%d-%H_%M_%S "^m["live_name"]^".mp3"
 
 	# Record the live stream
 	outfile = output.file(
 		%mp3.vbr(quality=0, stereo_mode="joint_stereo", internal_quality=0, id3v2=true),
-		on_start={print("LIVE: Starting recording...")}, # would be nice to get filename here aswell..
+		on_start={print("LIVE: Starting recording... #{filename}")}, # would be nice to get the actual filename here aswell..
 		on_close=fun(f) -> print("LIVE: Recording finished! #{f}"),
 		fallible=true,
 		filename,
@@ -194,6 +193,7 @@ def live_start_recording(mm)
 	live_stop_record := fun() -> source.shutdown(outfile)
 end
 def live_end_recording(t, m)
+	live_meta := []
 	print("LIVE: Stream ended!")
 	print(m)
 	f = !live_stop_record
