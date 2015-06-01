@@ -47,7 +47,8 @@ switch (parsedUrl.protocol) {
 }
 
 if (!handler) {
-	console.log("no handler")
+	console.error("No handler found, passing through...")
+	console.log(arg)
 } else {
 	console.error("Using handler "+handler.title)
 	handler(arg, parsedUrl, handlerCallback)
