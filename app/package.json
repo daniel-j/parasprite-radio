@@ -20,7 +20,6 @@
     "passport": "^0.2.2",
     "passport-twitter": "^1.0.3",
     "serve-favicon": "^2.2.1",
-    "temp": "^0.8.1",
     "toml": "^2.2.2"
   },
   "devDependencies": {

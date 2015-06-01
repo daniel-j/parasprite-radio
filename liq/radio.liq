@@ -271,8 +271,16 @@ def to_songs(old,new)
 end
 
 
+# Live input
+live = audio_to_stereo(input.harbor(
+	"live",
+	buffer = 5.,
+	port = port_input,
+	auth = auth_live,
+	on_connect = user_connected,
+	on_disconnect = user_disconnected
+))
 
-live = audio_to_stereo(input.harbor("live", buffer=5., port=port_input, auth=auth_live, on_connect=user_connected, on_disconnect=user_disconnected))
 live = map_metadata(fun(m) -> !live_meta, live)
 
 live = map_metadata(fun(m) -> begin

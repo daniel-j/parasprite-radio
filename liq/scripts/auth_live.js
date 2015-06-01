@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict'
 
-// format: [ {"username": "", "password": "", "display_name": "", "twitter": "", "avatar": "url"}, ]
+// format: [ {"username": "", "password": "", "display_name": "", "twitter": "", "avatar": "url"}, ... ]
 var users = require(__dirname+'/auth_users.json')
 
 var username = process.argv[2]

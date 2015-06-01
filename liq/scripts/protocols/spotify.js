@@ -3,7 +3,7 @@
 var Spotify = require('../../../app/node_modules/spotify-web')
 var login = require('../../../app/util/config').spotify
 var fs = require('fs')
-var temp = require('../../../app/node_modules/temp')
+var os = require('os')
 
 
 function protocol(arg, parsedUrl, handleCb) {
@@ -38,7 +38,7 @@ function protocol(arg, parsedUrl, handleCb) {
 			}
 
 			if (spotify.isTrackAvailable(track)) {
-				var tempName = temp.path({suffix: '.mp3'})
+				var tempName = os.tmpdir()+'/tmp.'+track.uri.replace(/\:/g, '.')+'.mp3'
 				var t = track.play()
 				var out = fs.createWriteStream(tempName)
 				t.pipe(out).on('finish', function () {

@@ -1,7 +1,7 @@
 'use strict'
 
 var spawn = require('child_process').spawn
-var temp = require('../../../app/node_modules/temp')
+var os = require('os')
 
 function protocol(arg, parsedUrl, handleCb) {
 
@@ -20,7 +20,7 @@ function protocol(arg, parsedUrl, handleCb) {
 }
 
 function fetchVideo(data, cb) {
-	var tempName = temp.path({suffix: '.mp3'})
+	var tempName = os.tmpdir()+'/tmp.yt.'+data.id+'.mp3'
 	// joint stereo VBR2 mp3
 	var ffmpeg = spawn('ffmpeg', ['-i', data.url, '-codec:a', 'libmp3lame', '-q:a', 2, '-joint_stereo', 1, tempName])
 
