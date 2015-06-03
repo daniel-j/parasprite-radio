@@ -1,14 +1,13 @@
 'use strict'
 
 var utils = require('../utils')
-var https = require('https')
 var config = require(__dirname+'/../../../app/util/config')
 
 var root = "https://api.soundcloud.com"
 
 function protocol(arg, parsedUrl, handleCb) {
 
-	utils.handleAPI(root+"/resolve.json?url="+encodeURIComponent(process.argv[2])+"&client_id="+config.soundcloud.clientId, outputTrack, https)
+	utils.handleAPI(root+"/resolve.json?url="+encodeURIComponent(process.argv[2])+"&client_id="+config.soundcloud.clientId, outputTrack)
 
 	function outputTrack(track) {
 

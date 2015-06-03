@@ -1,12 +1,23 @@
 'use strict'
 
+var urlparse = require('url').parse
+var config = require(__dirname+'/../../app/util/config')
+
 var utils = {
 	
-	fetchJSON: function (url, callback, httpModule) {
-		if (!httpModule) httpModule = require('http')
-		httpModule.get(url, function (res) {
+	fetchJSON: function (url, callback) {
+		var parsed = urlparse(url)
+		var opts = {
+			host: parsed.host,
+			path: parsed.path,
+			headers: {
+				"user-agent": config.general.userAgent || "node"
+			}
+		}
+		var httpModule = parsed.protocol === 'https:' ? require('https') : require('http')
+		httpModule.get(opts, function (res) {
 			if (res.statusCode === 302) {
-				utils.fetchJSON.call(this, res.headers.location, callback, httpModule)
+				utils.fetchJSON.call(this, res.headers.location, callback)
 				return
 			}
 			var data = ''
@@ -21,7 +32,7 @@ var utils = {
 					
 				}
 				catch (err) {
-					callback(err)
+					callback(err, data)
 					return
 				}
 				callback(null, obj)

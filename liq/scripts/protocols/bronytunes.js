@@ -1,7 +1,6 @@
 'use strict'
 
 var utils = require('../utils')
-var https = require('https')
 
 var root = "https://bronytunes.com"
 
@@ -10,7 +9,7 @@ function protocol(arg, parsedUrl, handleCb) {
 	var query = parsedUrl.query
 
 	if (path[0] === 'songs') {
-		utils.handleAPI(root+"/retrieve_songs.php?client_type=radio", handleList, https)
+		utils.handleAPI(root+"/retrieve_songs.php?client_type=radio", handleList)
 	}
 
 	function handleList(list) {

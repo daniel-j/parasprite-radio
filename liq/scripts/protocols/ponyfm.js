@@ -1,7 +1,6 @@
 'use strict'
 
 var utils = require('../utils')
-var https = require('https')
 
 var root = "https://pony.fm"
 
@@ -9,7 +8,7 @@ function protocol(arg, parsedUrl, handleCb) {
 	var path = parsedUrl.pathname.substr(1).split("/")
 	var query = parsedUrl.query
 	if (path[0] === 'tracks') {
-		utils.handleAPI(root+"/api/web/tracks/"+parseInt(path[1])+"?log=true", outputTrack, https) // log=true adds to viewcount
+		utils.handleAPI(root+"/api/web/tracks/"+parseInt(path[1])+"?log=true", outputTrack) // log=true adds to viewcount
 	}
 
 	function outputTrack(info) {

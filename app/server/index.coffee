@@ -38,8 +38,10 @@ require(__dirname+'/passport')(passport)
 mpd = require(__dirname+'/mpd')(config)
 liquid = require(__dirname+'/liquid')(config)
 icecast = require(__dirname+'/icecast')(config)
+scheduler = require(__dirname+'/scheduler')(config)
 
-
+scheduler.on('started', liquid.eventStarted)
+scheduler.on('ended', liquid.eventEnded)
 
 app = express()
 inDev = app.get('env') == 'development'

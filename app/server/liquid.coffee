@@ -103,8 +103,8 @@ module.exports = (config) ->
 					cb 'timeout'
 			, timeout
 
-	liqCommand = (key, value="", cb) ->
-		command = key+" "+value+"\r\n";
+	liqCommand = (command, cb) ->
+		command = command+"\r\n";
 		liqCheck (err) ->
 			if err
 				console.warn "Liquidsoap: Check error: " + err
@@ -128,14 +128,14 @@ module.exports = (config) ->
 	API =
 		queue:
 			getList: (cb) ->
-				liqCommand "request.queue", "", (err, data) ->
+				liqCommand "request.queue", (err, data) ->
 					if err or data == ""
 						cb err, []
 					else
 						list = data.split " "
 						meta = []
 						f = (i) ->
-							liqCommand "request.metadata", list[i], (err, data) ->
+							liqCommand "request.metadata "+list[i], (err, data) ->
 								if err
 									
 								else
@@ -154,19 +154,27 @@ module.exports = (config) ->
 						f 0
 
 			add: (path, cb) ->
-				liqCommand "request.push", "copy:"+config.general.media_dir+"/"+path, (err, data) ->
+				liqCommand "request.push copy:"+config.general.media_dir+"/"+path, (err, data) ->
 					cb err
 
 			ignore: (rid, cb) ->
-				liqCommand "request.ignore", rid, (err, data) ->
+				liqCommand "request.ignore "+rid, (err, data) ->
 					cb err
 			consider: (rid, cb) ->
-				liqCommand "request.consider", rid, (err, data) ->
+				liqCommand "request.consider "+rid, (err, data) ->
 					cb err
 
+			smart: (thing, cb) ->
+				liqCommand "smartqueue "+thing, (err, data) ->
+					cb && cb err
+
 		announceMessage: (message, cb) ->
-			liqCommand 'announce.push', 'say:'+message, (err, data) ->
+			liqCommand 'announce.push say:'+message, (err, data) ->
 				cb err
+
+		skip: (cb) ->
+			liqCommand 'skip', (err, data) ->
+				cb && cb err
 
 		setMeta: (m) ->
 			metadata.title  = m.title or path.basename(m.filename, path.extname(m.filename))
@@ -186,6 +194,16 @@ module.exports = (config) ->
 
 		getMeta: ->
 			return metadata
+
+
+		eventStarted: (ev) ->
+			list = (ev.description || "").trim().split('\n')
+			for r in list
+				API.queue.smart r
+
+
+		eventEnded: (ev) ->
+			# noop
 
 
 	API.updateMeta()

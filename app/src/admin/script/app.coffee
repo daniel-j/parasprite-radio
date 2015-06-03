@@ -61,6 +61,7 @@
 			defaultView: 'agendaWeek'
 			editable: false
 			weekNumbers: true
+			timezone: 'local'
 
 
 	App

@@ -5,7 +5,8 @@
   "dependencies": {
     "marionette": "~2.4.0",
     "moment": "~2.10.2",
-    "fullcalendar": "~2.3.0"
+    "fullcalendar": "~2.3.0",
+    "jstzdetect": "~1.0.6"
   },
   "exportsOverride": {
     "backbone.babysitter": {

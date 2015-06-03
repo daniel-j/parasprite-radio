@@ -1,7 +1,6 @@
 'use strict'
 
 var utils = require('../utils')
-var https = require('https')
 
 var root = "https://eqbeats.org"
 
@@ -11,9 +10,9 @@ function protocol(arg, parsedUrl, handleCb) {
 	var query = parsedUrl.query
 
 	if (path[0] === 'track') {
-		utils.handleAPI(root+"/track/"+path[1]+"/json", outputTrack, https)
+		utils.handleAPI(root+"/track/"+path[1]+"/json", outputTrack)
 	} else if (path[0] === 'tracks' && path[1] === 'search' && query.q) {
-		utils.handleAPI(root+"/tracks/search/json?q="+encodeURIComponent(query.q), outputFirstTrack, https)
+		utils.handleAPI(root+"/tracks/search/json?q="+encodeURIComponent(query.q), outputFirstTrack)
 	}
 
 
