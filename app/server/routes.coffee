@@ -169,9 +169,17 @@ module.exports = (app, passport, config, mpd, liquid, icecast) ->
 
 	defaultRouter.get '/auth/twitter',
 		passport.authenticate 'twitter'
-
 	defaultRouter.get '/auth/twitter/callback',
 		passport.authenticate 'twitter',
+			successRedirect: '/'
+			failureRedirect: '/login'
+			failureFlash: "Login failed"
+			#successFlash: "Login succeeded"
+
+	defaultRouter.get '/auth/poniverse',
+		passport.authenticate 'poniverse'
+	defaultRouter.get '/auth/poniverse/callback',
+		passport.authenticate 'poniverse',
 			successRedirect: '/'
 			failureRedirect: '/login'
 			failureFlash: "Login failed"

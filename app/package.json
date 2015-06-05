@@ -20,6 +20,7 @@
     "mysql": "^2.7.0",
     "node-schedule": "^0.2.8",
     "passport": "^0.2.2",
+    "passport-oauth2": "^1.1.2",
     "passport-twitter": "^1.0.3",
     "serve-favicon": "^2.2.1",
     "toml": "^2.2.2"
