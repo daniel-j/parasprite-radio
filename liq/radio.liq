@@ -22,7 +22,7 @@ set("harbor.bind_addr", "0.0.0.0")
 set("mpd.host", "127.0.0.1")
 set("mpd.port", 6600)
 set("mpd.path", confstr("general.media_dir"))
-set("mpd.randomize", true)
+set("mpd.randomize", false)
 
 set("alsa.alsa_buffer", 1)
 set("alsa.buffer_length", 20)
@@ -39,9 +39,9 @@ set("alsa.periods", 0)
 
 add_decoder(
 	name="FFMPEG",
-	description="Decode audio files using the ffmpeg decoder binary",
+	description="Decode audio files using the ffmpeg/avconv decoder binary",
 	test=fun(file) -> -1,
-	"/usr/bin/ffmpeg -loglevel panic -i - -f wav -"
+	"$(which ffmpeg || which avconv) -loglevel panic -i - -f wav -"
 )
 set("decoder.file_decoders", ["META","WAV","AIFF","MIDI","IMAGE","FLAC","MAD","OGG","FFMPEG","GSTREAMER"])
 
@@ -116,7 +116,7 @@ def update_nowplaying(m)
 	data = json_of(compact=true, m)
 
 	# send metadata to script
-	system("node ../app/util/track-change "^quote(data))
+	system("node ../scripts/track-change "^quote(data))
 
 	# update the info on server
 	ignore(http.post(
@@ -231,24 +231,28 @@ end
 
 
 # playlists
-songs = audio_to_stereo(mksafe(playlist(id="songs", reload_mode="watch", reload=600, timeout=60., prefix="copy:/nas/audio/", "/home/djazz/.mpd/playlists/radio.m3u")))
+default = audio_to_stereo(mksafe(playlist(id="default", reload_mode="watch", reload=600, timeout=600., prefix="/audio/", "/home/djazz/.mpd/playlists/radio.m3u")))
+summer = audio_to_stereo(playlist(id="summer", reload_mode="watch", reload=600, timeout=600., prefix="/audio/", "/home/djazz/.mpd/playlists/summer.m3u"))
 friendship = audio_to_stereo(amplify(1.1, playlist(id="friendship", reload_mode="watch", reload=600, "friendship.m3u")))
 
 # queue: requests; announce: plays over music
-queue = audio_to_stereo(request.equeue(id="request", conservative=true, length=300., timeout=300.))
-announce = audio_to_stereo(amplify(1.1, request.equeue(id="announce", conservative=true, length=300., timeout=300.)))
+queue = audio_to_stereo(request.equeue(id="request", conservative=true, length=300., timeout=3600.))
+announce = audio_to_stereo(request.equeue(id="announce", conservative=true, length=300., timeout=3600.))
 
+songs = random(weights=[1,1], [summer,default])
 
 source = fallback([queue, songs])
 
 # scrobble music (last.fm & tunein) but not jingles etc..
+source = store_metadata(id="history", size=20, source)
 source = on_metadata(scrobble, source)
+
+# TODO: replace with jingles
+source = rotate(weights=[1,7], [friendship,source])
 
 add_skip_command(command="skip", source)
 
-# TODO: replace with jingles
-source = rotate(weights=[1,7], [friendship, source])
-
+# cleanup temp files
 source = on_end(delay=0., track_ended, source)
 announce = on_end(delay=0., track_ended, announce)
 
@@ -274,6 +278,7 @@ end
 # Live input
 live = audio_to_stereo(input.harbor(
 	"live",
+	id="live",
 	buffer = 5.,
 	port = port_input,
 	auth = auth_live,
@@ -307,9 +312,9 @@ source = fallback(track_sensitive=false, transitions=[to_live, to_songs], [live,
 # update now playing (and generate cover art..)
 source = on_metadata(update_nowplaying, source)
 
-
 # play announcements over the music
-source = smooth_add(delay=1., p=0.1, normal=source, special=announce)
+source = smooth_add(delay=0.3, p=0.5, normal=source, special=amplify(2., nrj(announce)))
+#source = add(normalize=false, [source, amplify(1.8, nrj(announce))])
 
 # audio tweaking
 #source = normalize(gain_max=3., gain_min=-3., source)
@@ -335,7 +340,7 @@ out(
 	mount = "radio",
 	%mp3.cbr(
 		bitrate = 320,
-		#quality = 2,
+		#quality = 3,
 		stereo = true,
 		stereo_mode = "joint_stereo",
 		internal_quality = 0,
@@ -345,25 +350,42 @@ out(
 )
 
 out(
+	mount = "radio_normal",
+	%mp3.cbr(
+		bitrate = 128,
+		stereo = true,
+		stereo_mode = "joint_stereo",
+		internal_quality = 0,
+		id3v2 = true
+	),
+	start = false,
+	source
+)
+
+out(
 	mount = "radio_mobile",
-	%fdkaac(
-		bitrate = 64
+	%mp3.vbr(
+		quality = 8,
+		stereo = true,
+		stereo_mode = "joint_stereo",
+		internal_quality=0,
+		id3v2 = true
 	),
 	start = true,
 	source
 )
 
-out(
-	mount = "radio_flac",
-	%ogg(%flac(
-		samplerate  = 44100,
-		channels    = 2,
-		compression = 7
-	)),
-	start = false,
-	source
-)
+#out(
+#	mount = "radio_flac",
+#	%ogg(%flac(
+#		samplerate  = 44100,
+#		channels    = 2,
+#		compression = 7
+#	)),
+#	start = false,
+#	source
+#)
 
 
 # to FM transmitter
-output.alsa(bufferize=true, fallible = true, compress(source))
+#output.alsa(id="alsa", bufferize=true, fallible = true, source)

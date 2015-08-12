@@ -1,0 +1,274 @@
+
+@import '_vars'
+@import 'base'
+
+@import 'radio'
+
+
+#top {
+	background-color: bgColor;
+	position: fixed;
+	left: 0;
+	right: 0;
+	top: 0;
+	border-bottom: 1px solid bgBorderColor;
+	height: 80px;
+	z-index: 100000;
+
+	#logo {
+		float: left;
+		margin-right: 5px;
+		width: 76px;
+		height: 76px;
+		margin-top: 2px;
+	}
+
+	h1 {
+		margin: 0;
+		padding-top: 10px;
+		color: #ffb330;
+	}
+
+	#subtitle {
+		padding-left: 2px;
+		opacity: 0.4;
+		font-size: 15px;
+	}
+}
+
+#player {
+	float: right;
+
+	#cover {
+		max-width: 70px;
+		max-height: 70px;
+		position: absolute;
+		top: 4px;
+		left: -80px;
+		border: 1px solid #202020;
+		background-color: black;
+	}
+
+	#nowplayingwrap {
+		margin-top: 10px;
+		margin-right: 15px;
+		width: 450px;
+		display: inline-block;
+		float: right;
+		text-align: left;
+	}
+
+	#visualizer {
+		position: absolute;
+		width: 370px;
+		height: 30px;
+		top: 50px;
+	}
+
+	#popout {
+		position: absolute;
+		top: 10px;
+		right: 88px;
+
+		img {
+			width: 12px;
+			height: 12px;
+			padding: 4px;
+		}
+	}
+
+	.legend {
+		right: 130px;
+		bottom: 0;
+	}
+
+	#playstopbtn {
+		float: right;
+		margin: 0 20px;
+		margin-top: 10px;
+	}
+}
+
+#navigation {
+	padding-top: 80px;
+	background-color: black;
+
+	#mainmenu {
+		padding: 5px;
+
+		a {
+			padding: 5px 7px;
+			display: inline-block;
+			cursor: pointer;
+			margin-right: 5px;
+			color: white;
+
+			&:hover {
+				background-color: rgba(255, 255, 255, 0.5);
+				text-decoration: none;
+			}
+			&:active {
+				background-color: rgba(255, 255, 255, 0.4);
+			}
+			&.current {
+				background-color: #ffb330;
+				color: #2d2d2d;
+			}
+		}
+		
+		#menuAccount, #menuLogout, #menuAdmin {
+			display: none;
+		}
+		
+	}
+}
+
+.loggedin #navigation #mainmenu {
+	#menuAccount, #menuLogout {
+		display: inline-block;
+	}
+	#menuLogin {
+		display: none;
+	}
+}
+
+.isadmin #navigation #mainmenu {
+	#menuAdmin {
+		display: inline-block;
+	}
+}
+
+
+.page-wrapper {
+	padding: 10px 10px;
+}
+
+#content .container {
+	background-color: rgba(0, 0, 0, 0.5);
+}
+
+.trackstable {
+	width: 100%;
+	border-spacing: 0;
+	border-collapse: collapse;
+
+	tr td {
+		&:first-child {
+			width: 32px;
+		}
+		cursor: pointer;
+		height: 32px;
+		padding: 0 10px;
+	}
+	tr td img {
+		max-width: 32px;
+		max-height: 32px;
+		display: block;
+	}
+	tr:hover td {
+		background-color: #ffb330;
+		color: black;
+	}
+	td.date {
+		font-size: 14px;
+		white-space: nowrap;
+		color: rgba(255, 255, 255, 0.5);
+		text-align: right;
+	}
+	.nowplaying td {
+		font-weight: bold;
+		padding-bottom: 10px;
+	}
+}
+
+#chat
+	width: 100%
+	height: 400px
+	border: none
+
+
+#scheduleiframe
+	display: block
+	border: none
+	width: 100%
+	height: 500px
+	overflow: hidden
+
+
+#liveplayer
+	position: relative
+	background-color: black
+	background-image: url('/img/parasprite-ponyville.jpg')
+	background-size: cover
+	#streamoffline
+		position: absolute
+		left: 0
+		right: 0
+		top: 0
+		bottom: 0
+		display: none
+		clear: both
+		text-align: center
+		color: rgba(255, 179, 48, 1)
+		font-size: 60px
+		font-weight: bold
+		line-height: 300px
+		background-color: rgba(0,0,0,0.5)
+		//padding-right: 50px
+
+		background-image: url('/img/sad_twilight_sparkle.png')
+		background-repeat: no-repeat
+		background-position: 93% 98%
+	
+	#dashplayer
+		
+		.bitdash-vc
+			margin: 0
+			//height: auto !important
+			> div:nth-child(2)
+				display: none
+
+		.bitdash-btn-overlay
+			background-image: url('/img/icons/stream-play.png')
+			width: auto
+			height: auto
+			max-width: none
+			max-height: none
+			min-width: 0
+			min-height: 0
+
+		.bitdash-prog
+			display: none
+
+		.bitdash-ctrl, .bitdash-vol
+			background-color: rgba(0,0,0,0.7)
+	
+	&.offline
+		#streamoffline
+			display: block
+		#dashplayer
+			visibility: hidden
+
+/* custom player skin */
+.flowplayer { width: 854px; height: 480px; display: block; margin: auto; }
+.flowplayer .fp-controls { background-color: rgba(45, 45, 45, 0.8); }
+.flowplayer .fp-timeline { background-color: rgba(0, 0, 0, 0.35); }
+.flowplayer .fp-progress { background-color: rgba(255, 179, 48, 0); }
+.flowplayer .fp-volumelevel { background-color: rgba(255, 179, 48, 1); }
+.flowplayer .fp-buffer { background-color: rgba(255, 179, 48, 0.39)}
+.flowplayer { background-image: url('/img/refugees_by_gign.jpg'); background-size: cover; }
+.flowplayer .fp-brand { display: none; }
+.flowplayer .fp-flash-disabled { display: none; }
+
+
+
+#badges {
+	text-align: center;
+}
+#badges img {
+	display: inline-block;
+	margin: 10px;
+	border-radius: 5px;
+	overflow: hidden;
+}
+

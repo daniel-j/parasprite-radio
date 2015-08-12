@@ -1,4 +1,7 @@
-config.toml
-.fuse_hidden*
+/node_modules/
+/bower_components/
+/build/
+/config.toml
+/Makefile
 .DS_Store
 ._*

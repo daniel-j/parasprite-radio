@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict'
 
-var config = require('../../app/util/config')
+var config = require('../../scripts/config')
 
 var keys = [
 	"server.host",

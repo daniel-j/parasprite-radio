@@ -1,0 +1,54 @@
+doctype html
+html
+	head
+		meta(charset='utf-8')
+		title Admin Dashboard
+		link(rel='stylesheet', type='text/css', href='/build/style/admin.css')
+
+	body
+		//- audio#audioTag(controls)
+				img#imgTag(height=100)		
+
+		#side-region
+			#nav-region
+			#playlistsLayout
+				strong Playlists:
+				#playlistsRegion
+
+		#content-region
+
+			#statusLayout
+				div soem stauses
+
+			#searchLayout
+				form#searchForm
+					input(name='query', placeholder='Search')
+					select(name='type')
+						option(value='any', selected) Any
+						option(value='file') File
+						option(value='title') Title
+						option(value='artist') Artist
+						option(value='album') Album
+						option(value='albumartist') Album Artist
+						option(value='genre') Genre
+					button(type='submit') Search
+				#searchResult
+
+			#browseLayout
+				#browsePath
+				#fileList
+
+			#playlistLayout
+				#playlistInfo
+				#playlistList
+
+			#scheduleLayout
+				iframe#scheduleiframe(style="border-width:0; display: block;", width="100%", height="100%", frameborder="0", scrolling="no", src="https://www.google.com/calendar/embed?mode=WEEK&showTitle=0&showCalendars=0&height=350&wkst=2&bgcolor=%23FFA500&src=nj4dn0ck0u66t6f38qtqnj324k%40group.calendar.google.com&amp;color=%238C500B&ctz=Europe%2FStockholm")
+
+			#queueLayout
+				#queueList
+
+
+
+		script(type="text/javascript", src="/build/lib/admin.js")
+		script(type="text/javascript", src="/build/script/admin.js")

@@ -1,7 +1,7 @@
 'use strict'
 
 var utils = require('../utils')
-var config = require(__dirname+'/../../../app/util/config')
+var config = require(__dirname+'/../../../scripts/config')
 
 var root = "https://api.soundcloud.com"
 

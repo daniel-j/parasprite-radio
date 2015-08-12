@@ -42,6 +42,10 @@ switch (parsedUrl.protocol) {
 			case "play.spotify.com":
 				handler = require('./protocols/spotify')
 				break
+
+			case "www.mixcloud.com":
+				handler = require('./protocols/mixcloud')
+				break;
 		}
 		break
 }

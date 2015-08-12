@@ -1,7 +1,7 @@
 'use strict'
 
 var urlparse = require('url').parse
-var config = require(__dirname+'/../../app/util/config')
+var config = require(__dirname+'/../../scripts/config')
 
 var utils = {
 	

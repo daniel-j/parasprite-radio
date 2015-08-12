@@ -1,0 +1,207 @@
+doctype html
+html
+	head
+		meta(charset='utf-8')
+		meta(name='og:title', content='#{config.radio.title}')
+		meta(name='og:image', content='#{config.general.baseurl}img/icons/parasprite-radio.png')
+		meta(name='og:url', content='#{config.general.baseurl}')
+		meta(name='og:description', content='Tune in to #{config.radio.title}!')
+
+		title #{config.radio.title}
+
+		link(rel='icon', type='image/x-icon', href='/favicon.ico')
+		link(rel='stylesheet' type='text/css', href='//releases.flowplayer.org/6.0.1/skin/minimalist.css')
+		link(rel='stylesheet', type='text/css', href='/build/style/main.css')
+		
+
+		//- flowplayer depends on jQuery 1.7.2+
+		//-script(src='//code.jquery.com/jquery-1.10.2.min.js')
+		//- flowplayer javascript component
+		//-script(src="//releases.flowplayer.org/6.0.1/flowplayer.min.js")
+		script(src="//bitdash-a.akamaihd.net/bitmovin-portal/55c9b532ac0af/25ac9a5d3e/latest/bitdash.min.js")
+
+	body#body
+
+		#top
+			.container
+				a(href='')
+					img#logo(src='/img/icons/parasprite-radio.png', alt='Logo')
+				.left
+					h1
+						a(href='/') #{config.radio.title}
+					#subtitle by 
+						a(href='https://twitter.com/daniel_hede', target='_blank') djazz
+
+				#player
+					a#coverlink(href='/api/now/art/full', target='_blank')
+						img#cover(src='/api/now/art/tiny', alt='Cover art')
+
+					button#playstopbtn Play
+					.right.textright
+						#nowplayingwrap
+							#nowtitle
+							#nowartist
+
+						#popout
+							a#popuplink(href='/popout', target='_blank')
+								img(src='/img/icons/popout.svg', alt='Popout')
+						#volume
+							div
+								input#radioVolume(type='range', min=0, max=1, step=0.01, value=0.8)
+						#visualizer
+						.legend
+							span#listenercount
+							img.listenersicon(src='/img/icons/listeners.png', alt='listeners')
+
+
+		#navigation.container
+
+			nav#mainmenu
+				a#menuHistory.current(data-page='pageHistory') Play History
+				//- a#menuPlaylist(data-page='pagePlaylist') Playlist
+				a#menuSchedule(data-page='pageSchedule') Schedule
+				a#menuLivestream(data-page='pageLivestream') Livestream
+
+				div(class='right')
+					a#menuAccount(data-page='pageAccount') Account
+					a#menuLogin(data-page='pageLogin') Login
+					a#menuLogout(href='/logout') Logout
+					a#menuAdmin(href='/admin/') Admin
+
+
+		#content
+			.container
+				#pageHistory.page-wrapper
+				
+					div
+						strong Recently played tracks
+					table#playhistorytable.trackstable
+						tbody#playhistory
+				//- TODO: Remove inline CSS
+				#pagePlaylist.page-wrapper(style='display: none;')
+					div
+						strong
+							span The radio has 
+							span#playlistcount ?
+							span  tracks (
+							span#playhistoryhours ?
+							span  hours of music)
+					table#playlisttable.trackstable
+						tbody#playlist
+
+				#pageSchedule(style='display: none;')
+					iframe#scheduleiframe
+
+				#pageLivestream(style='display: none;')
+					#liveplayer
+						#dashplayer
+						
+						//- .flowplayer(data-wmode="opaque", data-live="true", data-embed="false")
+						//-	video
+						//-		source(type='application/x-mpegurl', src='http://vm.djazz.se/hls/stream.m3u8')
+						//-		//-source(type="video/flash", src="#{config.livestream.url}")
+						#streamoffline Livestream is offline
+
+				#pageLogin.page-wrapper(style='display: none;')
+					strong Login
+					br
+					br
+					a(href="/auth/poniverse") Auth with Poniverse
+					br
+					a(href="/auth/twitter") Auth with Twitter
+				#pageAccount.page-wrapper(style='display: none;')
+					strong Account
+					br
+					br
+					div Username:
+						= ' '
+						span#accountUsername
+					div Display name:
+						= ' '
+						span#accountDisplayName
+
+						
+
+				//- TODO: Remove inline CSS
+				iframe#chat(src='https://kiwiirc.com/client?settings=b1a34e3682f988d06a435e884c8d3fef')
+
+				.page-wrapper
+					//- TODO: Remove inline CSS
+					strong(style='font-size: 18px; margin-left: 12px;') Friends & tech:
+					#badges
+						a(target='_blank', href='http://www.bronydom.net/')
+							img(src='http://www.bronydom.net/resources/Affiliate_Logo.png', alt='Bronydom Network')
+						a(target='_blank', href='http://canternet.org')
+							img(src='/img/badges/canternet.png', alt='Canternet IRC network')
+						a(target='_blank', href='http://ponyvillelive.com/')
+							img(src='/img/badges/ponyvillelive.png', alt='Ponyville Live!')
+
+						a(target='_blank', href='http://liquidsoap.fm/')
+							img(src='/img/badges/liquidsoap.png', alt='Liquidsoap')
+						a(target='_blank', href='https://www.citycloud.se/')
+							img(src='/img/badges/citycloud.png', alt='City Cloud')
+						a(target='_blank', href='http://icecast.org/')
+							img(src='/img/badges/icecast.png', alt='Icecast')
+
+						a(target='_blank', href='http://gulpjs.com/')
+							img(src='/img/badges/gulp.png', alt='Gulp.js')
+						a(target='_blank', href='http://nodejs.org')
+							img(src='/img/badges/nodejs.png', alt='Node.js')
+						a(target='_blank', href='http://browserify.org/')
+							img(src='/img/badges/browserify.png', alt='Browserify')
+	
+
+					a(target='_blank', href='http://tun.in/sffEA') TuneIn
+					= ' - '
+					a(target='_blank', href='http://www.last.fm/user/djazzradio') last.fm page
+					= ' - '
+					a(target='_blank', href='http://www.last.fm/user/djazzradio/library') music library
+					= ' - '
+					a(target='_blank', href='http://www.last.fm/user/djazzradio/tracks') full play history
+					= ' - '
+					a(target='_blank', href='http://www.last.fm/user/djazzradio/library/recent') new music
+					= ' - '
+					a(target='_blank', href='img/parasprite-radio-badge.png') parasprite radio badge
+
+					br
+					br
+
+					| Direct stream url (for VLC and other media players): #{''}
+					a(target='_blank', href='#{config.general.baseurl}stream/') #{config.general.baseurl}stream/
+
+					br
+
+					//- div
+						= 'Powered by '
+						a(target='_blank', href='http://liquidsoap.fm') Liquidsoap
+						= ', '
+						a(target='_blank', href='http://nodejs.org') node.js
+						= ', '
+						a(target='_blank', href='http://www.icecast.org') Icecast
+						= ', '
+						a(target='_blank', href='http://www.musicpd.org') MPD
+						= ' and '
+						a(target='_blank', href='http://www.last.fm') last.fm
+						br
+
+
+					span Twitter:
+						= ' '
+						a(href="https://twitter.com/ParaspriteRadio", target="_blank") @ParaspriteRadio
+
+					br
+					br
+
+
+		script.
+			/*(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+			ga('create', 'UA-5181445-5', 'auto');
+			ga('send', 'pageview');*/
+
+		script(src="//cdnjs.cloudflare.com/ajax/libs/jstimezonedetect/1.0.4/jstz.min.js")
+		script(type='text/javascript', src='/build/script/main.js')
+

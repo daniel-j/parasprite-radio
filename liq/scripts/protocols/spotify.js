@@ -1,7 +1,7 @@
 'use strict'
 
 var Spotify = require('../../../app/node_modules/spotify-web')
-var login = require('../../../app/util/config').spotify
+var login = require('../../../scripts/config').spotify
 var fs = require('fs')
 var os = require('os')
 

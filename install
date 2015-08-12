@@ -14,19 +14,11 @@ echo "Installing dependencies and building Parasprite Radio..."
 
 createConfig
 
-cd app
-
 echo "Installing node dependencies..."
 npm install
 
-echo "Installing bower packages..."
-bower install
-
-echo "Updating app/libs/bower/"
-grunt bower
-
 echo "Building app for development"
-grunt build
+gulp
 
 echo "Done! Now edit config.json, setup Redis and a MySQL server. Start server with ./radio -d (remove the -d when in production)"
 
