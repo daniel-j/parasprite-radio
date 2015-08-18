@@ -268,7 +268,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 		cors(res)
 		fetchJSON 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user='+config.lastfm.username+'&api_key='+config.lastfm.api.key+'&format=json&limit='+limit+'&extended=1', null, (err, data) ->
 			if err
-				console.log 'lastfm error: ' + err
+				console.log 'lastfm error: ' + err, data
 				tracks = []
 			else
 				try
