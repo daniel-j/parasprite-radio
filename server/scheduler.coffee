@@ -12,14 +12,17 @@ module.exports = (config) ->
 	eventsJobs = {}
 	ee = new EventEmitter
 
+	sortStartTime = (a, b) ->
+		return a.start.getTime() - b.start.getTime()
+
 	fetchCalendar = () ->
 		now = Date.now()
 		calendar.events.list(
 			calendarId: config.google.calendarId
 			auth: config.google.apiKey
 			#maxResults: 100, # default is 250
-			timeMin: new Date(now-5*60*1000).toISOString()
-			timeMax: new Date(now+60*60*1000).toISOString()
+			timeMin: new Date(now-10*60*1000).toISOString()
+			timeMax: new Date(now+24*60*60*1000).toISOString()
 			singleEvents: true
 		, (err, raw) ->
 			if err
@@ -108,5 +111,30 @@ module.exports = (config) ->
 
 	fetchCalendar()
 	setInterval fetchCalendar, fetchDelay
+
+	ee.getEvents = () ->
+		now = Date.now()
+		upcoming = []
+		ongoing = []
+		for id, ev of eventsMap
+			start = ev.start.getTime()
+			end = ev.end.getTime()
+
+			if end > now
+				if start < now
+					ongoing.push ev
+				else
+					upcoming.push ev
+
+		ongoing.sort sortStartTime
+		upcoming.sort sortStartTime
+
+		if upcoming.length > 5
+			upcoming.length = 5
+
+		return {
+			ongoing: ongoing
+			upcoming: upcoming
+		}
 
 	ee

@@ -32,11 +32,11 @@ app.commands.setHandler "unregister:instance", (instance, id) ->
 	app.unregister instance, id
 
 app.commands.setHandler 'play:track', (file) ->
-	return
-	imgTag = $('#imgTag')[0]
-	imgTag.src = '/api/set/'+file
+	#return
+	#imgTag = $('#imgTag')[0]
+	#imgTag.src = '/api/set/'+file
 	audioTag = $('#audioTag')[0]
-	audioTag.src = '/stream/'+file
+	audioTag.src = '/api/audio/'+file
 	audioTag.play()
 
 app.commands.setHandler "queue:track", (track) ->

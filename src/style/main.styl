@@ -2,10 +2,11 @@
 @import '_vars'
 @import 'base'
 
+@import '_liveplayer'
 @import 'radio'
 
 
-#top {
+#top
 	background-color: bgColor;
 	position: fixed;
 	left: 0;
@@ -15,79 +16,63 @@
 	height: 80px;
 	z-index: 100000;
 
-	#logo {
+	#logo
 		float: left;
 		margin-right: 5px;
 		width: 76px;
 		height: 76px;
 		margin-top: 2px;
-	}
 
-	h1 {
+	h1
 		margin: 0;
 		padding-top: 10px;
 		color: #ffb330;
-	}
 
-	#subtitle {
+	#subtitle
 		padding-left: 2px;
 		opacity: 0.4;
 		font-size: 15px;
-	}
-}
 
-#player {
-	float: right;
+	.container
+		height 100%
+		position relative
 
-	#cover {
-		max-width: 70px;
-		max-height: 70px;
-		position: absolute;
-		top: 4px;
-		left: -80px;
-		border: 1px solid #202020;
-		background-color: black;
-	}
 
-	#nowplayingwrap {
-		margin-top: 10px;
-		margin-right: 15px;
-		width: 450px;
-		display: inline-block;
-		float: right;
-		text-align: left;
-	}
 
-	#visualizer {
-		position: absolute;
-		width: 370px;
-		height: 30px;
-		top: 50px;
-	}
+#player
+	position absolute
+	right 0
+	left 350px
 
-	#popout {
-		position: absolute;
-		top: 10px;
-		right: 88px;
+	#nowplayingwrap
+		margin-top: 10px
+		text-align: left
 
-		img {
+	#visualizer
+		position absolute
+		bottom 0
+		width: 100%
+		height: 30px
+		overflow hidden
+
+	#popout
+		position: absolute
+		top: 10px
+		right: 88px
+
+		img
 			width: 12px;
 			height: 12px;
 			padding: 4px;
-		}
-	}
 
-	.legend {
+	.legend
 		right: 130px;
 		bottom: 0;
-	}
 
-	#playstopbtn {
-		float: right;
+	#playstopbtn
 		margin: 0 20px;
 		margin-top: 10px;
-	}
-}
+
 
 #navigation {
 	padding-top: 80px;
@@ -116,7 +101,7 @@
 			}
 		}
 		
-		#menuAccount, #menuLogout, #menuAdmin {
+		#menuAccount, #menuLogout, #menuAdmin, #menuMap {
 			display: none;
 		}
 		
@@ -133,19 +118,19 @@
 }
 
 .isadmin #navigation #mainmenu {
-	#menuAdmin {
+	#menuAdmin, #menuMap {
 		display: inline-block;
 	}
 }
 
 
-.page-wrapper {
+.page-wrapper
 	padding: 10px 10px;
-}
 
-#content .container {
+
+#content .container
 	background-color: rgba(0, 0, 0, 0.5);
-}
+
 
 .trackstable {
 	width: 100%;
@@ -183,7 +168,7 @@
 
 #chat
 	width: 100%
-	height: 400px
+	height: 410px
 	border: none
 
 
@@ -194,60 +179,11 @@
 	height: 500px
 	overflow: hidden
 
-
 #liveplayer
-	position: relative
-	background-color: black
-	background-image: url('/img/parasprite-ponyville.jpg')
-	background-size: cover
-	#streamoffline
-		position: absolute
-		left: 0
-		right: 0
-		top: 0
-		bottom: 0
-		display: none
-		clear: both
-		text-align: center
-		color: rgba(255, 179, 48, 1)
-		font-size: 60px
-		font-weight: bold
-		line-height: 300px
-		background-color: rgba(0,0,0,0.5)
-		//padding-right: 50px
-
-		background-image: url('/img/sad_twilight_sparkle.png')
-		background-repeat: no-repeat
-		background-position: 93% 98%
-	
-	#dashplayer
-		
-		.bitdash-vc
-			margin: 0
-			//height: auto !important
-			> div:nth-child(2)
-				display: none
-
-		.bitdash-btn-overlay
-			background-image: url('/img/icons/stream-play.png')
-			width: auto
-			height: auto
-			max-width: none
-			max-height: none
-			min-width: 0
-			min-height: 0
-
-		.bitdash-prog
-			display: none
-
-		.bitdash-ctrl, .bitdash-vol
-			background-color: rgba(0,0,0,0.7)
-	
-	&.offline
-		#streamoffline
-			display: block
-		#dashplayer
-			visibility: hidden
+	position relative
+	padding-bottom 56%
+	padding-top 20px
+	height 0
 
 /* custom player skin */
 .flowplayer { width: 854px; height: 480px; display: block; margin: auto; }
@@ -260,11 +196,16 @@
 .flowplayer .fp-brand { display: none; }
 .flowplayer .fp-flash-disabled { display: none; }
 
+#geocanvas
+	background url('/img/map.png')
+	margin auto
+	display block
 
 
-#badges {
+
+#badges
 	text-align: center;
-}
+
 #badges img {
 	display: inline-block;
 	margin: 10px;
@@ -272,3 +213,4 @@
 	overflow: hidden;
 }
 
+@require 'responsive'

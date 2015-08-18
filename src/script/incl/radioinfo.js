@@ -6,14 +6,11 @@ let nowartist = document.getElementById('nowartist')
 let cover = document.getElementById('cover')
 let coverlink = document.getElementById('coverlink')
 let listenercount = document.getElementById('listenercount')
-let viewercount = document.getElementById('viewercount')
-let liveplayer = document.getElementById('liveplayer')
 let lastnowplaying = ''
 window.nowplayingdata = ''
-window.livestreamInfo = {online: false, viewers: -1}
 
 cover.addEventListener('error', function () {
-	cover.src = '/img/cover/pr-cover-tiny.png'
+	cover.src = '/img/cover/cover-small.png'
 }, false)
 
 function updateNowPlaying() {
@@ -56,7 +53,7 @@ function updateNowPlaying() {
 				lastnowplaying = title+' - '+artist
 
 				window.nowplayingdata = lastnowplaying
-				if (window.isPlaying) {
+				if (window.playing) {
 					document.title = window.nowplayingdata + ' - Parasprite Radio'
 				}
 				if (data.meta.art) {
@@ -87,27 +84,6 @@ function updateNowPlaying() {
 			window.nowplayingdata = ''
 			document.title = 'Parasprite Radio'
 		}
-
-		window.livestreamInfo = data.livestream
-		if (viewercount) {
-			if (data && data.livestream && data.livestream.online) {
-				viewercount.textContent = data.livestream.viewers
-			} else {
-				viewercount.textContent = ''
-			}
-		}
-		if (liveplayer) {
-			if (data && data.livestream && data.livestream.online) {
-				liveplayer.classList.remove('offline')
-			} else {
-				liveplayer.classList.add('offline')
-				if (window.liveplayer) {
-					window.liveplayer.pause()
-				}
-			}
-		}
-
-
 	})
 }
 

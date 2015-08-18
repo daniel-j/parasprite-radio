@@ -10,16 +10,20 @@ module.exports = (config) ->
 	viewers = -1
 
 	updateStats = ->
-		fetchXML config.livestream.url_stats, (err, data) ->
+		fetchXML config.livestream.url_stats, null, (err, data) ->
 			viewers = -1
 			isOnline = false
 			try
 				stream = data.rtmp.server[0].application[0].live[0].stream[0]
 				stats = stream
+				count = 0
+				stream.client.forEach (client) ->
+					if client.flashver[0] != 'ngx-local-relay' and !client.publishing
+						count++
 				#console.log JSON.stringify stream
 				isOnline = !!(stream.publishing && stream.active)
 				if isOnline
-					viewers = (+stream.nclients[0])-1
+					viewers = count
 
 			catch e
 				stats = null

@@ -1,4 +1,5 @@
 mpd = require 'mpd'
+genremap = require 'id3-genre'
 
 timeout = 5000
 
@@ -66,6 +67,15 @@ perfectSortKey = (key) ->
 		a[key] = a[key]+''
 		b[key] = b[key]+''
 		a[key].toLowerCase().localeCompare(b[key].toLowerCase())
+
+fixGenre = (track) ->
+	if !track or !track.genre
+		return
+	m = track.genre.match /^\((\d*)\)$/
+	if m
+		track.genrefix = genremap +m[1]
+	else
+		track.genrefix = track.genre
 
 module.exports = (config) ->
 
@@ -182,6 +192,7 @@ module.exports = (config) ->
 					tracks = parseArrayMessage data
 					i = 0
 					while i < Math.min(tracks.length, 50)
+						fixGenre tracks[i]
 						if tracks[i].hasOwnProperty 'file'
 							i++
 						else
@@ -240,14 +251,17 @@ module.exports = (config) ->
 				if err
 					cb err, null
 				else
-					cb null, parseKeyValueMessage data
+					cb null, fixGenre parseKeyValueMessage data
 
 		lsinfo: (uri = '', cb) ->
 			mpdCommand 'lsinfo', [uri], (err, data) ->
 				if err
 					cb null, []
 				else
-					cb null, parseArrayMessage data
+					list = parseArrayMessage data
+					list.forEach (track) ->
+						fixGenre track
+					cb null, list
 
 		getPlaylists: (cb) ->
 			mpdCommand 'listplaylists', [], (err, data) ->

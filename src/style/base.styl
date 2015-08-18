@@ -4,51 +4,56 @@ a
 	color #ffb330
 	text-decoration none
 
-a:hover {
-	text-decoration: underline;
-}
+a:hover
+	text-decoration: underline
 
-.left {
-	float: left;
-}
+.left
+	float: left
 
-.right {
-	float: right;
-}
-.textright {
-	text-align: right;
-}
+.right
+	float: right
+
+.textright
+	text-align: right
 
 
-#player {
-	position: relative;
 
-	#nowplayingwrap {
-		#nowtitle, #nowartist {
-			overflow: hidden;
-			white-space: nowrap;
-			text-overflow: ellipsis;
-		}
-		#nowtitle {
-			font-size: 18px;
-			a {
-				color: white;
-				text-decoration: underline;
-			}
-		}
-		#nowartist {
-			font-size: 15px;
-			color: rgba(255, 255, 255, 0.5);
-			margin-top: 1px;
-		}
-	}
+#player
+	position absolute
+	height 100%
 
-	#volume {
+	.leftside
+		position absolute
+		left 0
+		width 90px
+		height 100%
+
+	.mid
+		position absolute
+		left 90px
+		right 120px
+		height 100%
+
+	.rightside
+		position absolute
+		right 0
+		width 120px
+
+	#cover
+		max-width: 70px
+		max-height: 70px
+		margin-top: 4px
+		margin-left 10px
+		margin-right 10px
+		border: 1px solid #202020
+		background-color: black
+
+	#volume
 		position: absolute;
 		top: 80px;
 		right: 120px;
 
-		&:before {
+		&:before
 			content: "";
 			left: 0;
 			top: -40px;
@@ -64,47 +69,43 @@ a:hover {
 			background-repeat: no-repeat;
 			background-position: center center;
 			opacity: 0.5;
-		}
 
-		& > div {
+		& > div
 			z-index: 1;
 			position: absolute;
 			visibility: hidden;
 			background-color: #2d2d2d;
 			padding: 10px;
-			margin-left: -90px;
-		}
+			left: -110px;
 
-		&:hover > div, &:active > div {
+		&:hover > div, &:active > div
 			visibility: visible;
-		}
 
-		#radioVolume {
+
+		#radioVolume
 			width: 200px;
-		}
-	}
 
-	.legend {
+
+
+	.legend
 		position: absolute;
 		line-height: 16px;
 		font-size: 15px;
 		color: rgba(255, 255, 255, 0.5);
 
-		a {
+		a
 			opacity: 0.7;
-		}
 
-		.listenersicon {
+
+		.listenersicon
 			height: 14px;
 			opacity: 0.5;
 			position: relative;
 			margin-left: 4px;
 			top: 1px;
-		}
 
-	}
-
-	#playstopbtn {
+	#playstopbtn
+		float right
 		width: 60px;
 		height: 60px;
 		padding: 0;
@@ -114,11 +115,10 @@ a:hover {
 		color: transparent;
 		cursor: pointer;
 
-		&:focus {
+		&:focus
 			outline: none;
-		}
 
-		&:before {
+		&:before
 			position: absolute;
 			content: "";
 
@@ -127,9 +127,8 @@ a:hover {
 			border: 0px solid transparent;
 			border-width: 14px 25px;
 			border-left-color: #2d2d2d;
-		}
 
-		&.loading:before {
+		&.loading:before
 			left: 0;
 			top: 0;
 			right: 0;
@@ -138,16 +137,28 @@ a:hover {
 			background-image: url('/img/spinner.gif');
 			background-repeat: no-repeat;
 			background-position: center center;
-		}
 
-		&.stop:before {
+		&.stop:before
 			left: 17px;
 			top: 17px;
 			border: none;
 			background-color: #2d2d2d;
 			width: 26px;
 			height: 26px;
-		}
-	}
-}
 
+#nowplayingwrap
+	#nowtitle, #nowartist
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+
+	#nowtitle
+		font-size: 18px;
+		a
+			color: white;
+			text-decoration: underline;
+
+	#nowartist
+		font-size: 15px;
+		color: rgba(255, 255, 255, 0.5);
+		margin-top: 1px;

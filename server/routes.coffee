@@ -3,6 +3,7 @@ path = require 'path'
 fs = require 'fs'
 mm = require 'musicmetadata'
 fetchJSON = require('../scripts/fetcher').fetchJSON
+Song = require './models/song.coffee'
 
 cleanpath = (p) ->
 	path.join('/', p).substr(1)
@@ -111,7 +112,7 @@ htmloptions =
 	maxAge: 365*24*60*60*1000
 
 
-module.exports = (app, passport, config, mpd, liquid, icecast, livestream) ->
+module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livestream) ->
 	inDev = app.get('env') == 'development'
 
 	internalRouter = express.Router()
@@ -163,6 +164,8 @@ module.exports = (app, passport, config, mpd, liquid, icecast, livestream) ->
 		res.sendFile 'index.html', htmloptions
 	defaultRouter.get '/popout', (req, res) ->
 		res.sendFile 'popout.html', htmloptions
+	defaultRouter.get '/livestream.html', (req, res) ->
+		res.sendFile 'livestream.html', htmloptions
 
 	defaultRouter.get '/stream', (req, res) ->
 		res.redirect config.streamurl
@@ -218,7 +221,8 @@ module.exports = (app, passport, config, mpd, liquid, icecast, livestream) ->
 			return
 		fs.readFile __dirname+'/../scripts/now/type.txt', (err, data) ->
 			if err
-				res.sendFile 'pr-cover-'+size+'.png', root: __dirname + '/../static/img/cover/'
+				#res.sendFile 'pr-cover-'+size+'.png', root: __dirname + '/../static/img/cover/'
+				res.sendFile 'cover-small.png', root: __dirname + '/../static/img/cover/'
 			else
 				if size == 'tiny'
 					res.sendFile 'image-tiny.png', root: __dirname+'/../scripts/now/'
@@ -248,7 +252,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, livestream) ->
 	defaultRouter.get '/api/lastfm/recent', (req, res) ->
 		cors(res)
 		
-		fetchJSON 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user='+config.lastfm.username+'&api_key='+config.lastfm.api.key+'&format=json&limit='+config.lastfm.api.limit+'&extended=1', (err, data) ->
+		fetchJSON 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user='+config.lastfm.username+'&api_key='+config.lastfm.api.key+'&format=json&limit='+config.lastfm.api.limit+'&extended=1', null, (err, data) ->
 			if err
 				res.end 'error: ' + err
 			else
@@ -262,7 +266,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, livestream) ->
 		if limit < 1 then limit = 1
 		if limit > config.lastfm.api.limit then limit = config.lastfm.api.limit
 		cors(res)
-		fetchJSON 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user='+config.lastfm.username+'&api_key='+config.lastfm.api.key+'&format=json&limit='+limit+'&extended=1', (err, data) ->
+		fetchJSON 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user='+config.lastfm.username+'&api_key='+config.lastfm.api.key+'&format=json&limit='+limit+'&extended=1', null, (err, data) ->
 			if err
 				console.log 'lastfm error: ' + err
 				tracks = []
@@ -275,12 +279,12 @@ module.exports = (app, passport, config, mpd, liquid, icecast, livestream) ->
 							title: track.name
 							artist: track.artist.name
 							album: track.album['#text']
-							art: track.image[imagesize]['#text'] || track.artist.image[imagesize]['#text'] || (config.general.baseurl+'img/cover/pr-cover-small.png')
+							art: track.image[imagesize]['#text'] || track.artist.image[imagesize]['#text'] || (config.general.baseurl+'img/cover/cover-small.png')
 							timestamp: if track.date then +track.date.uts else Date.now()/1000|0
 							url: track.url
 						tracks[i].text = tracks[i].artist+' - '+tracks[i].title
 				catch e
-					console.log 'lastfm error: ' + e, data.recenttracks.track
+					console.log 'lastfm error: ' + e, data && data.recenttracks && data.recenttracks.track
 					tracks = []
 			res.json tracks
 
@@ -298,7 +302,14 @@ module.exports = (app, passport, config, mpd, liquid, icecast, livestream) ->
 			url: meta.url or if meta.artist and meta.title then "http://www.last.fm/music/"+encodeURIComponent(meta.artist)+"/_/"+encodeURIComponent(meta.title)
 			year: meta.year
 			art: meta.art or config.general.baseurl+'api/now/art/small'
+			bitrate: meta.bitrate
 			source: meta.source
+
+		songInfo.id = Song.getSongHash songInfo
+
+		events = scheduler.getEvents()
+		events.calendar = config.google.calendarId
+		events.now = new Date()
 
 		o =
 			general:
@@ -307,7 +318,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, livestream) ->
 				logo: config.general.baseurl+'img/icons/parasprite-radio.png'
 				url: config.radio.url
 				irc: config.general.irc
-				twitter: config.general.twitter
+				twitter_handle: config.general.twitter
 
 			radio:
 				online: icecast.isOnline()
@@ -325,12 +336,19 @@ module.exports = (app, passport, config, mpd, liquid, icecast, livestream) ->
 			livestream:
 				online: livestream.isOnline()
 				viewers: livestream.getViewCount()
+				url: config.general.baseurl+'#livestream'
+				url_iframe: config.general.baseurl+'livestream.html'
+				url_thumbnail: config.livestream.url_thumbnail
 				url_rtmp: config.livestream.url_rtmp
 				url_dash: config.livestream.url_dash
 				url_hls: config.livestream.url_hls
 
+			events: events
+
 		res.json o
 
+
+	# \/ ADMIN ENDPOINTS \/
 
 	adminRouter.get '/admin/*', (req, res) ->
 		res.sendFile 'admin.html', htmloptions
@@ -479,8 +497,8 @@ module.exports = (app, passport, config, mpd, liquid, icecast, livestream) ->
 				json = error: null
 			res.json json
 
-	adminRouter.get '/api/announce/message/*', (req, res) ->
-		liquid.announceMessage req.params[0], (err) ->
+	adminRouter.get '/api/announce', (req, res) ->
+		liquid.announce req.query.message, (err) ->
 			if err
 				json = error: err
 			else
@@ -494,6 +512,9 @@ module.exports = (app, passport, config, mpd, liquid, icecast, livestream) ->
 			else
 				json = error: null
 			res.json json
+
+	adminRouter.get '/api/listeners', (req, res) ->
+		res.json icecast.getListeners()
 
 
 	app.use '/', defaultRouter

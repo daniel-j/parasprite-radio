@@ -3,6 +3,7 @@
 import xhr from './utils/xhr'
 import './incl/radioinfo'
 import radioPlayer from './incl/radioplayer'
+import livestream from './livestream'
 
 let radio = radioPlayer({
 	url: 'http://icecast.djazz.se:8000/radio',
@@ -41,17 +42,13 @@ function timeago(timems) {
 }
 
 function updateHistory() {
-	xhr('/api/lastfm/recent', function (res) {
-		setTimeout(updateHistory, 10*1000)
+	xhr('/api/history?limit=20&imagesize=1', function (res) {
 		let data, tracks
 		try {
-			data = JSON.parse(res)
-			tracks = data.recenttracks.track
+			tracks = JSON.parse(res)
 		} catch (e) {
 			console.log(res)
-			data = {}
 			tracks = []
-			return
 		}
 
 		while (playhistory.childNodes.length > 0) {
@@ -61,22 +58,10 @@ function updateHistory() {
 
 		for (let i = 0; i < tracks.length; i++) {
 			let track = tracks[i]
-			let attr = track['@attr'] || {}
-
-			if (attr.nowplaying) {
-				//nowplaying.href = track.url
-				//lastfmurl = track.url
-				//isnowplaying = true
-				continue
-			}
 
 
 			let row = playhistory.insertRow(-1)
 			row.dataset.url = track.url
-
-			if (attr.nowplaying) {
-				row.className = 'nowplaying'
-			}
 
 			let imgcell = row.insertCell(-1)
 			let titlecell = row.insertCell(-1)
@@ -85,26 +70,17 @@ function updateHistory() {
 			let datecell = row.insertCell(-1)
 			datecell.className = 'date'
 
-			if (track.image[2]['#text']) {
-				let img = new Image()
-				img.src = track.image[2]['#text']
-				imgcell.appendChild(img)
-			} else if (track.artist.image[2]['#text']) {
-				let img = new Image()
-				img.src = track.artist.image[2]['#text']
-				imgcell.appendChild(img)
-			}
+			let img = new Image()
+			img.src = track.art
+			imgcell.appendChild(img)
 
-			titlecell.textContent = track.name
-			artistcell.textContent = track.artist.name
+			titlecell.textContent = track.title
+			artistcell.textContent = track.artist
 			//albumcell.textContent = track.album['#text']
 			//console.log(track)
-			if (track.date) {
-				datecell.textContent = timeago(Date.now()/1000 - track.date.uts, true)
-				datecell.title = new Date(track.date.uts*1000)
-			} else if (attr.nowplaying) {
-				datecell.textContent = 'now'
-			}
+
+			datecell.textContent = timeago(Date.now()/1000 - track.timestamp, true)
+			datecell.title = new Date(track.timestamp*1000)
 		}
 		if (!isnowplaying) {
 			//lastfmurl = ''
@@ -120,6 +96,7 @@ playhistory.addEventListener('click', function (e) {
 	window.open(node.dataset.url, '_blank')
 }, false)
 
+setInterval(updateHistory, 10*1000)
 updateHistory()
 
 
@@ -202,49 +179,43 @@ let bgcolor = '444444'
 let color = '8C500B'
 
 scheduleiframe.src = 'https://www.google.com/calendar/embed?mode=WEEK&showTitle=0&showCalendars=0&height=350&wkst=2&bgcolor=%23'+bgcolor+'&src=nj4dn0ck0u66t6f38qtqnj324k%40group.calendar.google.com&color=%23'+color+'&ctz='+encodeURIComponent(timezone)
-
-// Livestream
-let conf = {
-	key: '0fa2b26cbe5994c6752baa89519ed7aa',
-	source: {
-		mpd: 'http://vm.djazz.se/dash/stream.mpd',
-		hls: 'http://vm.djazz.se/hls/stream.m3u8',
-		poster: '/img/night_by_gign.png'
-	},
-	style: {
-		width: '100%',
-		aspectratio: '16:9',
-		controls: true
-	},
-	playback: {
-		autoplay: false
-	}
-}
-let player = null
+// reload every 5 min
+setInterval(function () {
+	scheduleiframe.src += ''
+}, 5*60*1000)
 
 
-function initBitdash() {
-	player = bitdash('dashplayer')
-	window.liveplayer = player
-	player.setup(conf)
+// Map
+let geocanvas = document.getElementById('geocanvas')
+let geoctx = geocanvas.getContext('2d')
+function updateMap() {
+	xhr('/api/listeners', function (res) {
+		let list = []
+		try {
+			list = JSON.parse(res)
+		} catch (e) {
 
-	player.addEventHandler('onReady', function () {
-		console.log('ready!')
-		// ugly fix but needed
-		var video = document.getElementById('bitdash-video-dashplayer')
-		if (video) {
-			video.poster = conf.source.poster
+		}
+		geoctx.clearRect(0, 0, geocanvas.width, geocanvas.height)
+		for (let i = 0; i < list.length; i++) {
+			let x = list[i].x
+			let y = list[i].y
+			geoctx.fillStyle = 'white'
+			geoctx.fillRect(x-4, y-4, 8, 8)
+			geoctx.fillStyle = 'orange'
+			geoctx.fillRect(x-3, y-3, 6, 6)
 		}
 	})
 }
 
+
+
 // Account
 xhr('/api/user', function (res) {
-	var user
+	let user = {}
 	try {
 		user = JSON.parse(res)
 	} catch (e) {
-		user = {}
 		return
 	}
 	if (user.loggedin) {
@@ -254,6 +225,9 @@ xhr('/api/user', function (res) {
 
 		if (user.level >= 5) {
 			document.getElementById('body').classList.add('isadmin')
+
+			setInterval(updateMap, 5*1000)
+			updateMap()
 		}
 	}
 })
@@ -277,18 +251,20 @@ menudiv.addEventListener('click', function (e) {
 		if (currentPage === 'pagePlaylist') {
 			updatePlaylist()
 		}
+
 		if (currentPage === 'pageLivestream') {
-			if (!player) {
-				initBitdash()
-			} else {
-				player.load(conf.source)
-			}
 
 		} else {
-			if (player) {
-				player.unload()
-			}
+			livestream.stop()
 		}
 	}
 }, false)
 
+let hashMatch = document.querySelector('[data-hash="'+document.location.hash.substr(1)+'"]')
+if (hashMatch) {
+	document.location.hash = ''
+	if (history) {
+		history.replaceState('', document.title, window.location.pathname)
+	}
+	hashMatch.click()
+}

@@ -1,4 +1,5 @@
 formattime = require('utils/formattime')
+basename = require 'utils/basename'
 
 class View
 
@@ -21,29 +22,34 @@ class View.Track extends Marionette.ItemView
 	templateHelpers: ->
 		if !@model.get('directory')
 			timefix = if typeof @model.get('time') == 'number' then formattime @model.get('time') else ''
-			titlefix = @model.get('title')
+			titlefix = @model.get('title') or basename @model.get('file')
 			path = @model.get('file').split '/'
 			name = path.pop()
 			dir = path.join '/'
+			extraclasses = (if !@model.get('title') then ' shade')
 		else
 			timefix = ''
 			titlefix = @model.get('directory').split('/').pop()
 			name = ''
 			dir = ''
+			extraclasses = ''
+
+		lm = @model.get('last-modified')
 
 		time: timefix
 		title: titlefix
 		name: name
 		dir: dir
-		'last-modified': moment(@model.get('last-modified')).format('MMM D YYYY hh:mm:ss')
+		'last-modified': if lm then moment(lm).format('MMM D YYYY hh:mm:ss') else ''
+		extraclasses: extraclasses
 
 	doubleClicked: (e) ->
 		e.preventDefault()
 		if e.ctrlKey or e.shiftKey then return
 		if @model.has 'directory'
 			App.commands.execute 'browse:directory', @model.get('directory'), true
-		else
-			App.commands.execute 'play:track', @model.get('file')
+		#else
+		#	App.commands.execute 'play:track', @model.get('file')
 
 	anchorClicked: (e) ->
 		e.preventDefault()

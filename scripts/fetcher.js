@@ -3,7 +3,11 @@
 var urlparse = require('url').parse
 var config = require(__dirname+'/config')
 
-function fetcher(url, callback) {
+function fetcher(url, opt, callback) {
+	if (typeof opt === 'function') {
+		callback = opt
+		opt = {}
+	}
 	var parsed = urlparse(url)
 	var opts = {
 		hostname: parsed.hostname,
@@ -12,6 +16,10 @@ function fetcher(url, callback) {
 		headers: {
 			"user-agent": config.general.userAgent || "node"
 		}
+	}
+
+	for (var k in opt) {
+		opts[k] = opt[k]
 	}
 
 	var httpModule = parsed.protocol === 'https:' ? require('https') : require('http')
@@ -35,8 +43,8 @@ function fetcher(url, callback) {
 	})
 }
 
-function fetchJSON(url, callback) {
-	fetcher(url, function (err, data) {
+function fetchJSON(url, opt, callback) {
+	fetcher(url, opt, function (err, data) {
 		if (err) {
 			callback(err, data)
 			return
@@ -52,13 +60,13 @@ function fetchJSON(url, callback) {
 	})
 }
 
-function fetchXML(url, callback) {
-	var parser = require('xml2js')
-	fetcher(url, function (err, data) {
+function fetchXML(url, opt, callback) {
+	fetcher(url, opt, function (err, data) {
 		if (err) {
 			callback(err, data)
 			return
 		}
+		var parser = require('xml2js')
 		parser.parseString(data, callback)
 	})
 }

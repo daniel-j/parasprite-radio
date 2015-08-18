@@ -1,0 +1,19 @@
+doctype html
+html
+	head
+		meta(charset='utf-8')
+		title Livestream
+		link(rel='icon', type='image/x-icon', href='/favicon.ico')
+		link(rel='stylesheet', type='text/css', href='/build/style/livestream.css')
+
+		//- script(src="//bitdash-a.akamaihd.net/bitmovin-portal/55c9b532ac0af/25ac9a5d3e/latest/bitdash.min.js")
+		script(src='http://content.jwplatform.com/libraries/GZyKIYr6.js')
+
+	body
+		#liveplayer
+			#jwplayer
+			#viewercount
+			#streamoffline
+				span Livestream is offline
+
+		script(src='/build/script/livestream.js')

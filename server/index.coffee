@@ -41,8 +41,8 @@ icecast = require(__dirname+'/icecast')(config)
 scheduler = require(__dirname+'/scheduler')(config)
 livestream = require(__dirname+'/livestream')(config)
 
-scheduler.on('started', liquid.eventStarted)
-scheduler.on('ended', liquid.eventEnded)
+scheduler.on 'started', liquid.eventStarted
+scheduler.on 'ended', liquid.eventEnded
 
 app = express()
 inDev = app.get('env') == 'development'
@@ -79,7 +79,7 @@ app.set 'views', __dirname + '/views'
 # 	once: !inDev
 
 
-require(__dirname+'/routes')(app, passport, config, mpd, liquid, icecast, livestream)
+require(__dirname+'/routes')(app, passport, config, mpd, liquid, icecast, scheduler, livestream)
 
 
 #	# No stacktraces

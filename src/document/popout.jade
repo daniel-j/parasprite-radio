@@ -13,24 +13,26 @@ html
 			.container
 
 				#player
-					a(href='')
-						img#logo(src='/img/icons/parasprite-radio.png', alt='Logo')
+					.leftside
+						//- a(href='')
+							img#logo(src='/img/icons/parasprite-radio.png', alt='Logo')
 
-					a#coverlink(href='/api/now/art/full', target='_blank')
-						img#cover(src='/api/now/art/tiny')
+						a#coverlink(href='/api/now/art/full', target='_blank')
+							img#cover(src='/api/now/art/tiny')
+					.mid
+						button#playstopbtn Play
 
-					button#playstopbtn Play
+					.rightside
+						#volume
+							div
+								input#radioVolume(type='range', min=0, max=1, step=0.01, value=0.8)
+						.legend
+							span#listenercount
+							img.listenersicon(src='/img/icons/listeners.png')
 
-					#volume
-						div
-							input#radioVolume(type='range', min=0, max=1, step=0.01, value=0.8)
-					.legend
-						span#listenercount
-						img.listenersicon(src='/img/icons/listeners.png')
-
-					#nowplayingwrap
-						#nowtitle
-						#nowartist
+				#nowplayingwrap
+					#nowtitle
+					#nowartist
 
 
 		#footer

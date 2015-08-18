@@ -1,5 +1,5 @@
 Entity = window.Entity || {}
-require('./nav')
+require './nav'
 
 class Entity.SortableCollection extends Backbone.Collection
 
@@ -60,6 +60,7 @@ class Entity.Track extends Backbone.Model
 		genre: ''
 
 		selected: false
+
 
 class Entity.Directory extends Backbone.Model
 	idAttribute: 'directory'

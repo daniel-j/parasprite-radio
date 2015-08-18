@@ -35,7 +35,7 @@ module.exports = (passport) ->
 
 	poniverse = new OAuth2Strategy config.passport.poniverse, (accessToken, refreshToken, profile, done) ->
 
-		fetchJSON "https://api.poniverse.net/v1/users/me?access_token="+accessToken, (err, data) ->
+		fetchJSON "https://api.poniverse.net/v1/users/me?access_token="+accessToken, null, (err, data) ->
 			if err
 				done err, null
 				return

@@ -73,8 +73,6 @@ function radioPlayer(opts = {}) {
 		}
 
 		canvas = document.createElement('canvas')
-		canvas.width = visualizerDiv.offsetWidth
-		canvas.height = visualizerDiv.offsetHeight
 		ctx = canvas.getContext('2d')
 		visualizerDiv.appendChild(canvas)
 
@@ -109,6 +107,7 @@ function radioPlayer(opts = {}) {
 		}
 		playstopbtn.textContent = 'Play'
 		playstopbtn.className = ''
+		document.title = 'Parasprite Radio'
 		if (useVisualizer) {
 			visualizerDiv.style.display = 'none'
 		}
@@ -178,6 +177,8 @@ function radioPlayer(opts = {}) {
 			//return
 		}
 
+		canvas.width = visualizerDiv.offsetWidth - 60
+		canvas.height = visualizerDiv.offsetHeight
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height)
 

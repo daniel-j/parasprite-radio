@@ -9,6 +9,7 @@
 	margin: 0 auto;
 	padding: 0 10px;
 	text-align: center;
+	overflow hidden
 }
 
 #popout {
@@ -22,17 +23,8 @@
 	float: left;
 }
 
-#cover {
-	margin-top: 10px;
-	margin-bottom: 10px;
-	margin-right: 20px;
-	height: 80px;
-	border: 1px solid #202020;
-	background-color: black;
-}
-
 #playstopbtn {
-	float: right;
+	float none !important
 	margin: 20px 10px;
 }
 
@@ -40,7 +32,7 @@
 	clear: both;
 	text-align: left;
 	display: block;
-	margin-top: 10px;
+	margin-top: 20px;
 	padding-bottom: 20px;
 }
 
@@ -49,15 +41,32 @@
 	opacity: 0.4;
 }
 
-#player #volume {
-	right: 115px;
-	top: 83px;
-}
-#volume > div {
-	margin-left: -180px;
-}
+#player
 
-#player .legend {
-	right: 83px;
-	top: 24px;
-}
+	position relative
+	height 80px
+
+	.mid
+		right 50px
+
+	.rightside
+		width 50px
+
+	#cover
+		margin-top: 10px;
+		margin-bottom: 10px;
+		margin-right: 20px;
+		height: 80px;
+		border: 1px solid #202020;
+		background-color: black;
+
+	#volume
+		right 32px
+		top: 83px;
+		& > div
+			margin-left: -180px
+
+	.legend
+		right 2px
+		top: 24px;
+

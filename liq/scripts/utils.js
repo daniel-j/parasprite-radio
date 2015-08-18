@@ -43,15 +43,14 @@ var utils = {
 		})
 	},
 
-	handleAPI: function (url, cb, httpModule) {
-		if (!httpModule) httpModule = require('http')
+	handleAPI: function (url, cb) {
 		utils.fetchJSON(url, function (err, data) {
 			if (err) {
 				utils.sayErr("handleAPI", "I was not able to parse "+url)
 			} else {
 				cb(data)
 			}
-		}, httpModule)
+		})
 	},
 
 	formatter: function (o) {

@@ -155,7 +155,7 @@ module.exports = (config) ->
 
 			add: (item, cb) ->
 				liqCommand "request.push "+item, (err, data) ->
-					cb err
+					cb && cb err
 
 			ignore: (rid, cb) ->
 				liqCommand "request.ignore "+rid, (err, data) ->
@@ -168,8 +168,8 @@ module.exports = (config) ->
 				liqCommand "smartqueue "+thing, (err, data) ->
 					cb && cb err
 
-		announceMessage: (message, cb) ->
-			liqCommand 'announce.push say:'+message, (err, data) ->
+		announce: (message, cb) ->
+			liqCommand 'announce.push smart:'+message, (err, data) ->
 				cb err
 
 		skip: (cb) ->
@@ -184,6 +184,7 @@ module.exports = (config) ->
 			metadata.url    = m.url or null
 			metadata.year   = +m.year or null
 			metadata.art    = m.art or null
+			metadata.bitrate = +m.bitrate or m.bitrate or null
 			metadata.source = m.source or 'default'
 			metadata.live =
 				active: false
@@ -191,14 +192,14 @@ module.exports = (config) ->
 				user: m.live_displayname or null
 				#username: m.live_username or null
 				url: m.live_url or null
-				twitter_username: m.live_twitter or null
+				twitter_handle: m.live_twitter or null
 
 			if m.live_connected == 'yes'
 				metadata.live.active = true
 				metadata.source = 'live'
 
 		updateMeta: (cb) ->
-			fetchJSON 'http://'+config.liquidsoap.host+':'+config.liquidsoap.port_harbor+'/getmeta', (err, data) =>
+			fetchJSON 'http://'+config.liquidsoap.host+':'+config.liquidsoap.port_harbor+'/getmeta', null, (err, data) =>
 				if err
 					console.log "Liquidsoap: Couldn't fetch metadata: "+err
 				else
@@ -211,7 +212,7 @@ module.exports = (config) ->
 		eventStarted: (ev) ->
 			list = (ev.description || "").trim().split('\n')
 			for r in list
-				API.queue.smart r
+				API.queue.add 'smart:'+r
 
 
 		eventEnded: (ev) ->

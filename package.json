@@ -2,7 +2,6 @@
   "name": "parasrpite-radio",
   "version": "0.0.0",
   "private": true,
-
   "devDependencies": {
     "babel-eslint": "^4.0.5",
     "babel-runtime": "^5.8.20",
@@ -61,9 +60,8 @@
     "passport-twitter": "^1.0.3",
     "serve-favicon": "^2.3.0",
     "toml": "^2.3.0",
-    "xml2js": "^0.4.10"
+    "xml2js": "^0.4.10",
+    "id3-genre": "~0.1.0"
   },
-  "optionalDependencies": {
-    "spotify-web": "daniel-j/node-spotify-web"
-  }
+  "optionalDependencies": {}
 }

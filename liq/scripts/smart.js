@@ -23,7 +23,7 @@ switch (parsedUrl.protocol) {
 			case "www.youtube.com":
 			case "youtube.com":
 			case "youtu.be":
-				handler = require('./protocols/youtube')
+				handler = require('./protocols/youtube-dl')
 				break
 
 			case "eqbeats.org":
@@ -38,15 +38,19 @@ switch (parsedUrl.protocol) {
 				handler = require('./protocols/bronytunes')
 				break
 
-			case "open.spotify.com":
-			case "play.spotify.com":
-				handler = require('./protocols/spotify')
-				break
-
-			case "www.mixcloud.com":
-				handler = require('./protocols/mixcloud')
-				break;
+			// case "open.spotify.com":
+			// case "play.spotify.com":
+			//	handler = require('./protocols/spotify')
+			//	break
 		}
+
+		if (!handler) {
+			if (/^.*bandcamp\.com$/.test(parsedUrl.hostname)) {
+				handler = require('./protocols/youtube-dl')
+				break
+			}
+		}
+
 		break
 }
 

@@ -1,5 +1,7 @@
 
 http = require 'http'
+fetchXML = require('../scripts/fetcher').fetchXML
+iplookup = require '../scripts/iplookup'
 
 timeout = 5000
 
@@ -8,8 +10,10 @@ module.exports = (config) ->
 
 	servers = {}
 	iceData = {}
+	listenerDetailed = []
 	lastListenerCount = 0
 	listenerPeak = 0
+	ipcache = {}
 
 	config.icecast.host = config.icecast.host || 'localhost'
 	config.icecast.port = config.icecast.port || 8000
@@ -67,6 +71,9 @@ module.exports = (config) ->
 				listenerPeak = count
 
 			if count != lastListenerCount
+				# more listeners!
+				if count > lastListenerCount
+					updateListenerInfo()
 				lastListenerCount = count
 				console.log("listener count: "+count)
 
@@ -116,6 +123,71 @@ module.exports = (config) ->
 
 		iceConnect()
 
+	getLocations = (list, cb) ->
+		i = 0
+		recursive = () ->
+			listener = list[i]
+			if !listener
+				# done
+				cb && cb()
+				return
+			now = Date.now()
+			ip = listener.ip
+			if !ipcache[ip] or now < ipcache[ip]._time+1*60*60*1000 # 1 hour cache
+				iplookup ip, (err, info) ->
+					if !err and info.found
+						info._time = Date.now()
+						ipcache[ip] = info
+						listener.location = info
+					else
+						listener.location = null
+					i++
+					recursive()
+			else
+				listener.location = ipcache[ip]
+				i++
+				recursive()
+		recursive()
+
+	updateListenerInfo = (cb) ->
+		if isUpdatingDetailed
+			return
+		isUpdatingDetailed = true
+		list = []
+		mounts = config.icecast.mounts
+		mi = 0
+		recursive = () ->
+			m = mounts[mi]
+			if !m
+				# done
+				getLocations list, () ->
+					isUpdatingDetailed = false
+					listenerDetailed = list
+					#console.log list
+					cb && cb list
+				return
+			url = 'http://'+config.icecast.host+':'+config.icecast.port+'/admin/listclients?mount=/'+encodeURIComponent(m)
+			opt = auth: config.icecast.admin.user+':'+config.icecast.admin.password
+			fetchXML url, opt, (err, data) ->
+				if !err and data.icestats
+					listeners = data.icestats.source[0].listener
+					if !listeners then listeners = []
+					else if !Array.isArray listeners then listeners = [listeners]
+					listeners.forEach (v) ->
+						list.push
+							ip: v.IP[0]
+							userAgent: v.UserAgent[0]
+							time: Math.round(Date.now()/1000 - v.Connected[0])
+							id: v.ID[0]
+							mount: m
+							location: null
+
+				mi++
+				recursive()
+		recursive()
+
+	setInterval updateListenerInfo, 10*1000
+
 	Object.keys(servers).forEach (k) ->
 		handleServer servers[k]
 
@@ -152,6 +224,17 @@ module.exports = (config) ->
 			listeners: @getListenerCount()
 			listener_peak: @getListenerPeak()
 			online: @isOnline()
+
+		getListeners: ->
+			list = []
+			listenerDetailed.forEach (listener) ->
+				if listener.location
+					list.push
+						x: Math.round 454/2 + listener.location.longitude*1.06 - 15
+						y: Math.round 244/2-(listener.location.latitude)*1.22 + 35
+						mount: listener.mount
+						connected: listener.time
+			list
 
 		getStreams: ->
 			streams = []

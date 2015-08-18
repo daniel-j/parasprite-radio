@@ -42,9 +42,9 @@ var htmlmin = require('gulp-htmlmin')
 
 
 var sources = {
-	script: ['main.js', 'admin.coffee', 'popout.js'],
-	style: ['main.styl', 'admin.styl', 'popout.styl'],
-	document: ['index.jade', 'admin.jade', 'popout.jade']
+	script: ['main.js', 'admin.coffee', 'popout.js', 'livestream.js'],
+	style: ['main.styl', 'admin.styl', 'popout.styl', 'livestream.styl'],
+	document: ['index.jade', 'admin.jade', 'popout.jade', 'livestream.jade']
 }
 
 var libs = {
@@ -197,6 +197,7 @@ gulp.task('script', scriptTasks.concat('lint'), function () {
 
 gulp.task('style', function () {
 	return gulp.src(sources.style.map(function (f) {return 'src/style/' + f}))
+		.pipe(plumber())
 		.pipe(gulpif(!inProduction, sourcemaps.init()))
 			.pipe(stylus(stylusOpts))
 			.pipe(gulpif(inProduction, cssmin(cssminOpts)))
@@ -220,7 +221,7 @@ gulp.task('lib', libTasks)
 
 // Watcher tasks
 gulp.task('watch:script', ['script'], function () {
-	return gulp.watch(['src/script/**/*.coffee', 'src/script/**/*.js'], watchOpts, ['script'])
+	return gulp.watch(['src/script/**/*.coffee', 'src/script/**/*.js', 'src/script/template/**/*.mustache'], watchOpts, ['script'])
 })
 
 gulp.task('watch:style', ['style'], function () {

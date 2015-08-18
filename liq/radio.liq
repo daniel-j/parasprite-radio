@@ -43,7 +43,7 @@ add_decoder(
 	test=fun(file) -> -1,
 	"$(which ffmpeg || which avconv) -loglevel panic -i - -f wav -"
 )
-set("decoder.file_decoders", ["META","WAV","AIFF","MIDI","IMAGE","FLAC","MAD","OGG","FFMPEG","GSTREAMER"])
+set("decoder.file_decoders", ["META","WAV","IMAGE","FLAC","MAD","OGG","FFMPEG","GSTREAMER"])
 
 
 meta = ref []
@@ -309,11 +309,19 @@ live = on_end(delay=0., live_end_recording, live)
 
 source = fallback(track_sensitive=false, transitions=[to_live, to_songs], [live, source])
 
+source = map_metadata(fun (m) -> begin
+	if m['filename'] != '' and m['decoder'] == 'MAD' then
+		[('bitrate', get_process_output('mp3info -r m -p "%r" '^quote(m['filename'])))]
+	else
+		[]
+	end
+end, source)
+
 # update now playing (and generate cover art..)
 source = on_metadata(update_nowplaying, source)
 
 # play announcements over the music
-source = smooth_add(delay=0.3, p=0.5, normal=source, special=amplify(2., nrj(announce)))
+source = smooth_add(delay=0.3, p=0.3, normal=source, special=amplify(2., nrj(announce)))
 #source = add(normalize=false, [source, amplify(1.8, nrj(announce))])
 
 # audio tweaking

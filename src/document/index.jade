@@ -10,37 +10,35 @@ html
 		title #{config.radio.title}
 
 		link(rel='icon', type='image/x-icon', href='/favicon.ico')
-		link(rel='stylesheet' type='text/css', href='//releases.flowplayer.org/6.0.1/skin/minimalist.css')
+		//- link(rel='stylesheet' type='text/css', href='//releases.flowplayer.org/6.0.1/skin/minimalist.css')
 		link(rel='stylesheet', type='text/css', href='/build/style/main.css')
-		
 
 		//- flowplayer depends on jQuery 1.7.2+
 		//-script(src='//code.jquery.com/jquery-1.10.2.min.js')
 		//- flowplayer javascript component
 		//-script(src="//releases.flowplayer.org/6.0.1/flowplayer.min.js")
-		script(src="//bitdash-a.akamaihd.net/bitmovin-portal/55c9b532ac0af/25ac9a5d3e/latest/bitdash.min.js")
+		script(src='http://content.jwplatform.com/libraries/GZyKIYr6.js')
 
 	body#body
 
 		#top
 			.container
-				a(href='')
-					img#logo(src='/img/icons/parasprite-radio.png', alt='Logo')
-				.left
-					h1
-						a(href='/') #{config.radio.title}
-					#subtitle by 
-						a(href='https://twitter.com/daniel_hede', target='_blank') djazz
 
 				#player
-					a#coverlink(href='/api/now/art/full', target='_blank')
-						img#cover(src='/api/now/art/tiny', alt='Cover art')
+					.leftside
+						a#coverlink(href='/api/now/art/full', target='_blank')
+							img#cover(src='/api/now/art/tiny', alt='Cover art')
 
-					button#playstopbtn Play
-					.right.textright
+					.mid
 						#nowplayingwrap
 							#nowtitle
 							#nowartist
+
+						#visualizer
+
+					.rightside
+
+						button#playstopbtn Play
 
 						#popout
 							a#popuplink(href='/popout', target='_blank')
@@ -48,10 +46,17 @@ html
 						#volume
 							div
 								input#radioVolume(type='range', min=0, max=1, step=0.01, value=0.8)
-						#visualizer
 						.legend
 							span#listenercount
 							img.listenersicon(src='/img/icons/listeners.png', alt='listeners')
+
+				a(href='')
+					img#logo(src='/img/icons/parasprite-radio.png', alt='Logo', title='#{config.radio.title}')
+				.left
+					h1
+						a(href='/') #{config.radio.title}
+					#subtitle by 
+						a(href='https://twitter.com/daniel_hede', target='_blank') djazz
 
 
 		#navigation.container
@@ -59,8 +64,9 @@ html
 			nav#mainmenu
 				a#menuHistory.current(data-page='pageHistory') Play History
 				//- a#menuPlaylist(data-page='pagePlaylist') Playlist
-				a#menuSchedule(data-page='pageSchedule') Schedule
-				a#menuLivestream(data-page='pageLivestream') Livestream
+				a#menuSchedule(data-page='pageSchedule', data-hash='schedule') Schedule
+				a#menuLivestream(data-page='pageLivestream', data-hash='livestream') Livestream
+				a#menuMap(data-page='pageMap', data-hash='map') Map
 
 				div(class='right')
 					a#menuAccount(data-page='pageAccount') Account
@@ -94,13 +100,13 @@ html
 
 				#pageLivestream(style='display: none;')
 					#liveplayer
-						#dashplayer
-						
-						//- .flowplayer(data-wmode="opaque", data-live="true", data-embed="false")
-						//-	video
-						//-		source(type='application/x-mpegurl', src='http://vm.djazz.se/hls/stream.m3u8')
-						//-		//-source(type="video/flash", src="#{config.livestream.url}")
-						#streamoffline Livestream is offline
+						#jwplayer
+						#viewercount
+						#streamoffline
+							span Livestream is offline
+
+				#pageMap(style='display: none')
+					canvas#geocanvas(width=454, height=244)
 
 				#pageLogin.page-wrapper(style='display: none;')
 					strong Login
@@ -185,9 +191,12 @@ html
 						br
 
 
-					span Twitter:
+					div Twitter:
 						= ' '
 						a(href="https://twitter.com/ParaspriteRadio", target="_blank") @ParaspriteRadio
+					div Source code on github:
+						= ' '
+						a(href='https://github.com/daniel-j/parasprite-radio', target='_blank') daniel-j/parasprite-radio
 
 					br
 					br
