@@ -38,7 +38,7 @@ class View.Track extends Marionette.ItemView
 
 		time: timefix
 		title: titlefix
-		name: name
+		name: name or @model.get('url') or ''
 		dir: dir
 		'last-modified': if lm then moment(lm).format('MMM D YYYY hh:mm:ss') else ''
 		extraclasses: extraclasses

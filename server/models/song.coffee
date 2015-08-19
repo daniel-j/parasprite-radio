@@ -24,8 +24,6 @@ Song =
 		md5sum.update hash_base
 		hash = md5sum.digest 'hex'
 
-		console.log hash_base, hash
-
 		hash
 
 module.exports = Song

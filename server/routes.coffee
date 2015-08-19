@@ -3,7 +3,8 @@ path = require 'path'
 fs = require 'fs'
 mm = require 'musicmetadata'
 fetchJSON = require('../scripts/fetcher').fetchJSON
-Song = require './models/song.coffee'
+Song = require './models/song'
+
 
 cleanpath = (p) ->
 	path.join('/', p).substr(1)
@@ -114,6 +115,8 @@ htmloptions =
 
 module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livestream) ->
 	inDev = app.get('env') == 'development'
+
+	EqBeats = require('./models/eqbeats')(config)
 
 	internalRouter = express.Router()
 	defaultRouter = express.Router()
@@ -367,14 +370,62 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 	adminRouter.get '/api/search', (req, res) ->
 		query = req.query.q
 		type = req.query.t || 'any'
+		mpdres = null
+		mpdids = null
+		eqres = null
+		eqids = null
+
+		finalize = () ->
+			final = [].concat mpdres
+			eqres = eqres.filter (t) ->
+				mpdids.indexOf(t.id) == -1
+			final = final.concat eqres
+			res.json final
+
 		mpd.search type, query, (err, data) ->
+			mpdres = []
+			mpdids = []
+			if !err
+				data.forEach (t) ->
+					t.source = 'local'
+					t.id = Song.getSongHash t
+					mpdids.push t.id
+					mpdres.push t
 
-			if err
-				json = error: err
+			if eqres
+				finalize()
+
+		if type == 'any' or type == 'title' or type == 'artist'
+
+			if type == 'title'
+				eqbeatsQuery = 'title:'+query
+			else if type == 'artist'
+				eqbeatsQuery = 'artist:'+query
 			else
-				json = data
+				eqbeatsQuery = query
 
-			res.json json
+			EqBeats.querySearch eqbeatsQuery, (err, data) ->
+				eqres = []
+				eqids = []
+				if !err
+					data.forEach (t) ->
+						o =
+							title: t.title
+							artist: t.artist.name
+							date: new Date(t.timestamp*1000).getFullYear()
+							'last-modified': new Date t.timestamp*1000
+							url: t.link
+							art: t.download.art
+							source: 'eqbeats'
+						o.id = Song.getSongHash o
+						eqres.push o
+						eqids.push o.id
+				if mpdres
+					finalize()
+		else
+			eqres = []
+			eqids = []
+
 
 	###
 	adminRouter.get '/api/albums', (req, res) ->
@@ -488,8 +539,8 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 
 	adminRouter.get '/api/queue', (req, res) ->
 		item = req.query.add
-		if (item.indexOf('/') == 0)
-			item = config.general.media_dir+item
+		#if (item.indexOf('/') == 0)
+		#	item = config.general.media_dir+item
 		liquid.queue.add 'smart:'+item, (err) ->
 			if err
 				json = error: err
