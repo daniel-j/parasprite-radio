@@ -24,7 +24,7 @@ function fetcher(url, opt, callback) {
 
 	var httpModule = parsed.protocol === 'https:' ? require('https') : require('http')
 	httpModule.get(opts, function (res) {
-		if (res.statusCode === 302) {
+		if (res.statusCode === 302 || res.statusCode === 301) {
 			utils.fetchJSON.call(this, res.headers.location, callback)
 			return
 		}
