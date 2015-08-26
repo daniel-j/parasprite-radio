@@ -47,8 +47,11 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 
 	internalRouter.post '/meta', (req, res) ->
 		m = req.body
-		liquid.setMeta m
-		res.end JSON.stringify m, null, 1
+		if Object.keys(m).length == 0
+			res.end '(none)'
+		else
+			liquid.setMeta m
+			res.end JSON.stringify m, null, 1
 
 	# internalRouter.get '/liq/yt', (req, res) ->
 	# 	url = req.query.url
