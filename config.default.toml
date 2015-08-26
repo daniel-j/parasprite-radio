@@ -1,46 +1,51 @@
 # Parasprite Radio config file
 
 [general]
-media_dir = "/nas/audio"
-baseurl   = "http://radiodev.djazz.se/"
-streamurl = "http://icecast.djazz.se:5000/radio"
-userAgent = "ParaspriteRadio/0.0.0"
+media_dir = '~/Music'
+baseurl   = 'http://localhost/'
+streamurl = 'http://localhost:8000/radio'
+userAgent = 'ParaspriteRadio/0.0.0'
+clientId  = 'paraspriteradio'
+irc       = '#parasprite'
+twitter   = 'ParaspriteRadio'
 
 # info about radio - used on the site and for Icecast metadata
 [radio]
-title       = "Parasprite Radio"
-description = ""
-genre       = "Misc"
-url         = "http://radio.djazz.se"
+title       = 'Parasprite Radio'
+description = 'Open source pony radio'
+genre       = 'Misc'
+url         = 'https://radio.djazz.se'
 
 
 # streaming server
 [icecast]
-host     = "localhost"
+host     = 'localhost'
 port     = 8000
+url      = 'http://localhost:8000'
 
 # what mounts too look for listeners on
-mounts   = [ "radio", "radio_mobile" ]
-encoding = "UTF-8"
+mounts   = [ 'radio', 'radio_mobile', 'radio_normal', 'radio_flac' ]
+encoding = 'UTF-8'
 
 [icecast.mount]
-user     = "source"
-password = "hackme"
+user     = 'source'
+password = 'hackme'
 
 [icecast.admin]
-user     = "admin"
-password = "hackme"
+user     = 'admin'
+password = 'hackmemore'
 
-[[icecast.relay]]
-host = "icecast.djazz.se"
-port = 5000
-password = "hackme"
+#[[icecast.relay]]
+#host = 'hostname'
+#port = 8000
+#user = 'admin'
+#password = 'hackme'
 
 
 
 # the thing where magic happens
 [liquidsoap]
-host = "localhost"
+host = 'localhost'
 port_telnet = 1234
 port_harbor = 7000
 port_input  = 8001
@@ -48,65 +53,69 @@ port_input  = 8001
 
 # music database
 [mpd]
-host     = "localhost"
+host     = 'localhost'
 port     = 6600
-password = ""
+password = ''
 
 # the nodejs server
 [server]
-host = "localhost"
+host = 'localhost'
 port = 8002
-cookieSecret  = "secret"
-sessionSecret = "secret"
+cookieSecret  = 'secret'
+sessionSecret = 'secret'
 
 # database
 [mysql]
-host     = "localhost"
-user     = "root"
-password = ""
-database = "paraspriteradio"
+host     = 'localhost'
+user     = 'root'
+password = ''
+database = 'paraspriteradio'
 
 # session storage
 [redis]
-host = "localhost"
+host = 'localhost'
 port = 6379
-prefix = "pr-sess"
+prefix = 'pr-sess'
 
 # for Twitter authentication
 [passport.twitter]
-consumerKey = ""
-consumerSecret = ""
-callbackURL = "http://radiodev.djazz.se/auth/twitter/callback"
+consumerKey = ''
+consumerSecret = ''
+callbackURL = 'http://localhost/auth/twitter/callback'
 
 # for Poniverse authentication
 [passport.poniverse]
-clientID = ""
-clientSecret = ""
-authorizationURL = "https://poniverse.net/oauth/authorize"
-tokenURL = "https://poniverse.net/oauth/access_token"
-callbackURL = "http://radiodev.djazz.se/auth/poniverse/callback"
+clientID = ''
+clientSecret = ''
+authorizationURL = 'https://poniverse.net/oauth/authorize'
+tokenURL = 'https://poniverse.net/oauth/access_token'
+callbackURL = 'http://localhost/auth/poniverse/callback'
 
 # for scheduling
 [google]
-apiKey = ""
-calendarId = "nj4dn0ck0u66t6f38qtqnj324k@group.calendar.google.com"
+apiKey = ''
+calendarId = 'nj4dn0ck0u66t6f38qtqnj324k@group.calendar.google.com'
+
 
 
 # scrobbling
 [lastfm]
-username = "djazzradio"
-password = ""
+username = 'djazzradio'
+password = ''
+[lastfm.api]
+key = ''
+limit = 10
 
 [tunein]
-stationId  = "s225092"
-partnerId  = ""
-partnerKey = ""
+enabled=true
+stationId  = 's225092'
+partnerId  = ''
+partnerKey = ''
 
+[ipinfodb]
+apiKey = ''
 
 # external sources
 [soundcloud]
-clientId = ""
+clientId = ''
 
-[spotify]
-username = "ParaspriteRadio"
-password = ""
