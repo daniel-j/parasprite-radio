@@ -10,7 +10,7 @@ var gulp = require('gulp')
 var sourcemaps = require('gulp-sourcemaps')
 var gutil = require('gulp-util')
 var gdata = require('gulp-data')
-var clean = require('gulp-clean')
+var del = require('del')
 var gulpif = require('gulp-if')
 var plumber = require('gulp-plumber')
 var concat = require('gulp-concat')
@@ -186,8 +186,8 @@ for (var l in libs) {
 }
 
 // Cleanup task
-gulp.task('clean', function () {
-	return gulp.src('build', {read: false}).pipe(clean())
+gulp.task('clean', function (cb) {
+	del('build', cb)
 })
 
 // Builder tasks
@@ -238,7 +238,7 @@ gulp.task('watch:server', function () {
 
 gulp.task('watch', function (done) {
 	browserSync.init({
-		proxy: '127.0.0.1:8002'
+		proxy: config.server.host+':'+config.server.port
 	})
 	return runSequence(['clean', 'watch:server'], ['watch:script', 'watch:style', 'watch:document', 'lib'], done)
 })
