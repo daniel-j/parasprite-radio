@@ -30,7 +30,7 @@ passport = require 'passport'
 flash = require 'connect-flash'
 session = require 'express-session'
 bodyParser = require 'body-parser'
-RedisStore = require('connect-redis')(session)
+SessionStore = require('express-mysql-session')
 cookieParser = require 'cookie-parser'
 #lessMiddleware = require 'less-middleware'
 
@@ -47,8 +47,6 @@ scheduler.on 'ended', liquid.eventEnded
 app = express()
 inDev = app.get('env') == 'development'
 
-redisStore = new RedisStore config.redis
-
 app.use logger 'dev'
 app.use favicon __dirname + '/../static/img/icons/favicon.ico'
 
@@ -57,7 +55,7 @@ app.use session
 	secret: config.server.sessionSecret
 	resave: true
 	saveUninitialized: true
-	store: redisStore
+	store: new SessionStore config.mysql
 	cookie:
 		maxAge: 365 * 24 * 60 * 60 * 1000
 
