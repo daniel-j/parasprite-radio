@@ -50,6 +50,7 @@
     "express-session": "^1.11.3",
     "googleapis": "^2.1.3",
     "id3-genre": "~0.1.0",
+    "image-type": "^2.0.2",
     "lwip": "0.0.7",
     "morgan": "^1.6.1",
     "mpd": "^1.3.0",

@@ -28,6 +28,9 @@ set("alsa.alsa_buffer", 1)
 set("alsa.buffer_length", 20)
 set("alsa.periods", 0)
 
+set("frame.audio.samplerate",44100)
+set("audio.converter.samplerate.libsamplerate.quality","best")
+
 #set("decoder.debug",true)
 #set("extproto.use_server_name",true)
 
@@ -112,7 +115,7 @@ server.register(
 
 
 # temporary solution https://github.com/savonet/liquidsoap/issues/217
-def track_ended(time, m)
+def track_end_cleanup(time, m)
 	if m["temporary"] == "true" and m["filename"] != "" then
 		#print("time left: #{time}")
 		print("rm "^quote(m["filename"]))
@@ -122,11 +125,13 @@ def track_ended(time, m)
 end
 
 
-def scrobble(m)
+def scrobble_nowplaying(m)
 	audioscrobbler.nowplaying(user=confstr("lastfm.username"), password=confstr("lastfm.password"), m)
-	audioscrobbler.submit(user=confstr("lastfm.username"), password=confstr("lastfm.password"), m)
+	tunein.nowplaying(partner_id=confstr("tunein.partnerId"), partner_key=confstr("tunein.partnerKey"), station_id=confstr("tunein.stationId"), m)
+end
 
-	tunein.submit(partner_id=confstr("tunein.partnerId"), partner_key=confstr("tunein.partnerKey"), station_id=confstr("tunein.stationId"), m)
+def scrobble_submit(t, m)
+	audioscrobbler.submit(user=confstr("lastfm.username"), password=confstr("lastfm.password"), m)
 end
 
 
@@ -143,17 +148,15 @@ def update_nowplaying(m)
 
 	data = json_of(compact=true, m)
 
-	# send metadata to script
-	system("node ../scripts/track-change "^quote(data))
-
-	# update the info on server
-	ignore(http.post(
+	# send metadata to server
+	print(snd(http.post(
 		data    = data,
 		headers = [("Content-Type", "application/json; charset=utf-8")],
 		timeout = 10.0,
 		"http://#{confstr('server.host', 'localhost')}:#{confint('server.port', 8000)}/internal/meta"
-	))
+	)))
 end
+
 
 # Return the json content
 # of meta
@@ -267,13 +270,16 @@ friendship = audio_to_stereo(amplify(1.1, playlist(id="friendship", reload_mode=
 queue = audio_to_stereo(request.equeue(id="request", conservative=true, length=300., timeout=3600.))
 announce = audio_to_stereo(request.equeue(id="announce", conservative=true, length=300., timeout=3600.))
 
+add_skip_command(command="request.skip", queue)
+
 songs = random(weights=[1,1], [summer,default])
 
 source = fallback([queue, songs])
 
 # scrobble music (last.fm & tunein) but not jingles etc..
 source = store_metadata(id="history", size=20, source)
-source = on_metadata(scrobble, source)
+source = on_track(scrobble_nowplaying, source)
+source = on_end(delay=0., scrobble_submit, source)
 
 # TODO: replace with jingles
 source = rotate(weights=[1,7], [friendship,source])
@@ -281,8 +287,8 @@ source = rotate(weights=[1,7], [friendship,source])
 add_skip_command(command="skip", source)
 
 # cleanup temp files
-source = on_end(delay=0., track_ended, source)
-announce = on_end(delay=0., track_ended, announce)
+source = on_end(delay=0., track_end_cleanup, source)
+announce = on_end(delay=0., track_end_cleanup, announce)
 
 # crossfade songs!
 source = smart_crossfade(conservative=true, start_next=2., fade_in=2., fade_out=3., width=3., source)
@@ -394,34 +400,61 @@ out(
 		internal_quality = 0,
 		id3v2 = true
 	),
-	start = false,
+	start = true,
 	source
 )
 
 out(
 	mount = "radio_mobile",
-	%mp3.vbr(
-		quality = 8,
-		stereo = true,
-		stereo_mode = "joint_stereo",
-		internal_quality=0,
-		id3v2 = true
+	%fdkaac(
+		channels = 2,
+		samplerate = 44100,
+		bitrate = 64,
+		afterburner = true,
+		aot="mpeg2_he_aac_v2"
 	),
 	start = true,
 	source
 )
 
-#out(
-#	mount = "radio_flac",
-#	%ogg(%flac(
-#		samplerate  = 44100,
-#		channels    = 2,
-#		compression = 7
-#	)),
-#	start = false,
-#	source
-#)
+# out(
+# 	mount = "radio_flac",
+# 	%ogg(%flac(
+# 		samplerate = 48000,
+# 		channels    = 2,
+# 		compression = 7
+# 	)),
+# 	icy_metadata = "false",
+# 	start = true,
+# 	source
+# )
 
+# a better FLAC encoder
+out(
+	mount = "radio_flac",
+	%external(
+		channels = 2,
+		samplerate = 44100,
+		header = true,
+		restart_on_crash = true,
+		#restart_on_new_track = false,
+		"flac --best --ogg --no-seektable --silent --stdout -"
+	),
+	icy_metadata = "false",
+	format = "audio/ogg",
+	start = true,
+	source
+)
+
+out(
+	mount = "radio_vorbis",
+	%vorbis(
+		channels = 2,
+		quality = 1.0
+	),
+	start = false,
+	source
+)
 
 # to FM transmitter
 #output.alsa(id="alsa", bufferize=true, fallible = true, source)

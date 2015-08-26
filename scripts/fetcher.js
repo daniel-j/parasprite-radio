@@ -8,6 +8,7 @@ function fetcher(url, opt, callback) {
 		callback = opt
 		opt = {}
 	}
+	opt = opt || {}
 	var parsed = urlparse(url)
 	var opts = {
 		hostname: parsed.hostname,
@@ -28,15 +29,18 @@ function fetcher(url, opt, callback) {
 			utils.fetchJSON.call(this, res.headers.location, callback)
 			return
 		}
-		var data = ''
+		var data = []
+		if (opt.stream) {
+			callback(null, res)
+		} else {
+			res.on('data', function (chunk) {
+				data.push(chunk)
+			})
 
-		res.on('data', function (chunk) {
-			data += chunk
-		})
-
-		res.on('end', function () {
-			callback(null, data)
-		})
+			res.on('end', function () {
+				callback(null, Buffer.concat(data))
+			})
+		}
 
 	}).on('error', function (e) {
 		callback(e.message)

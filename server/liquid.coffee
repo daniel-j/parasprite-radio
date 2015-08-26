@@ -2,40 +2,41 @@
 net = require 'net'
 path = require 'path'
 fetchJSON = require(__dirname + '/../scripts/fetcher').fetchJSON
+generateArt = require './utils/generateArt'
 
 timeout = 5000
 
 module.exports = (config) ->
 
-	liqReady = false
-	client = null
-	liqData = ""
-	cmdQueue = []
 
-	liqOnReady = ->
-		console.log 'Liquidsoap: Ready!'
-		liqReady = true
+	liqCommand = (command, cb) ->
+		command = command+"\r\n"
+		sentCb = false
+		errorMsg = null
+		liqData = ''
 
-	liqOnData = (data) ->
-		s = data.toString('utf8')
-		liqData += s
+		liqOnData = (data) ->
+			s = data.toString('utf8')
+			liqData += s
 
-		a = s.split "\r\n"
-		a.pop()
-		if a[a.length-1] == "END"
-			d = liqData.split "\r\n"
-			d.pop() # remove last newline
-			d.pop() # remove END
-			liqData = ""
-			cb = cmdQueue.shift() # get command first in queue
-			if cb
+			a = s.split '\r\n'
+			a.pop()
+			if a[a.length-1] == 'END'
+				d = liqData.split '\r\n'
+				d.pop() # remove last newline
+				d.pop() # remove END
+				liqData = ''
 				if d.length == 1
 					d = d[0].split "\n"
 					if d.length == 1
 						d = d[0]
 				if Array.isArray d
-					o = {}
+					out = {}
+					o = out
 					for line, i in d
+						m = line.match /^--- (\d*) ---$/
+						if m
+							o = out[+m[1]] = {}
 						pos = line.indexOf "="
 						if pos != -1
 							key = line.substr 0, pos
@@ -44,86 +45,40 @@ module.exports = (config) ->
 								o[key] = JSON.parse val
 							catch err
 								# do nothing
-					d = o
-					
-				cb null, d
+					d = out
+				unless sentCb
+					sentCb = true
+					client.end 'quit\r\n'
+					cb null, d
 
-	liqOnError = (err) ->
-		console.error "Liquidsoap: Socket error: "+err
-
-	liqOnEnd = ->
-		console.log 'Liquidsoap: Socket ended'
-		client = null
-		liqReady = false
-		liqData = ""
-		cmdQueue = []
-
-	liqOnTimeout = ->
-		console.log 'Liquidsoap: Socket timeout'
-		client.end()
-
-	liqConnect = ->
-		console.log "Liquidsoap: Connecting.."
 		client = net.connect
 			host: config.liquidsoap.host || "localhost"
 			port: config.liquidsoap.port_telnet || 1234
-		client.once 'connect', liqOnReady
 		client.on 'data', liqOnData
-		client.once 'error', liqOnError
-		client.once 'timeout', liqOnTimeout
-		client.once 'end', liqOnEnd
 		client.setTimeout 10*1000
 
+		client.once 'connect', ->
+			client.write command, 'utf8'
+		client.once 'error', (err) ->
+			console.error 'Liquidsoap: '+err
+			errorMsg = err
+		client.once 'timeout', () ->
+			client.end()
+		client.once 'end', ->
+			unless sentCb
+				sentCb = true
+				cb ''+(errorMsg or 'end')
 
-	liqCheck = (cb) ->
-		if liqReady
-			cb null
-		else
-			if client == null
-				liqConnect()
-			sentCb = false
-			errorMsg = null
+		setTimeout ->
+			unless sentCb
+				sentCb = true
+				client.end()
+				cb 'timeout'
+		, timeout
 
-			client.once 'connect', ->
-				unless sentCb
-					sentCb = true
-					cb null
-			client.once 'error', (err) ->
-				errorMsg = err
-			client.once 'end', ->
-				unless sentCb
-					sentCb = true
-					cb ''+(errorMsg or 'end')
-
-			setTimeout ->
-				unless sentCb or false
-					sentCb = true
-					if client
-						client.end()
-					cb 'timeout'
-			, timeout
-
-	liqCommand = (command, cb) ->
-		command = command+"\r\n"
-		liqCheck (err) ->
-			if err
-				console.warn "Liquidsoap: Check error: " + err
-				cb err, null
-			else
-				client.write command, 'utf8'
-				cmdQueue.push (err, data) ->
-					if err
-						console.warn "Liquidsoap " + name+" " + args.join(' ') + ": " + err
-						cb err, null
-					else
-						cb null, data
-
-	dbUpdateCallbacks = []
-
-	# no need to connect on startup at the moment
-	#liqConnect()
 
 	metadata = {}
+	imagedata = null
 
 	API =
 		queue:
@@ -183,8 +138,9 @@ module.exports = (config) ->
 			metadata.albumartist = m.albumartist or null
 			metadata.url    = m.url or null
 			metadata.year   = +m.year or null
-			metadata.art    = m.art or null
+			metadata.art    = config.general.baseurl+'api/now/art/small' #m.art or null
 			metadata.bitrate = +m.bitrate or m.bitrate or null
+			metadata.ext    = path.extname(path.basename(m.filename)).substring(1)
 			metadata.source = m.source or 'default'
 			metadata.live =
 				active: false
@@ -198,15 +154,35 @@ module.exports = (config) ->
 				metadata.live.active = true
 				metadata.source = 'live'
 
+			generateArt (m.art or m.filename), (err, result) ->
+				imagedata = result
+
 		updateMeta: (cb) ->
 			fetchJSON 'http://'+config.liquidsoap.host+':'+config.liquidsoap.port_harbor+'/getmeta', null, (err, data) =>
 				if err
-					console.log "Liquidsoap: Couldn't fetch metadata: "+err
+					console.error "Liquidsoap: Couldn't fetch metadata: "+err
 				else
 					@setMeta data
 
 		getMeta: ->
 			return metadata
+
+		getImage: ->
+			return imagedata
+
+		getHistory: (cb) ->
+			liqCommand 'history.get', (err, data) ->
+				if err
+					cb err
+					return
+				list = []
+				for id, item of data
+					item.timestamp = new Date(item.on_air).getTime()
+					list.push item
+				list.sort (a, b) ->
+					return b.timestamp - a.timestamp
+
+				cb null, list
 
 
 		eventStarted: (ev) ->

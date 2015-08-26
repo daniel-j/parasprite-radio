@@ -56,21 +56,15 @@ function updateNowPlaying() {
 				if (window.playing) {
 					document.title = window.nowplayingdata + ' - Parasprite Radio'
 				}
-				if (data.meta.art) {
-					cover.src = data.meta.art
-					coverlink.href = data.meta.art
+
+				// wait a bit for image to render
+				setTimeout(() => {
+					cover.src = '/api/now/art/tiny?t='+Date.now()
+					//coverlink.href = '/api/now/art/full'
 					if (window.playing) {
 						notify.show(title, artist, cover.src)
 					}
-				} else {
-					setTimeout(() => {
-						cover.src = '/api/now/art/tiny?t='+Date.now()
-						coverlink.href = '/api/now/art/full'
-						if (window.playing) {
-							notify.show(title, artist, cover.src)
-						}
-					}, 2000)
-				}
+				}, 1000)
 			}
 
 		} else { // No stream

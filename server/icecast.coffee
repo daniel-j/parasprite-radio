@@ -193,11 +193,12 @@ module.exports = (config) ->
 
 	fixAudioInfo = (m) ->
 		o = {}
-		info = m.audio_info.split ';'
-		info.forEach (v, i) ->
-			pair = v.split '='
-			o[pair[0]] = pair[1]
-		o.type = m.server_type
+		if m and m.audio_info
+			info = m.audio_info.split ';'
+			info.forEach (v, i) ->
+				pair = v.split '='
+				o[pair[0]] = pair[1]
+			o.type = m.server_type
 		o
 
 	API =

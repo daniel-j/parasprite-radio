@@ -1,7 +1,7 @@
 
 
-# TuneIn Broadcaster API submit by djazz
-def tunein.submit(~partner_id="",~partner_key="",~station_id="",m)
+# TuneIn Broadcaster API by djazz
+def tunein.nowplaying(~partner_id="",~partner_key="",~station_id="",m)
 	server = "http://air.radiotime.com/Playing.ashx"
 	if partner_id != "" and partner_key != "" and station_id != "" then
 		title = m["title"]

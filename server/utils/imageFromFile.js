@@ -1,10 +1,8 @@
-#!/usr/bin/env node
 'use strict'
 
 var fs = require('fs')
 var path = require('path')
 var mm = require('musicmetadata')
-var lwip = require('lwip')
 
 function typeToMime(type) {
 
@@ -17,8 +15,6 @@ function typeToMime(type) {
 	return type
 }
 
-
-
 function imageFromFile(filename, cb) {
 	var stream = fs.createReadStream(filename)
 	var gotimg = false
@@ -26,7 +22,7 @@ function imageFromFile(filename, cb) {
 	//if allowed.indexOf(path.extname(filename).toLowerCase()) == -1
 	//	cb 'non-allowed file type'
 	//	return
-	
+
 	var parser = mm(stream, {}, function (err, meta) {
 		var pictures = meta.picture
 		
@@ -42,7 +38,7 @@ function imageFromFile(filename, cb) {
 		
 		if (!gotimg) {
 			var dir = path.dirname(filename)
-			
+
 			fs.readdir(dir, function (err, result) {
 				if (err) {
 					cb(err)
@@ -74,7 +70,8 @@ function imageFromFile(filename, cb) {
 				}
 
 				if (img == null) {
-					cb('no image found\n'+JSON.stringify(meta))
+					// no image was found
+					cb(null, null, null)
 				}
 				else {
 					fs.readFile(path.join(dir, img), function (err, data) {
@@ -87,9 +84,6 @@ function imageFromFile(filename, cb) {
 					})
 				}
 			})
-
-			//res.sendFile path.join(filename+'/../cover.jpg'),
-			//	root: config.media_dir
 		}
 	})
 
@@ -110,53 +104,4 @@ function imageFromFile(filename, cb) {
 	})
 }
 
-
-var liq = JSON.parse(process.argv[2])
-
-console.log(liq)
-
-
-if (!liq.art && liq.filename) {
-	console.log("Generating art...")
-	imageFromFile(liq.filename, function (err, type, data) {
-		if (err) {
-			console.log("Failed to generate art! "+err)
-			fs.unlink(__dirname+'/now/image-full', function () {})
-			fs.unlink(__dirname+'/now/image-small.png', function () {})
-			fs.unlink(__dirname+'/now/image-tiny.png', function () {})
-			fs.unlink(__dirname+'/now/type.txt', function () {})
-		}
-		else {
-
-			fs.writeFile(__dirname+'/now/image-full', data, function (err) {
-				if (err) throw err
-				console.log("Saved full art")
-			})
-			fs.writeFile(__dirname+'/now/type.txt', type)
-
-			var t = type.split('/')[1] === 'png' ? 'png':'jpg'
-			lwip.open(data, t, function (err, image) {
-				if (err) console.log(err)
-				else {
-					image.batch()
-						.cover(80, 80)
-						.writeFile(__dirname+'/now/image-tiny.png', function (err) {
-							if (err) throw err
-							console.log("Saved tiny art")
-						})
-				}
-			})
-			lwip.open(data, t, function (err, image) {
-				if (err) console.log(err)
-				else {
-					image.batch()
-						.cover(350, 350)
-						.writeFile(__dirname+'/now/image-small.png', function (err) {
-							if (err) throw err
-							console.log("Saved small art")
-						})
-				}
-			})
-		}
-	})
-}
+module.exports = imageFromFile

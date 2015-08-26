@@ -179,6 +179,12 @@ module.exports = (config) ->
 	
 
 	API =
+
+		disconnect: (cb) ->
+			if mpdReady and client
+				mpdCommand 'close', [], cb
+
+
 		search: (type, text, cb) ->
 			# perform empty search check
 			if text == ''

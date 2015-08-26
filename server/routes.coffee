@@ -25,87 +25,9 @@ isInternal = (req, res, next) ->
 		res.writeHead 401
 		res.end '401 Unauthorized. Only internal!'
 
-typeToMime = (type) ->
-	switch type
-		when 'jpg' then type = 'image/jpeg'
-		when 'jpeg' then type = 'image/jpeg'
-		when 'png' then type = 'image/png'
-		else type = null
-	type
-
 cors = (res) ->
 	res.header "Access-Control-Allow-Origin", "*"
 	res.header "Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept"
-
-###
-imageFromFile = (filename, cb) ->
-	stream = fs.createReadStream filename
-	gotimg = false
-	#allowed = ['.mp3', '.ogg', '.flac', '.wma']
-	#if allowed.indexOf(path.extname(filename).toLowerCase()) == -1
-	#	cb 'non-allowed file type'
-	#	return
-	
-	parser = mm stream
-	
-	parser.on 'metadata', (meta) ->
-		pictures = meta.picture
-		
-		if pictures and pictures[0]
-
-			type = typeToMime pictures[0].format
-			
-			if type != null
-				cb null, type, meta.picture[0].data
-				gotimg = true
-		
-		if !gotimg
-			dir = path.dirname filename
-			
-			fs.readdir dir, (err, result) ->
-				if err
-					cb err
-					return
-				valid = ['.png', '.jpg', '.jpeg']
-				commonFiles = ['cover', 'folder']
-				result = result.filter (f) ->
-					ext = path.extname(f).toLowerCase()
-					valid.indexOf(ext) != -1
-				img = null
-				for file in result
-					if img != null then break
-					f = file.toLowerCase()
-					if commonFiles.indexOf(path.basename(f, path.extname(f))) != -1
-						img = file
-					else
-						for common in commonFiles
-							if f.indexOf(common) != -1
-								img = file
-								break
-
-				if img == null
-					cb 'no image found\n'+JSON.stringify(meta)
-				else
-					fs.readFile path.join(dir, img), (err, data) ->
-						if err
-							cb err
-						else
-							cb null, typeToMime(path.extname(img).substr(1)), data
-
-			#res.sendFile path.join(filename+'/../cover.jpg'),
-			#	root: config.media_dir
-
-	parser.on 'done', (err) ->
-		stream.destroy()
-		if err and !gotimg then cb err
-	parser.on 'error', (err) ->
-		stream.destroy()
-		if err and !gotimg then cb err
-
-	stream.on 'error', (err) ->
-		if !gotimg
-			cb err
-###
 
 htmloptions =
 	root: __dirname + '/../build/document/'
@@ -124,8 +46,9 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 
 
 	internalRouter.post '/meta', (req, res) ->
-		liquid.setMeta req.body
-		res.end('ok')
+		m = req.body
+		liquid.setMeta m
+		res.end JSON.stringify m, null, 0
 
 	# internalRouter.get '/liq/yt', (req, res) ->
 	# 	url = req.query.url
@@ -218,25 +141,29 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 	
 	defaultRouter.get '/api/now/art/:size', (req, res) ->
 		size = req.params.size
-		sizes = ['tiny', 'small', 'medium', 'full']
+		if size == 'full' then size == 'original'
+		sizes = ['original', 'tiny', 'small']
 		if sizes.indexOf(size) == -1
-			res.status(404).end('That image size was not found')
+			res.redirect sizes[0]
 			return
-		fs.readFile __dirname+'/../scripts/now/type.txt', (err, data) ->
-			if err
-				#res.sendFile 'pr-cover-'+size+'.png', root: __dirname + '/../static/img/cover/'
-				res.sendFile 'cover-small.png', root: __dirname + '/../static/img/cover/'
+		info = liquid.getImage()
+		if info
+			if size == 'original'
+				data = info.original
+				type = info.type
 			else
-				if size == 'tiny'
-					res.sendFile 'image-tiny.png', root: __dirname+'/../scripts/now/'
-				else if size == 'small'
-					res.sendFile 'image-small.png', root: __dirname+'/../scripts/now/'
-				else if size == 'full'
-					res.setHeader "Content-Type", data.toString()
-					res.sendFile 'image-full', root: __dirname+'/../scripts/now/'
-				else
-					res.redirect 'full'
-					#res.status(404).end('That image size was not found')
+				data = info.sizes[size]
+				type = ext: 'png', mime: 'image/png'
+
+		if info and data
+			console.log 'got image!', size, type
+			res.setHeader 'Content-Type', type.mime
+			res.end data
+		else
+			console.log 'no image found :/'
+			res.setHeader 'Content-Type', 'image/png'
+			#res.sendFile 'pr-cover-'+size+'.png', root: __dirname + '/../static/img/cover/'
+			res.sendFile 'cover-small.png', root: __dirname + '/../static/img/cover/'
 	###
 	defaultRouter.get '/api/now/json', (req, res) ->
 		cors(res)
@@ -252,6 +179,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 			livestream: livestream.getInfo()
 		res.json o
 
+	###
 	defaultRouter.get '/api/lastfm/recent', (req, res) ->
 		cors(res)
 		
@@ -260,6 +188,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 				res.end 'error: ' + err
 			else
 				res.json data
+	###
 
 	defaultRouter.get '/api/history', (req, res) ->
 		imagesize = +(req.query.imagesize || 1)
@@ -269,6 +198,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 		if limit < 1 then limit = 1
 		if limit > config.lastfm.api.limit then limit = config.lastfm.api.limit
 		cors(res)
+
 		fetchJSON 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user='+config.lastfm.username+'&api_key='+config.lastfm.api.key+'&format=json&limit='+limit+'&extended=1', null, (err, data) ->
 			if err
 				console.log 'lastfm error: ' + err, data
@@ -306,6 +236,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 			year: meta.year
 			art: meta.art or config.general.baseurl+'api/now/art/small'
 			bitrate: meta.bitrate
+			ext: meta.ext
 			source: meta.source
 
 		songInfo.id = Song.getSongHash songInfo
