@@ -35,6 +35,10 @@ set("audio.converter.samplerate.libsamplerate.quality","best")
 #set("extproto.use_server_name",true)
 
 
+serverport = (if getenv("SERVER_PORT") == "" then "#{confint('server.port', 8002)}" else getenv("SERVER_PORT") end)
+
+
+
 %include "utils.liq"
 %include "tunein.liq"
 %include "protocols.liq"
@@ -149,11 +153,11 @@ def update_nowplaying(m)
 	data = json_of(compact=true, m)
 
 	# send metadata to server
-	print(snd(http.post(
+	print("META: "^snd(http.post(
 		data    = data,
 		headers = [("Content-Type", "application/json; charset=utf-8")],
 		timeout = 10.0,
-		"http://#{confstr('server.host', 'localhost')}:#{confint('server.port', 8000)}/internal/meta"
+		"http://#{confstr('server.host', 'localhost')}:#{serverport}/internal/meta"
 	)))
 end
 
@@ -263,7 +267,7 @@ end
 
 # playlists
 default = audio_to_stereo(mksafe(playlist(id="default", reload_mode="watch", reload=600, timeout=600., prefix="/audio/", "/home/djazz/.mpd/playlists/radio.m3u")))
-summer = audio_to_stereo(playlist(id="summer", reload_mode="watch", reload=600, timeout=600., prefix="/audio/", "/home/djazz/.mpd/playlists/summer.m3u"))
+#summer = audio_to_stereo(playlist(id="summer", reload_mode="watch", reload=600, timeout=600., prefix="/audio/", "/home/djazz/.mpd/playlists/summer.m3u"))
 friendship = audio_to_stereo(amplify(1.1, playlist(id="friendship", reload_mode="watch", reload=600, "friendship.m3u")))
 
 # queue: requests; announce: plays over music
@@ -272,7 +276,7 @@ announce = audio_to_stereo(request.equeue(id="announce", conservative=true, leng
 
 add_skip_command(command="request.skip", queue)
 
-songs = random(weights=[1,1], [summer,default])
+songs = default #random(weights=[1,1], [summer,default])
 
 source = fallback([queue, songs])
 
@@ -291,7 +295,7 @@ source = on_end(delay=0., track_end_cleanup, source)
 announce = on_end(delay=0., track_end_cleanup, announce)
 
 # crossfade songs!
-source = smart_crossfade(conservative=true, start_next=2., fade_in=2., fade_out=3., width=3., source)
+source = smart_crossfade(conservative=true, start_next=3., fade_in=2., fade_out=3., width=5., source)
 
 
 
@@ -378,6 +382,8 @@ out = output.icecast(
 	fallible = true
 )
 
+
+clock.assign_new(id="output_clock",[
 out(
 	mount = "radio",
 	%mp3.cbr(
@@ -389,7 +395,7 @@ out(
 		id3v2 = true
 	),
 	source
-)
+),
 
 out(
 	mount = "radio_normal",
@@ -402,7 +408,7 @@ out(
 	),
 	start = true,
 	source
-)
+),
 
 out(
 	mount = "radio_mobile",
@@ -415,7 +421,7 @@ out(
 	),
 	start = true,
 	source
-)
+),
 
 # out(
 # 	mount = "radio_flac",
@@ -444,7 +450,7 @@ out(
 	format = "audio/ogg",
 	start = true,
 	source
-)
+),
 
 out(
 	mount = "radio_vorbis",
@@ -455,6 +461,8 @@ out(
 	start = false,
 	source
 )
+
+])
 
 # to FM transmitter
 #output.alsa(id="alsa", bufferize=true, fallible = true, source)
