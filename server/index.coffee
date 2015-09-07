@@ -99,3 +99,6 @@ require(__dirname+'/routes')(app, passport, config, mpd, liquid, icecast, schedu
 # launch the server!
 server = app.listen config.server.port, "0.0.0.0", ->
 	console.log 'Parasprite Radio http server listening on port %d', server.address().port
+server.on 'error', (err) ->
+	console.error 'Server '+err, config.server.port
+	process.exit 1
