@@ -4,6 +4,7 @@ var urlparse = require('url').parse
 var config = require(__dirname+'/config')
 
 function fetcher(url, opt, callback) {
+	var sentCallback = false
 	if (typeof opt === 'function') {
 		callback = opt
 		opt = {}
@@ -31,19 +32,28 @@ function fetcher(url, opt, callback) {
 		}
 		var data = []
 		if (opt.stream) {
-			callback(null, res)
+			if (!sentCallback) {
+				callback(null, res)
+				sentCallback = true
+			}
 		} else {
 			res.on('data', function (chunk) {
 				data.push(chunk)
 			})
 
 			res.on('end', function () {
-				callback(null, Buffer.concat(data))
+				if (!sentCallback) {
+					callback(null, Buffer.concat(data))
+					sentCallback = true
+				}
 			})
 		}
 
 	}).on('error', function (e) {
-		callback(e.message)
+		if (!sentCallback) {
+			callback(e.message)
+			sentCallback = true
+		}
 	})
 }
 
@@ -57,7 +67,7 @@ function fetchJSON(url, opt, callback) {
 			var obj = JSON.parse(data)
 		}
 		catch (err) {
-			callback(err, data)
+			callback(err, data+'')
 			return
 		}
 		callback(null, obj)
