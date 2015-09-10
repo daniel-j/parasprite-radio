@@ -6,10 +6,10 @@ var gm = require('gm')
 
 var imageFormats = {
 	tiny: function (image) {
-		return image.geometry(80, 80, 0, 0, '^').gravity('center')
+		return image.gravity('Center').geometry(80, 80, '^').crop(80, 80)
 	},
 	small: function (image) {
-		return image.geometry(350, 350, 0, 0, '^').gravity('center')
+		return image.gravity('Center').geometry(350, 350, '^').crop(350, 350)
 	}
 }
 
