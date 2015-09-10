@@ -6,7 +6,7 @@ cd $DIR
 
 function createConfig {
 	echo "Creating config files..."
-	cp -n config.default.json config.json
+	cp -n config.default.toml config.toml
 	cp -n liq/credentials.default.liq liq/credentials.liq
 }
 
