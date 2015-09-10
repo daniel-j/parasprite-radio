@@ -2,14 +2,14 @@
 var imageType = require('image-type')
 var imageFromFile = require('./imageFromFile')
 var fetcher = require('../../scripts/fetcher').fetcher
-var lwip = require('lwip')
+var gm = require('gm')
 
 var imageFormats = {
 	tiny: function (image) {
-		return image.cover(80, 80)
+		return image.geometry(80, 80, 0, 0, '^').gravity('center')
 	},
 	small: function (image) {
-		return image.cover(350, 350)
+		return image.geometry(350, 350, 0, 0, '^').gravity('center')
 	}
 }
 
@@ -70,25 +70,19 @@ function processImage(type, data, cb) {
 	var totalCount = 0
 	var c = 0
 	var images = {}
+	var image = gm(data, 'iamge.'+type.ext)
 
-	function loaded(name) {
-		return function (err, image) {
+	function handleImage(name) {
+		var batchFunc = imageFormats[name]
+		batchFunc(image).toBuffer('png', function (err, buffer) {
 			if (err) {
 				console.error(err)
 				done()
 				return
 			}
-			var batchFunc = imageFormats[name]
-			batchFunc(image.batch()).toBuffer('png', function (err, buffer) {
-				if (err) {
-					console.error(err)
-					done()
-					return
-				}
-				images[name] = buffer
-				done()
-			})
-		}
+			images[name] = buffer
+			done()
+		})
 	}
 
 	function done() {
@@ -101,7 +95,7 @@ function processImage(type, data, cb) {
 	for (var name in imageFormats) {
 		images[name] = null
 		totalCount++
-		lwip.open(data, type.ext, loaded(name))
+		handleImage(name)
 	}
 }
 
