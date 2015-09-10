@@ -2,7 +2,8 @@
 var imageType = require('image-type')
 var imageFromFile = require('./imageFromFile')
 var fetcher = require('../../scripts/fetcher').fetcher
-var gm = require('gm')
+var gm = require('gm').subClass({imageMagick: true})
+
 
 var imageFormats = {
 	tiny: function (image) {
@@ -12,6 +13,7 @@ var imageFormats = {
 		return image.gravity('Center').geometry(350, 350, '^').crop(350, 350)
 	}
 }
+
 
 function generateArt(input, cb) {
 	if (!input) {
