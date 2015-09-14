@@ -18,7 +18,6 @@ var mergeStream = require('merge-stream')
 var assign = require('lodash').assign
 var browserSync = require('browser-sync').create()
 var sequence = require('run-sequence').use(gulp)
-var lol = 5
 
 // script
 var eslint = require('gulp-eslint')
@@ -212,5 +211,3 @@ gulp.task('default', function (done) {
 gulp.task('watch', function (done) {
 	sequence(['default', 'watch:server', 'watch:script', 'watch:style', 'watch:document'], 'browsersync', done)
 })
-
-console.log(process.argv)
