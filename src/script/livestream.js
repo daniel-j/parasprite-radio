@@ -3,10 +3,7 @@ import xhr from 'utils/xhr'
 //let viewercount = document.getElementById('viewercount')
 let liveplayer = document.getElementById('liveplayer')
 
-let livestreamInfo = {online: false, viewers: -1}
-
 let player = null
-
 
 function startPlayer() {
 
@@ -15,8 +12,8 @@ function startPlayer() {
 	window.jw = player
 	player.setup({
 		playlist: [
-			{ file: 'http://vm.djazz.se/dash/stream.mpd', image: 'http://vm.djazz.se/rec/thumb/stream.png?t='+Date.now() },
-			{ file: 'http://vm.djazz.se/hls/stream.m3u8', image: 'http://vm.djazz.se/rec/thumb/stream.png?t='+Date.now() },
+			{ file: 'http://vm.djazz.se/dash/pr/stream.mpd', image: 'http://vm.djazz.se/rec/thumb/stream.png?t='+Date.now() },
+			{ file: 'http://vm.djazz.se/hls/pr/stream.m3u8', image: 'http://vm.djazz.se/rec/thumb/stream.png?t='+Date.now() },
 			{ file: 'rtmp://vm.djazz.se/live/stream', image: 'http://vm.djazz.se/rec/thumb/stream.png?t='+Date.now() }
 		],
 		dash: true,

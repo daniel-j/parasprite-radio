@@ -4,7 +4,6 @@ import * as notify from '../utils/notify'
 let nowtitle = document.getElementById('nowtitle')
 let nowartist = document.getElementById('nowartist')
 let cover = document.getElementById('cover')
-let coverlink = document.getElementById('coverlink')
 let listenercount = document.getElementById('listenercount')
 let lastnowplaying = ''
 window.nowplayingdata = ''
@@ -60,7 +59,6 @@ function updateNowPlaying() {
 				// wait a bit for image to render
 				setTimeout(() => {
 					cover.src = '/api/now/art/tiny?t='+Date.now()
-					//coverlink.href = '/api/now/art/full'
 					if (window.playing) {
 						notify.show(title, artist, cover.src)
 					}

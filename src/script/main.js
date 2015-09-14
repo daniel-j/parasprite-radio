@@ -43,7 +43,7 @@ function timeago(timems) {
 
 function updateHistory() {
 	xhr('/api/history?limit=20&imagesize=1', function (res) {
-		let data, tracks
+		let tracks
 		try {
 			tracks = JSON.parse(res)
 		} catch (e) {
@@ -54,7 +54,6 @@ function updateHistory() {
 		while (playhistory.childNodes.length > 0) {
 			playhistory.removeChild(playhistory.firstChild)
 		}
-		let isnowplaying = false
 
 		for (let i = 0; i < tracks.length; i++) {
 			let track = tracks[i]
@@ -81,9 +80,6 @@ function updateHistory() {
 
 			datecell.textContent = timeago(Date.now()/1000 - track.timestamp, true)
 			datecell.title = new Date(track.timestamp*1000)
-		}
-		if (!isnowplaying) {
-			//lastfmurl = ''
 		}
 	})
 }

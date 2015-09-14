@@ -1,5 +1,5 @@
 
-app = require('./app')
+app = require './app'
 
 #Backbone.emulateHTTP = true
 #Backbone.fetchCache.localStorage = false

@@ -27,7 +27,6 @@ function radioPlayer(opts = {}) {
 
 	let audioTag = null
 	let source = null
-	let updatetick = 0
 	let segmentcount = 16
 
 	if (useVisualizer) {
@@ -169,13 +168,6 @@ function radioPlayer(opts = {}) {
 	}
 
 	function update() {
-
-		updatetick++
-
-		if (updatetick % 2 === 1) {
-			//window.requestAnimFrame(update)
-			//return
-		}
 
 		canvas.width = visualizerDiv.offsetWidth - 60
 		canvas.height = visualizerDiv.offsetHeight
