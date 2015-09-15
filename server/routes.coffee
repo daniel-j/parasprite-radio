@@ -130,8 +130,9 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 		json =
 			username: user.username
 			displayName: user.displayName
-			image: user.image
+			avatarUrl: user.avatarUrl
 			level: user.level
+			email: user.email
 		json.loggedin = !!req.user
 		res.json json
 
@@ -141,7 +142,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 	defaultRouter.get '/api/flash/:name', (req, res) ->
 		res.json req.flash req.params.name
 
-	
+
 	defaultRouter.get '/api/now/art/:size', (req, res) ->
 		size = req.params.size
 		if size == 'full' then size == 'original'
@@ -185,7 +186,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 	###
 	defaultRouter.get '/api/lastfm/recent', (req, res) ->
 		cors(res)
-		
+
 		fetchJSON 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user='+config.lastfm.username+'&api_key='+config.lastfm.api.key+'&format=json&limit='+config.lastfm.api.limit+'&extended=1', null, (err, data) ->
 			if err
 				res.end 'error: ' + err
@@ -450,7 +451,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 			else
 				res.setHeader "Content-Type", type
 				res.end data
-		
+
 		##id3 {file: config.media_dir+'/'+filename, type: id3.OPEN_LOCAL}, (err, tags) ->
 			if err
 				res.status(500).end err+''

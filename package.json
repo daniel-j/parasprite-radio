@@ -65,6 +65,7 @@
     "passport": "^0.3.0",
     "passport-oauth2": "^1.1.2",
     "passport-twitter": "^1.0.3",
+    "sequelize": "^3.8.0",
     "serve-favicon": "^2.3.0",
     "taglib": "^0.8.1",
     "toml": "^2.3.0",

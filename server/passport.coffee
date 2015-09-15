@@ -17,54 +17,48 @@ module.exports = (passport) ->
 		User.findById id, (err, user) ->
 			done err, user
 
-	processUser = (userProfile, done) ->
-		User.findById userProfile.id, (err, user) ->
-			if err
-				done err, null
-
-			else if user
-				# user exists, update it
-				User.update userProfile, (err, user) ->
-					done err, user
-
-			else
-				# if there is no user, create it
-				User.add userProfile, (err, user) ->
-					done err, user
-
 
 	poniverse = new OAuth2Strategy config.passport.poniverse, (accessToken, refreshToken, profile, done) ->
-
+		provider = 'poniverse'
 		fetchJSON "https://api.poniverse.net/v1/users/me?access_token="+accessToken, null, (err, data) ->
 			if err
 				done err, null
 				return
 
-			userProfile =
-				id: data.id
-				token: accessToken
+			console.log accessToken, refreshToken
+
+
+			userInfo =
+				provider: provider
+				accessToken: accessToken
+				refreshToken: refreshToken
+				uid: data.id
+
 				username: data.username
 				displayName: data.display_name
+				email: data.email
 				level: 0
-				image: ""
-				#strategy: 'poniverse'
+				avatarUrl: ""
 
-			processUser userProfile, done
+			User.handleAuth userInfo, done
 
 	poniverse.name = 'poniverse' # replace 'oauth2'
 	passport.use poniverse
 
-	passport.use new TwitterStrategy config.passport.twitter, (token, tokenSecret, profile, done) ->
+	passport.use new TwitterStrategy config.passport.twitter, (accessToken, refreshToken, profile, done) ->
+		provider = 'twitter'
 
-		userProfile =
-			id: profile.id
-			token: token
+		userInfo =
+			provider: provider
+			accessToken: accessToken
+			refreshToken: refreshToken
+			uid: profile.id
+
 			username: profile.username
 			displayName: profile.displayName
 			level: 0
-			image: profile.photos[0].value
-			#strategy: 'twitter'
+			avatarUrl: profile.photos[0].value
 
 		process.nextTick ->
-			processUser userProfile, done
+			User.handleAuth userInfo, done
 

@@ -30,9 +30,8 @@ passport = require 'passport'
 flash = require 'connect-flash'
 session = require 'express-session'
 bodyParser = require 'body-parser'
-SessionStore = require('express-mysql-session')
+SessionStore = require 'express-mysql-session'
 cookieParser = require 'cookie-parser'
-#lessMiddleware = require 'less-middleware'
 
 require(__dirname+'/passport')(passport)
 mpd = require(__dirname+'/mpd')(config)
@@ -63,18 +62,10 @@ app.use passport.initialize()
 app.use passport.session()
 app.use flash()
 
-app.use bodyParser.json() # for parsing application/json
+app.use bodyParser.json() # for parsing incoming application/json
 
 app.use compression()
 app.set 'views', __dirname + '/views'
-
-# app.use lessMiddleware __dirname + '/../www',
-# 	dest: __dirname+'/../www'
-# 	#cacheFile: __dirname+'/www/style/cache.json'
-# 	debug: inDev
-# 	compiler:
-# 		sourceMap: inDev
-# 	once: !inDev
 
 
 require(__dirname+'/routes')(app, passport, config, mpd, liquid, icecast, scheduler, livestream)

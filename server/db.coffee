@@ -1,5 +1,5 @@
-mysql = require 'mysql'
+Sequelize = require 'sequelize'
 config = require __dirname + '/../scripts/config'
-dbpool = mysql.createPool config.mysql
+sequelize = new Sequelize config.mysql.database, config.mysql.user, config.mysql.password, {host: config.mysql.host, logging: false}
 
-module.exports = dbpool
+module.exports = sequelize

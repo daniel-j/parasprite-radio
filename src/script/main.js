@@ -218,6 +218,8 @@ xhr('/api/user', function (res) {
 		document.getElementById('body').classList.add('loggedin')
 		document.getElementById('accountUsername').textContent = user.username
 		document.getElementById('accountDisplayName').textContent = user.displayName
+		document.getElementById('accountEmail').textContent = user.email
+		document.getElementById('accountAvatar').src = user.avatarUrl
 
 		if (user.level >= 5) {
 			document.getElementById('body').classList.add('isadmin')

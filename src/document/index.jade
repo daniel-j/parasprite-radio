@@ -56,7 +56,7 @@ html
 				.left
 					h1
 						a(href='/') #{config.radio.title}
-					#subtitle by 
+					#subtitle by
 						a(href='https://twitter.com/daniel_hede', target='_blank') djazz
 
 
@@ -80,7 +80,7 @@ html
 		#content
 			.container
 				#pageHistory.page-wrapper
-				
+
 					div
 						strong Recently played tracks
 					table#playhistorytable.trackstable
@@ -89,7 +89,7 @@ html
 				#pagePlaylist.page-wrapper(style='display: none;')
 					div
 						strong
-							span The radio has 
+							span The radio has
 							span#playlistcount ?
 							span  tracks (
 							span#playhistoryhours ?
@@ -127,6 +127,11 @@ html
 					div Display name:
 						= ' '
 						span#accountDisplayName
+					div Email:
+						= ' '
+						span#accountEmail
+					div Avatar:
+					img#accountAvatar
 
 				iframe#chat(src='https://kiwiirc.com/client?settings=b1a34e3682f988d06a435e884c8d3fef')
 
