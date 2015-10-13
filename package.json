@@ -19,7 +19,6 @@
     "eslint-loader": "^1.0.0",
     "gulp": "^3.9.0",
     "gulp-coffeelint": "^0.5.0",
-    "gulp-concat": "^2.6.0",
     "gulp-data": "^1.2.0",
     "gulp-eslint": "^1.0.0",
     "gulp-htmlmin": "^1.1.4",
@@ -39,8 +38,6 @@
     "mustache-loader": "^0.3.0",
     "nib": "^1.1.0",
     "run-sequence": "^1.1.2",
-    "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0",
     "webpack": "^1.12.1"
   },
   "dependencies": {

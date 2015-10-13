@@ -28,6 +28,7 @@ if (user) {
 		live_username: user.username,
 		live_displayname: user.display_name,
 		live_twitter: user.twitter,
+		url: user.url,
 		art: user.avatar
 	}))
 } else {

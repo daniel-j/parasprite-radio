@@ -1,4 +1,4 @@
-/* global bitdash */
+'use strict'
 
 import xhr from './utils/xhr'
 import './incl/radioinfo'

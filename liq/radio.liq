@@ -320,6 +320,7 @@ live = audio_to_stereo(input.harbor(
 	buffer = 5.,
 	port = port_input,
 	auth = auth_live,
+	logfile = "live.log",
 	on_connect = user_connected,
 	on_disconnect = user_disconnected
 ))
