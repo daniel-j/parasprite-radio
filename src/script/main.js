@@ -4,28 +4,53 @@ import xhr from './utils/xhr'
 import './incl/radioinfo'
 import radioPlayer from './incl/radioplayer'
 import livestream from './livestream'
+import formattime from './utils/formattime'
 
-let radio = radioPlayer({
-	url: 'http://icecast.djazz.se:8000/radio',
-	autoplay: false
-})
 
-radio.activate()
-
-document.getElementById('popuplink').addEventListener('click', function (e) {
-	e.preventDefault()
-	radio.stopRadio()
-	window.open('/popout', 'parasprite-radio-popout', 'width=450,height=240,left=300,top=100')
-	return false
-}, false)
-
+let radio
 let menudiv = document.getElementById('mainmenu')
 let scheduleiframe = document.getElementById('scheduleiframe')
 
 let currentPage = 'pageHistory'
 let oldmenu = document.getElementById('menuHistory')
+let config
+
+function initialize() {
+	radio = radioPlayer({
+		url: config.general_streamurl,
+		autoplay: false
+	})
+
+	radio.activate()
+
+	setInterval(updateHistory, 10*1000)
+	updateHistory()
+
+	scheduleiframe.src = 'https://www.google.com/calendar/embed?mode=WEEK&showTitle=0&showCalendars=0&height=350&wkst=2&bgcolor=%23'+bgcolor+'&src='+config.google_calendarId+'&color=%23'+color+'&ctz='+encodeURIComponent(timezone)
 
 
+	let hashMatch = document.querySelector('[data-hash="'+document.location.hash.substr(1)+'"]')
+	if (hashMatch) {
+		document.location.hash = ''
+		if (history) {
+			history.replaceState('', document.title, window.location.pathname)
+		}
+		hashMatch.click()
+	}
+
+}
+
+xhr('/api/config', function (conf) {
+	config = JSON.parse(conf)
+	initialize()
+})
+
+document.getElementById('popuplink').addEventListener('click', function (e) {
+	e.preventDefault()
+	radio && radio.stopRadio()
+	window.open('/popout', 'parasprite-radio-popout', 'width=450,height=240,left=300,top=100')
+	return false
+}, false)
 
 // History
 let playhistory = document.getElementById('playhistory')
@@ -91,9 +116,6 @@ playhistory.addEventListener('click', function (e) {
 	}
 	window.open(node.dataset.url, '_blank')
 }, false)
-
-setInterval(updateHistory, 10*1000)
-updateHistory()
 
 
 
@@ -174,7 +196,6 @@ let timezone = tz.name()
 let bgcolor = '444444'
 let color = '8C500B'
 
-scheduleiframe.src = 'https://www.google.com/calendar/embed?mode=WEEK&showTitle=0&showCalendars=0&height=350&wkst=2&bgcolor=%23'+bgcolor+'&src=nj4dn0ck0u66t6f38qtqnj324k%40group.calendar.google.com&color=%23'+color+'&ctz='+encodeURIComponent(timezone)
 // reload every 5 min
 setInterval(function () {
 	scheduleiframe.src += ''
@@ -182,8 +203,8 @@ setInterval(function () {
 
 
 // Map
-let geocanvas = document.getElementById('geocanvas')
-let geoctx = geocanvas.getContext('2d')
+let map
+let mapmarkers = {}
 function updateMap() {
 	xhr('/api/listeners', function (res) {
 		let list = []
@@ -192,17 +213,55 @@ function updateMap() {
 		} catch (e) {
 
 		}
-		geoctx.clearRect(0, 0, geocanvas.width, geocanvas.height)
+		let idlist = []
 		for (let i = 0; i < list.length; i++) {
-			let x = list[i].x
-			let y = list[i].y
-			geoctx.fillStyle = 'white'
-			geoctx.fillRect(x-4, y-4, 8, 8)
-			geoctx.fillStyle = 'orange'
-			geoctx.fillRect(x-3, y-3, 6, 6)
+			let l = list[i]
+			l.id = l.location.lng+','+l.location.lat+','+l.ip
+			idlist[i] = l.id
+			let content = '<div style="color: black">IP: '+l.ip+'<br>Mount: '+l.mount+'<br>Country: '+l.location.countryName+'<br>Region: '+l.location.regionName+'<br>City: '+l.location.cityName+'<br>Connected at '+new Date(l.connected*1000)+'<br>Time connected: '+formattime(Date.now()/1000 - l.connected)+'<br>User Agent: '+l.userAgent+'</div>'
+			if (mapmarkers[l.id]) {
+				mapmarkers[l.id].infowindow.setContent(content)
+				continue
+			}
+			let mark = new google.maps.Marker({
+				position: new google.maps.LatLng(+l.location.lat, +l.location.lng),
+				map: map,
+				animation: google.maps.Animation.DROP
+			})
+			mark.infowindow = new google.maps.InfoWindow({
+				content: content
+			})
+			mark.addListener('click', markClick)
+			mapmarkers[l.id] = mark
+		}
+		for (let i in mapmarkers) {
+			if (idlist.indexOf(i) === -1) {
+				let mark = mapmarkers[i]
+				mark.setMap(null)
+				google.maps.event.clearListeners(mark)
+				delete mapmarkers[i]
+			}
 		}
 	})
 }
+function markClick() {
+  this.infowindow.open(map, this)
+}
+function initMap() {
+	map = new google.maps.Map(document.getElementById('googlemap'), {
+		zoom: 2,
+		center: {lat: 25, lng: 12}
+	})
+	window.addEventListener('resize', function () {
+		var center = map.getCenter()
+		google.maps.event.trigger(map, 'resize')
+		map.setCenter(center)
+	}, false)
+
+	setInterval(updateMap, 5*1000)
+	updateMap()
+}
+window.initMap = initMap
 
 
 
@@ -216,21 +275,19 @@ xhr('/api/user', function (res) {
 	}
 	if (user.loggedin) {
 		document.getElementById('body').classList.add('loggedin')
-		document.getElementById('accountUsername').textContent = user.username
-		document.getElementById('accountDisplayName').textContent = user.displayName
-		document.getElementById('accountEmail').textContent = user.email
-		document.getElementById('accountAvatar').src = user.avatarUrl
+		document.getElementById('accountUsername').textContent = document.getElementById('inputAccountUsername').value = user.username
+		document.getElementById('accountDisplayName').textContent = document.getElementById('inputAccountDisplayName').value = user.displayName
+		document.getElementById('accountEmail').textContent = document.getElementById('inputAccountEmail').value = user.email
+		document.getElementById('accountAvatar').src = document.getElementById('inputAccountAvatarUrl').value = user.avatarUrl
 
 		if (user.level >= 5) {
 			document.getElementById('body').classList.add('isadmin')
-
-			setInterval(updateMap, 5*1000)
-			updateMap()
 		}
 	}
 })
 
 menudiv.addEventListener('click', function (e) {
+	if (!config) return
 	let newmenu = e.target
 	if (!newmenu.dataset.page && !newmenu.dataset.url) {
 		return
@@ -249,6 +306,12 @@ menudiv.addEventListener('click', function (e) {
 		if (currentPage === 'pagePlaylist') {
 			updatePlaylist()
 		}
+		if (currentPage === 'pageMap' && !map) {
+			let gmap = document.createElement('script')
+			gmap.src = '//maps.googleapis.com/maps/api/js?key='+encodeURIComponent(config.google_publicApiKey)+'&callback=initMap'
+			document.body.appendChild(gmap)
+			map = true
+		}
 
 		if (currentPage === 'pageLivestream') {
 
@@ -258,11 +321,3 @@ menudiv.addEventListener('click', function (e) {
 	}
 }, false)
 
-let hashMatch = document.querySelector('[data-hash="'+document.location.hash.substr(1)+'"]')
-if (hashMatch) {
-	document.location.hash = ''
-	if (history) {
-		history.replaceState('', document.title, window.location.pathname)
-	}
-	hashMatch.click()
-}

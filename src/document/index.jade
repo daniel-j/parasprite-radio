@@ -57,6 +57,7 @@ html
 					h1
 						a(href='/') #{config.radio.title}
 					#subtitle by
+						= ' '
 						a(href='https://twitter.com/daniel_hede', target='_blank') djazz
 
 
@@ -108,7 +109,7 @@ html
 							span Livestream is offline
 
 				#pageMap(style='display: none')
-					canvas#geocanvas(width=454, height=244)
+					#googlemap
 
 				#pageLogin.page-wrapper(style='display: none;')
 					strong Login
@@ -132,6 +133,18 @@ html
 						span#accountEmail
 					div Avatar:
 					img#accountAvatar
+					hr
+					button#editAccount Edit
+					div#editAccountForm
+						form
+							input#inputAccountUsername
+							br
+							input#inputAccountDisplayName
+							br
+							input#inputAccountEmail(type='email')
+							br
+							input#inputAccountAvatarUrl(type='url')
+
 
 				iframe#chat(src='https://kiwiirc.com/client?settings=b1a34e3682f988d06a435e884c8d3fef')
 
@@ -214,6 +227,6 @@ html
 			ga('create', 'UA-5181445-5', 'auto');
 			ga('send', 'pageview');*/
 
-		script(src="//cdnjs.cloudflare.com/ajax/libs/jstimezonedetect/1.0.4/jstz.min.js")
+		script(src='//cdnjs.cloudflare.com/ajax/libs/jstimezonedetect/1.0.4/jstz.min.js')
 		script(type='text/javascript', src='/build/script/main.js')
 

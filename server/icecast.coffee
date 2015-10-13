@@ -75,7 +75,7 @@ module.exports = (config) ->
 				if count > lastListenerCount
 					updateListenerInfo()
 				lastListenerCount = count
-				console.log("listener count: "+count)
+				console.log "listener count: "+count
 
 		iceOnError = (err) ->
 			console.error "Icecast: Socket error: "+err
@@ -133,14 +133,17 @@ module.exports = (config) ->
 				return
 			now = Date.now()
 			ip = listener.ip
-			if !ipcache[ip] or now < ipcache[ip]._time+1*60*60*1000 # 1 hour cache
+			if !ipcache[ip] or now > ipcache[ip]._time+1*60*60*1000 # 1 hour cache
+				#console.log 'Performing IP lookup of '+ip
 				iplookup ip, (err, info) ->
+					#console.log 'IP lookup of '+ip+':', info.countryName
 					if !err and info.found
 						info._time = Date.now()
 						ipcache[ip] = info
 						listener.location = info
 					else
 						listener.location = null
+						delete ipcache[ip]
 					i++
 					recursive()
 			else
@@ -163,7 +166,6 @@ module.exports = (config) ->
 				getLocations list, () ->
 					isUpdatingDetailed = false
 					listenerDetailed = list
-					#console.log list
 					cb && cb list
 				return
 			url = 'http://'+config.icecast.host+':'+config.icecast.port+'/admin/listclients?mount=/'+encodeURIComponent(m)
@@ -180,7 +182,7 @@ module.exports = (config) ->
 							time: Math.round(Date.now()/1000 - v.Connected[0])
 							id: v.ID[0]
 							mount: m
-							location: null
+							location: undefined
 
 				mi++
 				recursive()
@@ -229,12 +231,22 @@ module.exports = (config) ->
 		getListeners: ->
 			list = []
 			listenerDetailed.forEach (listener) ->
-				if listener.location
+				loc = listener.location or ipcache[listener.ip]
+				if loc and loc.statusCode == 'OK'
 					list.push
-						x: Math.round 454/2 + listener.location.longitude*1.06 - 15
-						y: Math.round 244/2-(listener.location.latitude)*1.22 + 35
+						ip: listener.ip
+						location:
+							lng: loc.longitude
+							lat: loc.latitude
+							countryCode: loc.countryCode
+							countryName: loc.countryName
+							regionName: loc.regionName
+							cityName: loc.cityName
+							timezone: loc.timeZone
+
 						mount: listener.mount
 						connected: listener.time
+						userAgent: listener.userAgent
 			list
 
 		getStreams: ->

@@ -96,6 +96,34 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 	defaultRouter.get '/livestream.html', (req, res) ->
 		res.sendFile 'livestream.html', htmloptions
 
+
+
+
+	defaultRouter.get '/api/config', (req, res) ->
+		getValue = (k, o, i) ->
+			if !i then i = 0
+			x = o[k[i]]
+			if typeof x == 'object' and x != null
+				getValue(k, x, i+1)
+			else
+				x
+		keys = [
+			'general.baseurl', 'general.streamurl', 'general.irc', 'general.twitter',
+			'radio.title',
+			'google.publicApiKey', 'google.calendarId',
+			'livestream.url_thumbnail', 'livestream.url_rtmp', 'livestream.url_dash', 'livestream.url_hls',
+
+		]
+		out = {}
+
+		for key in keys
+			k = key.split('.')
+			v = getValue(k, config)
+			if v == undefined || v == null then v = ""
+			out[String(key).replace(/\./g,'_')] = String v
+
+		res.json out
+
 	defaultRouter.get '/stream', (req, res) ->
 		res.redirect config.streamurl
 
