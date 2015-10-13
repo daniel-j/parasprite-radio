@@ -130,6 +130,7 @@ function radioPlayer(opts = {}) {
 
 		if (useVisualizer) {
 			gainNode.gain.value = volume
+			audioTag.volume = 0
 		} else {
 			audioTag.volume = volume
 		}
@@ -142,6 +143,7 @@ function radioPlayer(opts = {}) {
 		if (useVisualizer) {
 			setTimeout(() => {
 				if (audioTag) {
+					audioTag.volume = 1
 					source = acx.createMediaElementSource(audioTag)
 					source.connect(analyzer)
 					update()
