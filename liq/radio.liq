@@ -424,6 +424,23 @@ out(
 	source
 ),
 
+out(
+	mount = "radio_opus",
+	%opus(
+		vbr = "none",
+		application = "audio",
+		complexity = 10,
+		max_bandwidth = "full_band",
+		samplerate = 48000,
+		frame_size = 20.,
+		bitrate = 320,
+		channels = 2,
+		signal = "music"
+	),
+	start = true,
+	source
+),
+
 # out(
 # 	mount = "radio_flac",
 # 	%ogg(%flac(

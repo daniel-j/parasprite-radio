@@ -24,7 +24,7 @@ port     = 8000
 url      = 'http://localhost:8000'
 
 # what mounts too look for listeners on
-mounts   = [ 'radio', 'radio_mobile', 'radio_normal', 'radio_flac' ]
+mounts   = [ 'radio', 'radio_mobile', 'radio_normal', 'radio_flac', 'radio_opus' ]
 encoding = 'UTF-8'
 
 [icecast.mount]
