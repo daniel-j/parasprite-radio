@@ -22,7 +22,7 @@
     "gulp-data": "^1.2.0",
     "gulp-eslint": "^1.0.0",
     "gulp-htmlmin": "^1.1.4",
-    "gulp-if": "^1.2.5",
+    "gulp-if": "^2.0.0",
     "gulp-jade": "^1.1.0",
     "gulp-minify-css": "^1.2.1",
     "gulp-plumber": "^1.0.1",

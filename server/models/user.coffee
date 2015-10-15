@@ -56,15 +56,31 @@ UserAuth = sequelize.define 'UserAuth', {
 		}]
 	}
 
+UserAuth.belongsTo(User, {
+	constraints: false,
+	foreignKey: 'UserId'
+})
+
 
 #User.sync(force: true).then () ->
 #	UserAuth.sync(force: true)
 
 API =
 	findById: (id, cb) ->
-		User.findById(id).then((user) ->
+		User.findOne({where: {id: id}, attributes: ['id', 'username', 'displayName', 'email', 'level', 'avatarUrl']}).then((user) ->
 			cb null, user
 		, cb)
+
+	findWithAuth: (id, cb) ->
+		API.findById id, (err, user) ->
+			if err
+				cb err
+				return
+			UserAuth.findAll({where: {UserId: id}, attributes: ['provider', 'username', 'displayName', 'email', 'avatarUrl']}).then((auths) ->
+				cb null,
+					user: user
+					auths: auths
+			, cb)
 
 	handleAuth: (info, cb) ->
 		UserAuth.findOne(where: { provider: info.provider, uid: info.uid }).then((userAuth) ->

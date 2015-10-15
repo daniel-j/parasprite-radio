@@ -1,6 +1,7 @@
 
 import * as notify from '../utils/notify'
 import './raf'
+import ismobile from '../utils/ismobile'
 //let EventEmitter = require('events').EventEmitter
 
 
@@ -21,7 +22,14 @@ function radioPlayer(opts = {}) {
 	let useVisualizer = (AudioContext && !!visualizerDiv)
 	let acx, canvas, ctx, gainNode, analyzer, liveFreqData
 
-	let url = opts.url
+	let urls
+	if (ismobile) {
+		urls = ['radio_mobile', 'radio_normal', 'radio']
+	} else {
+		urls = ['radio', 'radio_opus', 'radio_mobile']
+	}
+
+	let baseurl = opts.baseurl
 
 	let volume = opts.volume || 0.8
 
@@ -101,6 +109,9 @@ function radioPlayer(opts = {}) {
 			audioTag.pause()
 
 			audioTag.src = ''
+			while (audioTag.firstChild) {
+				audioTag.removeChild(audioTag.firstChild)
+			}
 			audioTag.load()
 			audioTag = null
 		}
@@ -136,7 +147,12 @@ function radioPlayer(opts = {}) {
 		}
 
 		audioTag.crossOrigin = 'anonymous'
-		audioTag.src = url
+		for (let i = 0; i < urls.length; i++) {
+			let s = document.createElement('source')
+			s.src = baseurl+urls[i]
+			audioTag.appendChild(s)
+		}
+		//audioTag.src = url
 		audioTag.play()
 		notify.check()
 

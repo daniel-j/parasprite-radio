@@ -16,8 +16,9 @@ let oldmenu = document.getElementById('menuHistory')
 let config
 
 function initialize() {
+	console.log(config)
 	radio = radioPlayer({
-		url: config.general_streamurl,
+		baseurl: config.general_streamurl,
 		autoplay: false
 	})
 
@@ -42,7 +43,35 @@ function initialize() {
 
 xhr('/api/config', function (conf) {
 	config = JSON.parse(conf)
-	initialize()
+	// Account
+	xhr('/api/user', function (res) {
+		let info = {}
+		try {
+			info = JSON.parse(res)
+		} catch (e) {
+			return
+		}
+		if (info.user) {
+			let user = info.user
+			document.getElementById('body').classList.add('loggedin')
+			document.getElementById('inputAccountUsername').value = user.username
+			document.getElementById('inputAccountDisplayName').value = user.displayName
+			document.getElementById('inputAccountEmail').value = user.email
+			document.getElementById('accountAvatar').src = document.getElementById('inputAccountAvatarUrl').value = user.avatarUrl
+
+			document.getElementById('inputAccountAvatarUrl').addEventListener('change', function () {
+				document.getElementById('accountAvatar').src = this.value
+			}, false)
+
+			if (user.level >= 5) {
+				document.getElementById('body').classList.add('isadmin')
+			}
+			document.getElementById('editAccountForm').addEventListener('submit', function (e) {
+				e.preventDefault()
+			}, false)
+		}
+		initialize()
+	})
 })
 
 document.getElementById('popuplink').addEventListener('click', function (e) {
@@ -265,26 +294,7 @@ window.initMap = initMap
 
 
 
-// Account
-xhr('/api/user', function (res) {
-	let user = {}
-	try {
-		user = JSON.parse(res)
-	} catch (e) {
-		return
-	}
-	if (user.loggedin) {
-		document.getElementById('body').classList.add('loggedin')
-		document.getElementById('accountUsername').textContent = document.getElementById('inputAccountUsername').value = user.username
-		document.getElementById('accountDisplayName').textContent = document.getElementById('inputAccountDisplayName').value = user.displayName
-		document.getElementById('accountEmail').textContent = document.getElementById('inputAccountEmail').value = user.email
-		document.getElementById('accountAvatar').src = document.getElementById('inputAccountAvatarUrl').value = user.avatarUrl
 
-		if (user.level >= 5) {
-			document.getElementById('body').classList.add('isadmin')
-		}
-	}
-})
 
 menudiv.addEventListener('click', function (e) {
 	if (!config) return
@@ -311,6 +321,8 @@ menudiv.addEventListener('click', function (e) {
 			gmap.src = '//maps.googleapis.com/maps/api/js?key='+encodeURIComponent(config.google_publicApiKey)+'&callback=initMap'
 			document.body.appendChild(gmap)
 			map = true
+		} else if (currentPage === 'pageMap') {
+			google.maps.event.trigger(map, 'resize')
 		}
 
 		if (currentPage === 'pageLivestream') {

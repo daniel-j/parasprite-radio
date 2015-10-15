@@ -3,7 +3,7 @@
 [general]
 media_dir = '~/Music'
 baseurl   = 'http://localhost/'
-streamurl = 'http://localhost:8000/radio'
+streamurl = 'http://localhost:8000/'
 userAgent = 'ParaspriteRadio/0.0.0'
 clientId  = 'paraspriteradio'
 irc       = '#parasprite'

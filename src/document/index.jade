@@ -52,7 +52,7 @@ html
 							img.listenersicon(src='/img/icons/listeners.png', alt='listeners')
 
 				a(href='')
-					img#logo(src='/img/icons/parasprite-radio.png', alt='Logo', title='#{config.radio.title}')
+					img#logo(src='/img/icons/parasprite-radio-logo-hex-256.png', alt='Logo', title='#{config.radio.title}')
 				.left
 					h1
 						a(href='/') #{config.radio.title}
@@ -71,7 +71,7 @@ html
 				a#menuMap(data-page='pageMap', data-hash='map') Map
 
 				div(class='right')
-					a#menuAccount(data-page='pageAccount') Account
+					a#menuAccount(data-page='pageAccount', data-hash='account') Account
 					a#menuLogin(data-page='pageLogin') Login
 					a#menuLogout(href='/logout') Logout
 					a#menuAdmin(href='/admin/') Admin
@@ -121,29 +121,24 @@ html
 				#pageAccount.page-wrapper(style='display: none;')
 					strong Account
 					br
-					br
-					div Username:
-						= ' '
-						span#accountUsername
-					div Display name:
-						= ' '
-						span#accountDisplayName
-					div Email:
-						= ' '
-						span#accountEmail
-					div Avatar:
-					img#accountAvatar
-					hr
-					button#editAccount Edit
-					div#editAccountForm
-						form
-							input#inputAccountUsername
-							br
-							input#inputAccountDisplayName
-							br
-							input#inputAccountEmail(type='email')
-							br
-							input#inputAccountAvatarUrl(type='url')
+
+					form#editAccountForm
+						label(for='inputAccountUsername') Username:
+						input#inputAccountUsername(type='text')
+						br
+						label(for='inputAccountDisplayName') Display name:
+						input#inputAccountDisplayName(type='text')
+						br
+						label(for='inputAccountEmail') Email:
+						input#inputAccountEmail(type='email')
+						br
+						label(for='inputAccountAvatarUrl') Avatar URL
+						input#inputAccountAvatarUrl(type='url')
+						br
+						img#accountAvatar
+						br
+						label
+						button#editAccount(type='submit') Save
 
 
 				iframe#chat(src='https://kiwiirc.com/client?settings=b1a34e3682f988d06a435e884c8d3fef')

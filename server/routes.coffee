@@ -4,6 +4,7 @@ fs = require 'fs'
 mm = require 'musicmetadata'
 fetchJSON = require('../scripts/fetcher').fetchJSON
 Song = require './models/song'
+User = require './models/user'
 
 
 cleanpath = (p) ->
@@ -103,13 +104,14 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 		getValue = (k, o, i) ->
 			if !i then i = 0
 			x = o[k[i]]
-			if typeof x == 'object' and x != null
+			if typeof x == 'object' and x != null and !Array.isArray(x)
 				getValue(k, x, i+1)
 			else
 				x
 		keys = [
 			'general.baseurl', 'general.streamurl', 'general.irc', 'general.twitter',
 			'radio.title',
+			'icecast.mounts',
 			'google.publicApiKey', 'google.calendarId',
 			'livestream.url_thumbnail', 'livestream.url_rtmp', 'livestream.url_dash', 'livestream.url_hls',
 
@@ -120,12 +122,12 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 			k = key.split('.')
 			v = getValue(k, config)
 			if v == undefined || v == null then v = ""
-			out[String(key).replace(/\./g,'_')] = String v
+			out[String(key).replace(/\./g,'_')] = v
 
 		res.json out
 
 	defaultRouter.get '/stream', (req, res) ->
-		res.redirect config.streamurl
+		res.redirect config.streamurl+config.icecast.mounts[0]
 
 
 	defaultRouter.get '/auth/twitter',
@@ -154,15 +156,12 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 
 
 	defaultRouter.get '/api/user', (req, res) ->
-		user = req.user or {}
-		json =
-			username: user.username
-			displayName: user.displayName
-			avatarUrl: user.avatarUrl
-			level: user.level
-			email: user.email
-		json.loggedin = !!req.user
-		res.json json
+
+		if req.user
+			User.findWithAuth req.user.id, (err, user) ->
+				res.json user
+		else
+			res.json {}
 
 	defaultRouter.get '/api/flash', (req, res) ->
 		res.json req.flash()
