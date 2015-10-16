@@ -246,7 +246,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 							art: track.image[imagesize]['#text'] || track.artist.image[imagesize]['#text'] || (config.general.baseurl+'img/cover/cover-small.png')
 							timestamp: if track.date then +track.date.uts else Date.now()/1000|0
 							url: track.url
-						tracks[i].art = tracks[i].art.replace 'http://', 'https://'
+						#tracks[i].art = tracks[i].art.replace 'http://', 'https://'
 						tracks[i].text = tracks[i].artist+' - '+tracks[i].title
 				catch e
 					console.log 'lastfm error: ' + e, data && data.recenttracks && data.recenttracks.track
