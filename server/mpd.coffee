@@ -13,7 +13,7 @@ parseArrayMessage = (msg, dividers = ['file', 'directory']) ->
 	msg.split('\n').forEach (p) ->
 		if p.length == 0
 			return
-		
+
 		keyValue = p.match /([^ ]+): (.*)/
 		if keyValue == null
 			throw new Error 'Could not parse entry "' + p + '"'
@@ -31,7 +31,7 @@ parseArrayMessage = (msg, dividers = ['file', 'directory']) ->
 			obj = {}
 
 		obj[keyValue[1]] = keyValue[2]
-		
+
 	if obj
 		results.push obj
 	results
@@ -42,7 +42,7 @@ parseKeyValueMessage = (msg) ->
 	msg.split('\n').forEach (p) ->
 		if p.length == 0
 			return
-		
+
 		keyValue = p.match /([^ ]+): (.*)/
 		if keyValue == null
 			throw new Error 'Could not parse entry "' + p + '"'
@@ -51,9 +51,9 @@ parseKeyValueMessage = (msg) ->
 		n = +keyValue[2]
 		if !isNaN(n) and keyValue[2].length == n.toString().length
 			keyValue[2] = n
-		
+
 		result[keyValue[1]] = keyValue[2]
-	
+
 	result
 
 
@@ -71,7 +71,7 @@ perfectSortKey = (key) ->
 fixGenre = (track) ->
 	if !track or !track.genre
 		return
-	m = track.genre.match /^\((\d*)\)$/
+	m = (track.genre+'').match /^\((\d*)\)$/
 	if m
 		track.genrefix = genremap +m[1]
 	else
@@ -176,7 +176,7 @@ module.exports = (config) ->
 
 	mpdConnect()
 
-	
+
 
 	API =
 
@@ -223,7 +223,7 @@ module.exports = (config) ->
 						albums[i] = albums[i].album
 						i++
 					albums.sort perfectSort
-					
+
 					cb null, albums
 
 		getArtists: (cb) ->
