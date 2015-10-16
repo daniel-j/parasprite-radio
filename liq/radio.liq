@@ -436,7 +436,7 @@ out(
 		max_bandwidth = "full_band",
 		samplerate = 48000,
 		frame_size = 20.,
-		bitrate = 320,
+		bitrate = 128,
 		channels = 2,
 		signal = "music"
 	),
