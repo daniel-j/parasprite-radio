@@ -180,7 +180,7 @@ def auth_live(user,password)
 	print("LIVE: User "^user^" is trying to connect..")
 
 	m = !live_meta
-	if m["live_connected"] == "" then
+	if m["live_username"] == "" or m["live_username"] == user then
 
 		data = get_process_output("node scripts/auth_live "^quote(user)^" "^quote(password))
 
@@ -197,7 +197,7 @@ def auth_live(user,password)
 		end
 
 	else
-		print("LIVE: A user is already connected!")
+		print("LIVE: Another user is already connected!")
 		false
 	end
 end
@@ -209,8 +209,7 @@ def user_connected(headers)
 		("live_name", headers["ice-name"]),
 		("live_description", headers["ice-description"]),
 		("genre", headers["ice-genre"]),
-		("live_url", headers["ice-url"]),
-		("live_connected", "yes")
+		("live_url", headers["ice-url"])
 	], !live_meta)
 
 	# cleanup
@@ -231,7 +230,6 @@ end
 def user_disconnected()
 	m = !live_meta
 	print("LIVE: User "^m["live_username"]^" disconnected")
-	m = list.remove_assoc("live_connected", m)
 	live_meta := m
 end
 
@@ -246,7 +244,7 @@ def live_start_recording(mm)
 		# Record the live stream
 		outfile = output.file(
 			%mp3.vbr(quality=0, stereo_mode="joint_stereo", internal_quality=0, id3v2=true),
-			on_start={print("LIVE: Starting recording... #{filename}")}, # would be nice to get the actual filename here aswell..
+			on_start={print("LIVE: Starting recording...")}, # would be nice to get the actual filename here aswell..
 			on_close=fun(f) -> print("LIVE: Recording finished! #{f}"),
 			fallible=true,
 			filename,
@@ -262,6 +260,9 @@ def live_end_recording(t, m)
 	print(m)
 	f = !live_stop_record
 	f()
+
+	m = list.remove_assoc("live_username", m) # release lock
+	live_meta := m
 end
 
 
@@ -320,7 +321,9 @@ live = audio_to_stereo(input.harbor(
 	buffer = 5.,
 	port = port_input,
 	auth = auth_live,
-	logfile = "live.log",
+	#icy = true, # setting icy to true crashes Liquidsoap :(
+	icy_metadata_charset = 'UTF-8',
+	metadata_charset = 'UTF-8',
 	on_connect = user_connected,
 	on_disconnect = user_disconnected
 ))
