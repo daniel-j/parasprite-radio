@@ -24,7 +24,7 @@ function radioPlayer(opts = {}) {
 
 	let urls
 	if (ismobile) {
-		urls = ['radio_mobile', 'radio_normal', 'radio']
+		urls = ['radio_normal', 'radio_mobile', 'radio']
 	} else {
 		urls = ['radio', 'radio_opus', 'radio_mobile']
 	}
