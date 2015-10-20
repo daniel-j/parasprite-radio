@@ -54,6 +54,41 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 			liquid.setMeta m
 			res.end JSON.stringify m, null, 1
 
+	internalRouter.post '/authlive', (req, res) ->
+		console.log req.body
+		username = req.body.username || ''
+		password = req.body.password || ''
+		out = {}
+		send = () ->
+			res.end JSON.stringify(out, null, 1)
+
+		if username.toLowerCase() == 'source' and password != ''
+			User.authUserWithShow password, (err, show, user, userAuth) ->
+				if err
+					console.error err
+					out.error = 'Invalid token: '+err
+					send()
+					return
+
+				userTwitter = ''
+				for a in userAuth
+					if a.provider == 'twitter'
+						userTwitter = a.username
+				out.live_unique = user.id+'_'+show.id
+				out.live_userId = user.id+''
+				out.live_showId = show.id+''
+				out.live_username = user.username || ''
+				out.live_displayname = user.displayName || ''
+				out.live_twitter = show.twitter || userTwitter || ''
+				out.live_name = show.name || ''
+				out.live_description = show.description || ''
+				out.url = show.url || user.url || ''
+				out.art = show.art || user.avatarUrl || ''
+				send()
+		else
+			out.error = 'Wrong username or password'
+			send()
+
 	# internalRouter.get '/liq/yt', (req, res) ->
 	# 	url = req.query.url
 	# 	console.log 'Remuxing youtube video '+url
@@ -129,7 +164,6 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 	defaultRouter.get '/stream', (req, res) ->
 		res.redirect config.streamurl+config.icecast.mounts[0]
 
-
 	defaultRouter.get '/auth/twitter',
 		passport.authenticate 'twitter'
 	defaultRouter.get '/auth/twitter/callback',
@@ -156,12 +190,55 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 
 
 	defaultRouter.get '/api/user', (req, res) ->
-
 		if req.user
 			User.findWithAuth req.user.id, (err, user) ->
 				res.json user
 		else
 			res.json {}
+
+	defaultRouter.post '/api/show/create', (req, res) ->
+		if req.user
+			User.createShow req.user.id, req.body, (err) ->
+				if err
+					console.error 'Error creating show: '+err
+					res.json error: ''+err
+					return
+				res.json 'ok'
+		else
+			res.json error: 'not logged in'
+
+	defaultRouter.delete '/api/show/:id', (req, res) ->
+		if req.user
+			User.removeShow req.user.id, req.params.id, (err) ->
+				if err
+					console.error 'Error removing show: '+err
+					res.json error: ''+err
+					return
+				res.json 'ok'
+		else
+			res.json error: 'not logged in'
+
+	defaultRouter.get '/api/show', (req, res) ->
+		if req.user
+			User.getShows req.user.id, (err, list) ->
+				if err
+					console.error 'Error fetching show: '+err
+					res.json error: ''+err
+					return
+				res.json list
+		else
+			res.json error: 'not logged in'
+
+	defaultRouter.get '/api/show/:id/updatetoken', (req, res) ->
+		if req.user
+			User.updateToken req.user.id, req.params.id, (err, token) ->
+				if err
+					console.error 'Error updating token: '+err
+					res.json error: ''+err
+					return
+				res.json token: token
+		else
+			res.json error: 'not logged in'
 
 	defaultRouter.get '/api/flash', (req, res) ->
 		res.json req.flash()

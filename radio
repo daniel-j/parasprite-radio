@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-process.argv.splice(2, 0, __dirname + "/server/index.coffee");
+process.argv.splice(2, 0, __dirname + "/server/cluster.coffee");
 
 process.env.NODE_ENV = "production";
 

@@ -10,9 +10,6 @@ var parsedUrl = url.parse(arg, true)
 var handler = null
 
 switch (parsedUrl.protocol) {
-	case "spotify:":
-		handler = require('./protocols/spotify')
-		break
 
 	default:
 		switch (parsedUrl.hostname) {
@@ -37,11 +34,6 @@ switch (parsedUrl.protocol) {
 			case "bronytunes.com":
 				handler = require('./protocols/bronytunes')
 				break
-
-			// case "open.spotify.com":
-			// case "play.spotify.com":
-			//	handler = require('./protocols/spotify')
-			//	break
 		}
 
 		if (!handler) {

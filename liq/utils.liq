@@ -15,3 +15,20 @@ def list.set_list(new, l)
 	end, new)
 	list.append(new, !outl)
 end
+
+# Add a skip function to a source
+# when it does not have one
+# by default
+def add_skip_command(~command,s)
+	# Register the command:
+	server.register(
+		usage="skip",
+		description="Skip the current song in source.",
+		command,
+		fun(_) -> begin
+			print("Skipping...")
+			source.skip(s)
+			"OK!"
+		end
+	)
+end

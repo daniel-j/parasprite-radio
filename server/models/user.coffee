@@ -4,18 +4,24 @@ sequelize = require '../db'
 User = sequelize.define 'User',
 	username:
 		type: Sequelize.STRING
+		unique: true
 	displayName:
 		type: Sequelize.STRING
 	email:
 		type: Sequelize.STRING
-		default: null
+		defaultValue: null
 		unique: true
 	level:
 		type: Sequelize.INTEGER
-		default: 0
+		defaultValue: 0
+		allowNull: false
 	avatarUrl:
 		type: Sequelize.STRING
-		default: ''
+		defaultValue: ''
+	canMakeShows:
+		type: Sequelize.BOOLEAN
+		defaultValue: false
+		allowNull: false
 
 UserAuth = sequelize.define 'UserAuth', {
 	provider:
@@ -56,18 +62,48 @@ UserAuth = sequelize.define 'UserAuth', {
 		}]
 	}
 
-UserAuth.belongsTo(User, {
+Show = sequelize.define 'Show',
+	name:
+		type: Sequelize.STRING
+		unique: true
+		allowNull: false
+	description:
+		type: Sequelize.STRING
+	twitter:
+		type: Sequelize.STRING
+	art:
+		type: Sequelize.STRING
+	url:
+		type: Sequelize.STRING
+
+	authToken:
+		type: Sequelize.UUID
+		unique: true
+		allowNull: false
+		defaultValue: Sequelize.UUIDV4
+
+	UserId:
+		type: Sequelize.INTEGER
+		references:
+			model: User
+
+UserAuth.belongsTo User,
 	constraints: false,
 	foreignKey: 'UserId'
-})
+
+Show.belongsTo User,
+	constraints: false,
+	foreignKey: 'UserId'
 
 
-#User.sync(force: true).then () ->
-#	UserAuth.sync(force: true)
+
+User.sync().then () ->
+	UserAuth.sync()
+	Show.sync()
 
 API =
 	findById: (id, cb) ->
-		User.findOne({where: {id: id}, attributes: ['id', 'username', 'displayName', 'email', 'level', 'avatarUrl']}).then((user) ->
+		User.findOne({where: {id: id}, attributes: ['id', 'username', 'displayName', 'email', 'level', 'avatarUrl', 'canMakeShows']}).then((user) ->
 			cb null, user
 		, cb)
 
@@ -100,6 +136,45 @@ API =
 						cb null, user && user.get(plain: true)
 					, cb)
 				, cb)
+		, cb)
+
+	createShow: (userId, info, cb) ->
+		User.findOne(where: { id: userId, canMakeShows: true }).then((user) ->
+			if !user
+				cb 'permission denied'
+				return
+			console.log user
+			Show.create(info: info.info or '', description: info.description, twitter: info.twitter, art: info.art, url: info.url, UserId: user.id).then((show) ->
+					cb null
+				, cb)
+		, cb)
+
+	getShows: (userId, cb) ->
+		Show.findAll(where: { UserId: userId }, attributes: ['id', 'name', 'description', 'twitter', 'art', 'url', 'authToken'], order: [['name', 'ASC']]).then((list) ->
+			cb null, list
+		, cb)
+
+	removeShow: (userId, showId, cb) ->
+		Show.destroy(where: {UserId: userId, id: showId}).then(() ->
+			cb()
+		, cb)
+
+	authUserWithShow: (token, cb) ->
+		Show.findOne(where: {authToken: token}).then((show) ->
+			if !show
+				cb 'invalid token'
+				return
+			API.findWithAuth show.UserId, (err, user) ->
+				if err or !user or !user.user or !user.user.canMakeShows
+					cb 'permission denied'
+					return
+				cb null, show, user.user, user.auths
+		, cb)
+
+	updateToken: (userId, showId, cb) ->
+		newToken = Show.build().authToken
+		Show.update({authToken: newToken}, {where: {UserId: userId, id: showId}}).then(() ->
+			cb null, newToken
 		, cb)
 
 module.exports = API

@@ -1,7 +1,6 @@
 
 net = require 'net'
 path = require 'path'
-fetchJSON = require(__dirname + '/../scripts/fetcher').fetchJSON
 generateArt = require './utils/generateArt'
 
 timeout = 5000
@@ -158,11 +157,10 @@ module.exports = (config) ->
 				imagedata = result
 
 		updateMeta: (cb) ->
-			fetchJSON 'http://'+config.liquidsoap.host+':'+config.liquidsoap.port_harbor+'/getmeta', null, (err, data) =>
+			liqCommand 'sendmetadata', (err, data) ->
 				if err
 					console.error "Liquidsoap: Couldn't fetch metadata: "+err
-				else
-					@setMeta data
+				cb && cb err, data
 
 		getMeta: ->
 			return metadata

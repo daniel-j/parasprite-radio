@@ -46,9 +46,9 @@ password = 'hackmemore'
 # the thing where magic happens
 [liquidsoap]
 host = 'localhost'
-port_telnet = 1234
-port_harbor = 7000
-port_input  = 8001
+port_telnet = 7004
+port_input  = 7005
+# 7006 for Shoutcast metadata
 
 
 # music database
