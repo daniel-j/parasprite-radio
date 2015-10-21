@@ -52,8 +52,8 @@ app.use favicon __dirname + '/../static/img/icons/favicon.ico'
 app.use cookieParser config.server.cookieSecret
 app.use session
 	secret: config.server.sessionSecret
-	resave: true
-	saveUninitialized: true
+	resave: false
+	saveUninitialized: false
 	store: new SessionStore config.mysql
 	cookie:
 		maxAge: 365 * 24 * 60 * 60 * 1000
