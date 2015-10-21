@@ -27,8 +27,16 @@ isInternal = (req, res, next) ->
 		res.end '401 Unauthorized. Only internal!'
 
 cors = (res) ->
-	res.header "Access-Control-Allow-Origin", "*"
-	res.header "Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept"
+	res.set
+		'Access-Control-Allow-Origin': '*'
+		'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
+
+nocache = (res) ->
+	# http://stackoverflow.com/a/2068407
+	res.set
+		'Cache-Control': 'no-cache, no-store, must-revalidate' # // HTTP 1.1.
+		'Pragma': 'no-cache' # HTTP 1.0.
+		'Expires': '0' # Proxies.
 
 htmloptions =
 	root: __dirname + '/../build/document/'
@@ -49,10 +57,10 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 	internalRouter.post '/meta', (req, res) ->
 		m = req.body
 		if Object.keys(m).length == 0
-			res.end '(none)'
+			res.send '(none)'
 		else
 			liquid.setMeta m
-			res.end JSON.stringify m, null, 1
+			res.send JSON.stringify m, null, 1
 
 	internalRouter.post '/authlive', (req, res) ->
 		console.log req.body
@@ -60,7 +68,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 		password = req.body.password || ''
 		out = {}
 		send = () ->
-			res.end JSON.stringify(out, null, 1)
+			res.send JSON.stringify(out, null, 1)
 
 		if username.toLowerCase() == 'source' and password != ''
 			User.authUserWithShow password, (err, show, user, userAuth) ->
@@ -249,6 +257,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 
 
 	defaultRouter.get '/api/now/art/:size', (req, res) ->
+
 		size = req.params.size
 		if size == 'full' then size == 'original'
 		sizes = ['original', 'tiny', 'small']
@@ -265,13 +274,12 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 				type = ext: 'png', mime: 'image/png'
 
 		if info and data
-			console.log 'got image!', size, type
-			res.setHeader 'Content-Type', type.mime
-			res.end data
+			nocache res
+			res.type type.mime
+			res.send data
 		else
-			console.log 'no image found :/'
-			res.setHeader 'Content-Type', 'image/png'
-			#res.sendFile 'pr-cover-'+size+'.png', root: __dirname + '/../static/img/cover/'
+			nocache res
+			res.type 'png'
 			res.sendFile 'cover-small.png', root: __dirname + '/../static/img/cover/'
 	###
 	defaultRouter.get '/api/now/json', (req, res) ->
@@ -281,7 +289,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 	###
 
 	defaultRouter.get '/api/status', (req, res) ->
-		cors(res)
+		cors res
 		o =
 			meta: liquid.getMeta()
 			info: icecast.getInfo()
@@ -306,7 +314,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 		limit = +(req.query.limit || config.lastfm.api.limit)
 		if limit < 1 then limit = 1
 		if limit > config.lastfm.api.limit then limit = config.lastfm.api.limit
-		cors(res)
+		cors res
 
 		fetchJSON 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user='+config.lastfm.username+'&api_key='+config.lastfm.api.key+'&format=json&limit='+limit+'&extended=1', null, (err, data) ->
 			if err
@@ -332,7 +340,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 			res.json tracks
 
 	defaultRouter.get '/api/radio', (req, res) ->
-		cors(res)
+		cors res
 
 		meta = liquid.getMeta()
 		text = (if meta.artist then meta.artist + ' - ' else '') + meta.title
@@ -542,12 +550,12 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 		stream = fs.createReadStream config.media_dir+'/'+filename
 		parser = mm stream
 		parser.on 'metadata', (result) ->
-			res.end JSON.stringify result
+			res.send JSON.stringify result
 		parser.on 'done', (err) ->
-			if err then res.end ''+err
+			if err then res.send ''+err
 			stream.destroy()
 		stream.on 'error', (err) ->
-			res.end ''+err
+			res.send ''+err
 
 	###adminRouter.get '/api/set/*', (req, res) ->
 		filename = cleanpath req.params[0]

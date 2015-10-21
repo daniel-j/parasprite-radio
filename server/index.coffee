@@ -46,6 +46,8 @@ scheduler.on 'ended', liquid.eventEnded
 app = express()
 inDev = app.get('env') == 'development'
 
+app.disable 'x-powered-by' # save some bits
+
 app.use logger 'dev'
 app.use favicon __dirname + '/../static/img/icons/favicon.ico'
 

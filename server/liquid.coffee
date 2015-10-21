@@ -91,7 +91,7 @@ module.exports = (config) ->
 						f = (i) ->
 							liqCommand "request.metadata "+list[i], (err, data) ->
 								if err
-									
+
 								else
 									if typeof data == 'string'
 										data = error: data, file: ""
@@ -195,5 +195,5 @@ module.exports = (config) ->
 
 	API.updateMeta()
 
-						
+
 	API

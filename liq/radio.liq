@@ -141,7 +141,6 @@ def auth_live(user,password)
 			true
 		else
 			print("LIVE: Authentication error: "^ret["error"])
-			print(data)
 			false
 		end
 
@@ -270,12 +269,12 @@ end
 
 # Live input
 live = audio_to_stereo(input.harbor(
-	"live",
-	id="live",
+	"/", # supporting shoutcast and icecast (empty mount) sources
+	id = "live",
 	buffer = 5.,
 	port = port_input,
 	auth = auth_live,
-	icy = true, # enables Shoutcast support (untested, uses port_input+1 for metadata updates)
+	icy = true, # enables Shoutcast support (untested, uses port_input+1)
 	icy_metadata_charset = 'UTF-8',
 	metadata_charset = 'UTF-8',
 	on_connect = user_connected,
