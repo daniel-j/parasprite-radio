@@ -55,6 +55,7 @@ app.use session
 	resave: false
 	saveUninitialized: false
 	store: new SessionStore config.mysql
+	unset: 'destroy'
 	cookie:
 		maxAge: 365 * 24 * 60 * 60 * 1000
 

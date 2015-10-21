@@ -185,6 +185,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 	defaultRouter.get '/logout', (req, res) ->
 		if req.isAuthenticated()
 			req.logout()
+			delete req.session
 			#req.flash 'info', 'You are now logged out'
 		res.redirect '/'
 
