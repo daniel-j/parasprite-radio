@@ -14,3 +14,6 @@ client.on('connect', function () {
 		client.write(data.toString()+"\r\n")
 	})
 })
+client.on('end', function () {
+	process.exit(0)
+})
