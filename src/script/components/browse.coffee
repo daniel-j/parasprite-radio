@@ -6,7 +6,7 @@ class Browse extends Marionette.Module
 
 	onStart: ->
 		@controller = new Browse.Controller
-	
+
 class Browse.Router extends Marionette.AppRouter
 	appRoutes:
 		'browse/*path': 'showPath'
@@ -142,7 +142,7 @@ class Browse.Path extends Marionette.CollectionView
 			@trigger 'path:navigate', path
 			for m, i in @collection.models
 				m.set 'current', i == pos
-				
+
 			@currentPath = path
 
 	setPath: (path, fromUser, instant) ->
@@ -160,7 +160,7 @@ class Browse.Path extends Marionette.CollectionView
 					@collection.add m, at: i
 				else if m.get('name') != name
 					m.set 'name', name
-			
+
 			for m, i in @collection.models
 				m.set 'current', i == parts.length-1
 

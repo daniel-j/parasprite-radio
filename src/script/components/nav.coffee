@@ -25,7 +25,7 @@ class Nav.Controller extends Base.Controller
 			model = @menuitems.findWhere name: name
 			if model
 				@showContent model
-				
+
 
 	showContent: (model, fromClick) ->
 

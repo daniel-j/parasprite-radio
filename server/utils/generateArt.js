@@ -20,7 +20,7 @@ function generateArt(input, cb) {
 		cb(null, null)
 		return
 	}
-	
+
 	// the input is a remote image
 	if (input.indexOf('http:') === 0 || input.indexOf('https:') === 0) {
 		fetcher(input, null, function (err, data) {

@@ -25,17 +25,17 @@ function imageFromFile(filename, cb) {
 
 	var parser = mm(stream, {}, function (err, meta) {
 		var pictures = meta.picture
-		
+
 		if (pictures && pictures[0]) {
 
 			var type = typeToMime(pictures[0].format)
-			
+
 			if (type !== null) {
 				cb(null, type, meta.picture[0].data)
 				gotimg = true
 			}
 		}
-		
+
 		if (!gotimg) {
 			var dir = path.dirname(filename)
 

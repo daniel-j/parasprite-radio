@@ -45,7 +45,7 @@ class Behavior.TracklistSelect extends Marionette.Behavior
 	rangeSelection: (m1) ->
 		col = m1.collection
 		m2 = col.lastSelectedModel
-		
+
 		index1 = col.models.indexOf m1
 		index2 = col.models.indexOf m2
 		if index1 == -1 then return

@@ -48,9 +48,9 @@ module.exports = (config) ->
 						end: new Date(item.end.dateTime || item.end.date)
 
 						sequence: item.sequence
-					
+
 					ev.length = (ev.end.getTime()-ev.start.getTime())/1000
-					
+
 					if ev.end.getTime() >= now
 						handleEvent ev
 						idlist.push item.id

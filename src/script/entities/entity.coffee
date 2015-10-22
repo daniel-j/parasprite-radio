@@ -102,7 +102,7 @@ class Entity.Playlist extends Backbone.Collection
 	idAttribute: 'playlist'
 	url: ->
 		config.apiPath+"/playlist/"+encodeURI(@playlist).replace(/#/, "%23")
-	
+
 class Entity.Playlists extends Backbone.Collection
 	url: config.apiPath+'/playlists'
 

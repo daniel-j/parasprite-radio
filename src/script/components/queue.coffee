@@ -51,5 +51,5 @@ class Queue.Layout extends Marionette.LayoutView
 
 	regions:
 		listRegion: '#queueList'
-	
+
 module.exports = Queue

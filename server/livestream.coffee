@@ -41,7 +41,7 @@ module.exports = (config) ->
 				viewers
 			else
 				0
-			
+
 
 		isOnline: ->
 			return viewers != -1

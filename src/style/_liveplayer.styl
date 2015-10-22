@@ -4,7 +4,7 @@
 	position relative
 	background-color black
 	overflow hidden
-	
+
 	#streamoffline, #jwplayer
 		position absolute
 		left 0
@@ -15,7 +15,7 @@
 		-moz-transition top .3s ease-out, opacity .3s ease-out
 		-webkit-transition top .3s ease-out, opacity .3s ease-out
 		transition top .3s ease-out, opacity .3s ease-out
-	
+
 	#streamoffline
 		top -100%
 		z-index 9999
@@ -29,13 +29,13 @@
 		background-repeat no-repeat, no-repeat
 		background-position 93% 98%, center center
 		background-size auto, cover
-		
+
 		display -webkit-box
 		display -webkit-flex
 		display -moz-box
 		display -ms-flexbox
 		display flex
-		
+
 		-webkit-justify-content center
 		justify-content center
 
@@ -43,17 +43,17 @@
 		-ms-flex-align center
 		-webkit-align-items center
 		align-items center
-		
+
 		span
 			background-color bgColor
 			padding 10px 20px
-	
+
 	#jwplayer
 		top 0%
 		opacity 1
 		.jw-rightclick
 			display none
-	
+
 	#viewercount
 		position absolute
 		right 0
@@ -71,14 +71,14 @@
 		background-position right center
 		background-size contain
 		cursor default
-		
+
 		&:hover
 			opacity 1
 			background-color bgColor
-	
+
 	&.offline
 		#streamoffline
 			top 0%
-		
+
 		#jwplayer
 			opacity 0
