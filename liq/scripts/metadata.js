@@ -18,7 +18,7 @@ if (xmp_ext.indexOf(ext.toLowerCase()) !== -1) {
 			return
 		}
 		//console.log(stderr)
-		var m = stdout.trim().match(/Title\: "(.*)"$/) || []
+		var m = stdout.trim().match(/"([^"]*)"/) || []
 		var title = m[1] || ''
 		var pos = title.indexOf("\\032")
 		if (pos !== -1) title = title.substring(0, pos)
