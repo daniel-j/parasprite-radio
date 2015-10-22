@@ -15,6 +15,8 @@ var mergeStream = require('merge-stream')
 var assign = require('lodash').assign
 var browserSync = require('browser-sync').create()
 var sequence = require('run-sequence').use(gulp)
+var watch = require('gulp-watch')
+var lazypipe = require('lazypipe')
 
 // script
 var eslint = require('gulp-eslint')
@@ -36,6 +38,8 @@ var sources = {
 	style: ['main.styl', 'admin.styl', 'popout.styl', 'livestream.styl'],
 	document: ['index.jade', 'admin.jade', 'popout.jade', 'livestream.jade']
 }
+var lintES = ['src/script/**/*.js', 'server/**/*.js', 'scripts/**/*.js', 'liq/scripts/**/*.js', 'gulpfile.js', 'webpack.config.js']
+var lintCS = ['src/script/**/*.coffee', 'server/**/*.coffee']
 
 
 var inProduction = process.env.NODE_ENV === 'production' || process.argv.indexOf('-p') !== -1
@@ -79,7 +83,8 @@ var htmlminOpts = {
 }
 
 var watchOpts = {
-	debounceDelay: 500
+	readDelay: 100,
+	verbose: true
 }
 
 if (inProduction) {
@@ -105,6 +110,51 @@ var wpCompiler = webpack(assign({}, webpackConfig, {
 	debug: !inProduction
 }))
 
+function webpackTask(callback) {
+		// run webpack
+		wpCompiler.run(function(err, stats) {
+				if(err) throw new gutil.PluginError('webpack', err)
+				gutil.log('[webpack]', stats.toString({
+						colors: true,
+						hash: false,
+						version: false,
+						chunks: false,
+						chunkModules: false
+				}))
+				browserSync.reload()
+				callback()
+		})
+}
+
+function styleTask() {
+	return gulp.src(sources.style.map(function (f) {return 'src/style/' + f}))
+		.pipe(plumber())
+		.pipe(gulpif(!inProduction, sourcemaps.init()))
+			.pipe(stylus(stylusOpts))
+			.pipe(gulpif(inProduction, cssmin(cssminOpts)))
+		.pipe(gulpif(!inProduction, sourcemaps.write()))
+		.pipe(gulp.dest('build/style/'))
+		.pipe(browserSync.stream())
+}
+
+function documentTask() {
+	return gulp.src(sources.document.map(function (f) {return 'src/document/' + f}))
+		.pipe(plumber())
+		.pipe(gdata(function () { return jadeData }))
+		.pipe(jade(jadeOpts))
+		.pipe(gulpif(inProduction, htmlmin(htmlminOpts)))
+		.pipe(gulp.dest('build/document/'))
+		.pipe(browserSync.stream())
+}
+
+var lintESPipe = lazypipe()
+	.pipe(eslint, eslintOpts)
+	.pipe(eslint.format)
+var lintCSPipe = lazypipe()
+	.pipe(coffeelint)
+	.pipe(coffeelint.reporter)
+
+
 // Cleanup tasks
 gulp.task('clean', function () {
 	return del('build')
@@ -119,92 +169,55 @@ gulp.task('clean:document', function () {
 	return del('build/document')
 })
 
-// Builder tasks
-gulp.task('script', ['webpack', 'lint'], function () {
-	return browserSync.reload()
-})
-
-gulp.task('style', function () {
-	return gulp.src(sources.style.map(function (f) {return 'src/style/' + f}))
-		.pipe(plumber())
-		.pipe(gulpif(!inProduction, sourcemaps.init()))
-			.pipe(stylus(stylusOpts))
-			.pipe(gulpif(inProduction, cssmin(cssminOpts)))
-		.pipe(gulpif(!inProduction, sourcemaps.write()))
-		.pipe(gulp.dest('build/style/'))
-		.pipe(browserSync.stream())
-})
-
-gulp.task('document', function () {
-	return gulp.src(sources.document.map(function (f) {return 'src/document/' + f}))
-		.pipe(plumber())
-		.pipe(gdata(function () { return jadeData }))
-		.pipe(jade(jadeOpts))
-		.pipe(gulpif(inProduction, htmlmin(htmlminOpts)))
-		.pipe(gulp.dest('build/document/'))
-		.pipe(browserSync.stream())
-})
-
-
-gulp.task('webpack', function (callback) {
-    // run webpack
-    wpCompiler.run(function(err, stats) {
-        if(err) throw new gutil.PluginError('webpack', err)
-        gutil.log('[webpack]', stats.toString({
-            colors: true,
-            hash: false,
-            version: false,
-            chunks: false,
-            chunkModules: false
-        }))
-        callback()
-    })
-})
-//gulp.task('watch:webpack', ['webpack'], function () {
-//	return gulp.watch(['src/script/**/*.coffee', 'src/script/**/*.js', 'src/script/template/**/*.mustache'], watchOpts, ['webpack'])
-//})
-
-
-// Watcher tasks
+// Main tasks
+gulp.task('webpack', webpackTask)
+gulp.task('script', ['webpack'])
 gulp.task('watch:script', function () {
-	return gulp.watch(['src/script/**/*.coffee', 'src/script/**/*.js', 'src/script/template/**/*.mustache'], watchOpts, ['script'])
+	return watch(['src/script/**/*.coffee', 'src/script/**/*.js', 'src/script/template/**/*.mustache'], watchOpts, function () {
+		return sequence('script')
+	})
 })
 
+gulp.task('style', styleTask)
 gulp.task('watch:style', function () {
-	return gulp.watch('src/style/**/*.styl', watchOpts, ['style'])
+	return watch('src/style/**/*.styl', watchOpts, styleTask)
 })
 
+gulp.task('document', documentTask)
 gulp.task('watch:document', function () {
-	return gulp.watch('src/document/**/*.jade', watchOpts, ['document'])
+	return watch('src/document/**/*.jade', watchOpts, documentTask)
 })
 
-gulp.task('watch:server', function () {
-	return gulp.watch(['server/**/*.js', 'server/**/*.coffee'], watchOpts, ['lint'])
-})
-
-// Linting
 gulp.task('lint', function () {
-	var coffeeStream = gulp.src(['src/script/**/*.coffee', 'server/**/*.coffee'])
-		.pipe(coffeelint())
-		.pipe(coffeelint.reporter())
-
-	var eslintStream = gulp.src(['src/script/**/*.js', 'server/**/*.js', 'scripts/**/*.js', 'liq/scripts/**/*.js', 'gulpfile.js', 'webpack.config.js'])
-		.pipe(eslint(eslintOpts))
-		.pipe(eslint.format())
-	return mergeStream(eslintStream, coffeeStream)
+	return mergeStream(
+		gulp.src(lintES).pipe(lintESPipe()),
+		gulp.src(lintCS).pipe(lintCSPipe())
+	)
+})
+gulp.task('watch:lint', function () {
+	return mergeStream(
+		watch(lintES, watchOpts, function (file) {
+			gulp.src(file.path).pipe(lintESPipe())
+		}),
+		watch(lintCS, watchOpts, function (file) {
+			gulp.src(file.path).pipe(lintCSPipe())
+		})
+	)
 })
 
 gulp.task('browsersync', function () {
-	browserSync.init({
+	return browserSync.init({
 		proxy: config.server.host+':'+config.server.port
 	})
 })
 
 // Default task
 gulp.task('default', function (done) {
-	sequence('clean', ['script', 'style', 'document'], done)
+	sequence('clean', ['script', 'style', 'document', 'lint'], done)
 })
 
+// Watch task
 gulp.task('watch', function (done) {
-	sequence(['default', 'watch:server', 'watch:script', 'watch:style', 'watch:document'], 'browsersync', done)
+	sequence('default', ['watch:lint', 'watch:script', 'watch:style', 'watch:document', 'browsersync'], done)
 })
+
