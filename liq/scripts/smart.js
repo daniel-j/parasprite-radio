@@ -13,25 +13,25 @@ switch (parsedUrl.protocol) {
 
 	default:
 		switch (parsedUrl.hostname) {
-			case "soundcloud.com":
+			case 'soundcloud.com':
 				handler = require('./protocols/soundcloud')
 				break
 
-			case "www.youtube.com":
-			case "youtube.com":
-			case "youtu.be":
+			case 'www.youtube.com':
+			case 'youtube.com':
+			case 'youtu.be':
 				handler = require('./protocols/youtube-dl')
 				break
 
-			case "eqbeats.org":
+			case 'eqbeats.org':
 				handler = require('./protocols/eqbeats')
 				break
 
-			case "pony.fm":
+			case 'pony.fm':
 				handler = require('./protocols/ponyfm')
 				break
 
-			case "bronytunes.com":
+			case 'bronytunes.com':
 				handler = require('./protocols/bronytunes')
 				break
 		}
@@ -47,10 +47,10 @@ switch (parsedUrl.protocol) {
 }
 
 if (!handler) {
-	console.error("No handler found, passing through...")
+	console.error('No handler found, passing through...')
 	console.log(arg)
 } else {
-	console.error("Using handler "+handler.title)
+	console.error('Using handler '+handler.title)
 	handler(arg, parsedUrl, handlerCallback)
 }
 

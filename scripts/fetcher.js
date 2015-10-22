@@ -16,7 +16,7 @@ function fetcher(url, opt, callback) {
 		port: parsed.port,
 		path: parsed.path,
 		headers: {
-			"user-agent": config.general.userAgent || "node"
+			'user-agent': config.general.userAgent || 'node'
 		}
 	}
 

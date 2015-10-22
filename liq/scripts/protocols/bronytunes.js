@@ -2,15 +2,15 @@
 
 var utils = require('../utils')
 
-var root = "https://bronytunes.com"
+var root = 'https://bronytunes.com'
 var clientType = 'parasprite_radio'
 
 function protocol(arg, parsedUrl, handleCb) {
-	var path = parsedUrl.pathname.substr(1).split("/")
+	var path = parsedUrl.pathname.substr(1).split('/')
 	var query = parsedUrl.query
 
 	if (path[0] === 'songs') {
-		utils.handleAPI(root+"/retrieve_songs.php?client_type="+clientType, handleList)
+		utils.handleAPI(root+'/retrieve_songs.php?client_type='+clientType, handleList)
 	}
 
 	function handleList(list) {
@@ -25,10 +25,10 @@ function protocol(arg, parsedUrl, handleCb) {
 
 	function outputTrack(track) {
 		var id = +track.song_id
-		var arturl = "https://artwork3.bronytunes.com/retrieve_artwork.php?song_id="+id+"&aspect=wide&force_album_artwork=0&size=1024&client_type="+clientType
-		var year = parseInt(track.release_date, 10) || null // format: "2015-04-18"
+		var arturl = 'https://artwork3.bronytunes.com/retrieve_artwork.php?song_id='+id+'&aspect=wide&force_album_artwork=0&size=1024&client_type='+clientType
+		var year = parseInt(track.release_date, 10) || null // format: '2015-04-18'
 
-		var audiourl = "https://bronytunes.com/retrieve_song.php?song_id="+id+"&client_type="+clientType+"&fmt=.mp3"
+		var audiourl = 'https://bronytunes.com/retrieve_song.php?song_id='+id+'&client_type='+clientType+'&fmt=.mp3'
 
 		handleCb({
 			title: track.name,
@@ -36,7 +36,7 @@ function protocol(arg, parsedUrl, handleCb) {
 			album: track.album,
 			albumartist: track.album_artist_name,
 
-			url: root+"/songs/"+id,
+			url: root+'/songs/'+id,
 			art: arturl,
 			time: +track.duration,
 			year: year,
@@ -47,7 +47,7 @@ function protocol(arg, parsedUrl, handleCb) {
 
 }
 
-protocol.title = "BronyTunes"
+protocol.title = 'BronyTunes'
 
 module.exports = protocol
 

@@ -188,7 +188,7 @@ gulp.task('lint', function () {
 		.pipe(coffeelint())
 		.pipe(coffeelint.reporter())
 
-	var eslintStream = gulp.src(['src/script/**/*.js', 'server/**/*.js', 'gulpfile.js', 'webpack.config.js'])
+	var eslintStream = gulp.src(['src/script/**/*.js', 'server/**/*.js', 'scripts/**/*.js', 'liq/scripts/**/*.js', 'gulpfile.js', 'webpack.config.js'])
 		.pipe(eslint(eslintOpts))
 		.pipe(eslint.format())
 	return mergeStream(eslintStream, coffeeStream)

@@ -2,17 +2,17 @@
 
 var utils = require('../utils')
 
-var root = "https://eqbeats.org"
+var root = 'https://eqbeats.org'
 
 function protocol(arg, parsedUrl, handleCb) {
 
-	var path = parsedUrl.pathname.substr(1).split("/")
+	var path = parsedUrl.pathname.substr(1).split('/')
 	var query = parsedUrl.query
 
 	if (path[0] === 'track') {
-		utils.handleAPI(root+"/track/"+path[1]+"/json", outputTrack)
+		utils.handleAPI(root+'/track/'+path[1]+'/json', outputTrack)
 	} else if (path[0] === 'tracks' && path[1] === 'search' && query.q) {
-		utils.handleAPI(root+"/tracks/search/json?q="+encodeURIComponent(query.q), outputFirstTrack)
+		utils.handleAPI(root+'/tracks/search/json?q='+encodeURIComponent(query.q), outputFirstTrack)
 	}
 
 
@@ -37,6 +37,6 @@ function protocol(arg, parsedUrl, handleCb) {
 
 }
 
-protocol.title = "Equestrian Beats"
+protocol.title = 'Equestrian Beats'
 
 module.exports = protocol

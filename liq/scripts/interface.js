@@ -9,9 +9,9 @@ client.pipe(process.stdout)
 
 
 client.on('connect', function () {
-	console.log("Connected!")
+	console.log('Connected!')
 	process.stdin.on('data', function (data) {
-		client.write(data.toString()+"\r\n")
+		client.write(data.toString()+'\r\n')
 	})
 })
 client.on('end', function () {

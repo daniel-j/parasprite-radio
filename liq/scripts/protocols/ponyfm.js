@@ -2,22 +2,22 @@
 
 var utils = require('../utils')
 
-var root = "https://pony.fm"
+var root = 'https://pony.fm'
 
 function protocol(arg, parsedUrl, handleCb) {
-	var path = parsedUrl.pathname.substr(1).split("/")
+	var path = parsedUrl.pathname.substr(1).split('/')
 	var query = parsedUrl.query
 	if (path[0] === 'tracks') {
-		utils.handleAPI(root+"/api/web/tracks/"+parseInt(path[1])+"?log=true", outputTrack) // log=true adds to viewcount
+		utils.handleAPI(root+'/api/web/tracks/'+parseInt(path[1])+'?log=true', outputTrack) // log=true adds to viewcount
 	}
 
 	function outputTrack(info) {
 		var track = info.track
 		var id = track.id
 		var arturl = track.covers.normal
-		var year = parseInt(track.published_at.date, 10) // format: "2015-04-18 05:33:53.000000"
+		var year = parseInt(track.published_at.date, 10) // format: '2015-04-18 05:33:53.000000'
 
-		var audiourl = root+"/t"+id+"/dl.mp3"
+		var audiourl = root+'/t'+id+'/dl.mp3'
 
 		handleCb({
 			title: track.title,
@@ -33,7 +33,7 @@ function protocol(arg, parsedUrl, handleCb) {
 
 }
 
-protocol.title = "PonyFM"
+protocol.title = 'PonyFM'
 
 module.exports = protocol
 

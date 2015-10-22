@@ -20,11 +20,12 @@ if (xmp_ext.indexOf(ext.toLowerCase()) !== -1) {
 		//console.log(stderr)
 		var m = stdout.trim().match(/"([^"]*)"/) || []
 		var title = m[1] || ''
-		var pos = title.indexOf("\\032")
+		var pos = title.indexOf('\\032')
 		if (pos !== -1) title = title.substring(0, pos)
 		title = title.trim()
-		if (title.length > 0)
+		if (title.length > 0) {
 			output.title = title
+		}
 
 		console.log(JSON.stringify(output))
 	})

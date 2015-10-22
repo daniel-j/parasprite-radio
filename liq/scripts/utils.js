@@ -9,7 +9,7 @@ var utils = {
 	handleAPI: function (url, cb) {
 		utils.fetchJSON(url, function (err, data) {
 			if (err) {
-				utils.sayErr("handleAPI", "I was not able to parse "+url)
+				utils.sayErr('handleAPI', 'I was not able to parse '+url)
 			} else {
 				cb(data)
 			}
@@ -25,16 +25,16 @@ var utils = {
 		if (o.error) {
 			o = utils.sayErr(o.what, o.error)
 		}
-		var list = [];
+		var list = []
 		for (var key in o) {
 			if (o.hasOwnProperty(key) && key !== 'source' && o[key] !== null && o[key] !== undefined) {
 				list.push(key+'='+JSON.stringify(o[key]))
 			}
 		}
 
-		var out = "";
+		var out = ''
 		if (list.length > 0) {
-			out += "annotate:"+list.join(",")+":"
+			out += 'annotate:'+list.join(',')+':'
 		}
 		out += o.source
 
@@ -43,8 +43,8 @@ var utils = {
 
 	sayErr: function (title, err) {
 		return {
-			title: title && title+" error",
-			source: "say:"+JSON.stringify(title+" error. "+err).replace(/\:/g, '.')
+			title: title && title+' error',
+			source: 'say:'+JSON.stringify(title+' error. '+err).replace(/\:/g, '.')
 		}
 	}
 

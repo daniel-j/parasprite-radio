@@ -9,9 +9,9 @@ client.pipe(process.stdout)
 
 client.on('connect', function () {
 	if (process.argv[2]) {
-		client.write("smartqueue "+process.argv[2]+"\r\n")
+		client.write('smartqueue '+process.argv[2]+'\r\n')
 	}
-	client.write("request.queue\r\n")
-	client.write("quit\r\n")
+	client.write('request.queue\r\n')
+	client.write('quit\r\n')
 	client.end()
 })

@@ -7,7 +7,7 @@ function protocol(arg, parsedUrl, handleCb) {
 
 	var yt = spawn('youtube-dl', ['--no-playlist', '--playlist-end', 1, '-j', '-f', 'bestaudio/best', arg])
 
-	var output = ""
+	var output = ''
 
 	yt.stdout.on('data', function (chunk) {
 		output += chunk.toString('utf8')
@@ -29,7 +29,7 @@ function fetchVideo(data, cb) {
 		//ffmpeg.stdout.pipe(process.stderr)
 		//ffmpeg.stderr.pipe(process.stderr)
 		data.filename = tempName
-		console.error("Downloading "+data.title+"...")
+		console.error('Downloading '+data.title+'...')
 
 		//ffmpeg.on('close', function () {
 		//})
@@ -42,8 +42,8 @@ function fetchVideo(data, cb) {
 
 function outputVideo(video, cb) {
 
-	//var url = video.url.replace(/\./g, "%2E")
-	//url += "&filename=" + encodeURIComponent("v."+video.ext)
+	//var url = video.url.replace(/\./g, '%2E')
+	//url += '&filename=' + encodeURIComponent('v.'+video.ext)
 
 	cb({
 		title: video.title,
@@ -56,6 +56,6 @@ function outputVideo(video, cb) {
 	})
 }
 
-protocol.title = "youtube-dl"
+protocol.title = 'youtube-dl'
 
 module.exports = protocol
