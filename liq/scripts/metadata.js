@@ -23,7 +23,8 @@ if (xmp_ext.indexOf(ext.toLowerCase()) !== -1) {
 		var pos = title.indexOf("\\032")
 		if (pos !== -1) title = title.substring(0, pos)
 		title = title.trim()
-		output.title = title
+		if (title.length > 0)
+			output.title = title
 
 		console.log(JSON.stringify(output))
 	})
