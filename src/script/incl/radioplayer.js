@@ -1,3 +1,4 @@
+'use strict'
 
 import * as notify from '../utils/notify'
 import './raf'
@@ -19,7 +20,7 @@ function radioPlayer(opts = {}) {
 	let radioVolume = document.getElementById('radioVolume')
 	let visualizerDiv = document.getElementById('visualizer')
 
-	let useVisualizer = (AudioContext && !!visualizerDiv)
+	let useVisualizer = (AudioContext && !!visualizerDiv && !ismobile)
 	let acx, canvas, ctx, gainNode, analyzer, liveFreqData
 
 	let urls
@@ -74,7 +75,7 @@ function radioPlayer(opts = {}) {
 
 	function initializeVisualizer() {
 		acx = new AudioContext()
-		if (!acx.createGain) {
+		if (!acx.createGain || !acx.createMediaElementSource || !acx.createAnalyser) {
 			useVisualizer = false
 			return
 		}
@@ -89,7 +90,7 @@ function radioPlayer(opts = {}) {
 		analyzer = acx.createAnalyser()
 		analyzer.fftSize = 32
 		analyzer.connect(gainNode)
-		analyzer.smoothingTimeConstant = 0.45
+		analyzer.smoothingTimeConstant = 0.5
 
 		liveFreqData = new Float32Array(analyzer.frequencyBinCount)
 	}
@@ -157,14 +158,14 @@ function radioPlayer(opts = {}) {
 		notify.check()
 
 		if (useVisualizer) {
-			setTimeout(() => {
+			audioTag.addEventListener('canplay', () => {
 				if (audioTag) {
 					audioTag.volume = 1
 					source = acx.createMediaElementSource(audioTag)
 					source.connect(analyzer)
 					update()
 				}
-			}, 500)
+			}, false)
 		}
 	}
 
