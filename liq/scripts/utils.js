@@ -4,12 +4,15 @@ var fetchJSON = require(__dirname+'/../../scripts/fetcher').fetchJSON
 
 var utils = {
 
-	fetchJSON: fetchJSON,
+	fetchJSON: function (url, cb) {
+		return fetchJSON(url, {}, cb)
+	},
 
 	handleAPI: function (url, cb) {
 		utils.fetchJSON(url, function (err, data) {
 			if (err) {
-				utils.sayErr('handleAPI', 'I was not able to parse '+url)
+				console.error(url)
+				utils.sayErr('handleAPI', 'I was not able to parse the url')
 			} else {
 				cb(data)
 			}

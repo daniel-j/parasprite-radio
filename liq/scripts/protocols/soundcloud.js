@@ -7,15 +7,20 @@ var root = 'https://api.soundcloud.com'
 
 function protocol(arg, parsedUrl, handleCb) {
 
-	utils.handleAPI(root+'/resolve.json?url='+encodeURIComponent(process.argv[2])+'&client_id='+config.soundcloud.clientId, outputTrack)
+	utils.handleAPI(root+'/resolve.json?url='+encodeURIComponent(process.argv[2])+'&client_id='+config.soundcloud.clientId, checkTrack)
 
-	function outputTrack(track) {
-
-		if (track.kind !== 'track') {
-			handleCb({what: protocol.title, error: 'Not a track.'})
+	function checkTrack(response) {
+		if (response.kind === 'playlist') {
+			response.tracks.forEach(outputTrack)
+		} else if (response.kind === 'track') {
+			outputTrack(response)
+		} else {
+			handleCb({what: protocol.title, error: 'Not a track, '+response.kind})
 			return
 		}
+	}
 
+	function outputTrack(track) {
 		var arturl = track.artwork_url || track.user.avatar_url
 		var year = parseInt(track.created_at, 10) // format: '2015/04/22 22:12:30 +0000'
 		var audiourl = ''
