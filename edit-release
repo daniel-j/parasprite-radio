@@ -4,4 +4,4 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 
-NODE_ENV=production gulp watch
+gulp watch -p

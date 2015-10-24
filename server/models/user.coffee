@@ -1,3 +1,4 @@
+'use strict'
 Sequelize = require 'sequelize'
 sequelize = require '../db'
 
@@ -88,11 +89,11 @@ Show = sequelize.define 'Show',
 			model: User
 
 UserAuth.belongsTo User,
-	constraints: false,
+	constraints: false
 	foreignKey: 'UserId'
 
 Show.belongsTo User,
-	constraints: false,
+	constraints: false
 	foreignKey: 'UserId'
 
 

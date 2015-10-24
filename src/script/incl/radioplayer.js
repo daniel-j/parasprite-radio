@@ -19,18 +19,23 @@ function radioPlayer(opts = {}) {
 	let playstopbtn = document.getElementById('playstopbtn')
 	let radioVolume = document.getElementById('radioVolume')
 	let visualizerDiv = document.getElementById('visualizer')
+	let streamSelect = document.getElementById('streamSelect')
+	let streamLink = document.getElementById('streamLink')
 
 	let useVisualizer = (AudioContext && !!visualizerDiv && !ismobile)
 	let acx, canvas, ctx, gainNode, analyzer, liveFreqData
 
 	let urls
-	if (ismobile) {
-		urls = ['radio_normal', 'radio_mobile', 'radio']
+	if (ismobile && navigator.userAgent.indexOf('iPhone') !== -1) {
+		urls = [['radio_mobile', 'audio/aac'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_opus', 'application/ogg; codecs=opus'], ['radio_normal', 'audio/mpeg'], ['radio', 'audio/mpeg']]
+	} else if (ismobile) {
+		urls = [['radio_mobile', 'audio/aacp'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_opus', 'application/ogg; codecs=opus'], ['radio_normal', 'audio/mpeg'], ['radio', 'audio/mpeg']]
 	} else {
-		urls = ['radio', 'radio_opus', 'radio_mobile']
+		urls = [['radio_opus', 'application/ogg; codecs=opus'], ['radio', 'audio/mpeg'], ['radio_mobile', 'audio/aacp']]
 	}
 
 	let baseurl = opts.baseurl
+	let streamName = ''
 
 	let volume = opts.volume || 0.8
 
@@ -148,25 +153,36 @@ function radioPlayer(opts = {}) {
 		}
 
 		audioTag.crossOrigin = 'anonymous'
-		for (let i = 0; i < urls.length; i++) {
+		if (streamName !== '') {
 			let s = document.createElement('source')
-			s.src = baseurl+urls[i]
+			s.src = baseurl+streamName
 			audioTag.appendChild(s)
 		}
-		//audioTag.src = url
+		for (let i = 0; i < urls.length; i++) {
+			let s = document.createElement('source')
+			s.src = baseurl+urls[i][0]
+			s.type = urls[i][1]
+			audioTag.appendChild(s)
+		}
 		audioTag.play()
 		notify.check()
 
-		if (useVisualizer) {
-			audioTag.addEventListener('canplay', () => {
-				if (audioTag) {
-					audioTag.volume = 1
-					source = acx.createMediaElementSource(audioTag)
-					source.connect(analyzer)
-					update()
-				}
-			}, false)
-		}
+		audioTag.addEventListener('canplay', () => {
+			streamName = audioTag.currentSrc.substr(baseurl.length)
+			streamSelect.value = streamName
+			streamLink.href = baseurl+streamName
+			if (streamName.indexOf('radio') !== -1) {
+				try {
+					window.localStorage['pr:streamName'] = streamName
+				} catch (e) {}
+			}
+			if (audioTag && useVisualizer) {
+				audioTag.volume = 1
+				source = acx.createMediaElementSource(audioTag)
+				source.connect(analyzer)
+				update()
+			}
+		}, false)
 	}
 
 	function togglePlay() {
@@ -183,6 +199,18 @@ function radioPlayer(opts = {}) {
 			gainNode.gain.value = volume
 		} else if (audioTag) {
 			audioTag.volume = volume
+		}
+	}
+
+	function setStream(stream) {
+		streamName = stream
+		if (streamName === '') {
+			streamLink.href = '/stream'
+		} else {
+			streamLink.href = baseurl+streamName
+		}
+		if (isPlaying) {
+			startRadio()
 		}
 	}
 
@@ -235,6 +263,18 @@ function radioPlayer(opts = {}) {
 
 		playstopbtn.addEventListener('click', togglePlay.bind(this), false)
 
+		let s
+		try {
+			s = window.localStorage['pr:streamName']
+		} catch (e) {
+			// Do nothing
+		}
+		if (typeof s !== 'undefined') {
+			streamName = s
+			streamSelect.value = streamName
+			streamLink.href = baseurl+streamName
+		}
+
 		let v
 		try {
 			v = window.localStorage['pr:volume']
@@ -258,6 +298,10 @@ function radioPlayer(opts = {}) {
 		}
 
 		setVolume(volume)
+
+		streamSelect.addEventListener('change', () => {
+			setStream(streamSelect.value)
+		}, false)
 
 	}
 

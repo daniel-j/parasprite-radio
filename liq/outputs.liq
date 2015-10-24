@@ -118,12 +118,12 @@ else
 	),
 
 	out(
-		mount = "radio_vorbis",
+		mount = "radio_mobile_vorbis",
 		%vorbis(
 			channels = 2,
-			quality = 1.0
+			quality = 0.1
 		),
-		start = false,
+		start = true,
 		source
 	)
 

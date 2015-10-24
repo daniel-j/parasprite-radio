@@ -1,6 +1,7 @@
 'use strict'
 
 var config = require('./scripts/config')
+var simpleconfig = require('./scripts/simpleconfig')
 
 // gulp and utilities
 var gulp = require('gulp')
@@ -67,10 +68,7 @@ var cssminOpts = {
 var jadeOpts = {
 	pretty: !inProduction
 }
-var jadeData = {
-	config: config,
-	env: process.env.NODE_ENV || 'development'
-}
+
 var htmlminOpts = {
 	collapseWhitespace: true,
 	removeComments: true,
@@ -83,7 +81,7 @@ var htmlminOpts = {
 }
 
 var watchOpts = {
-	readDelay: 100,
+	readDelay: 500,
 	verbose: true
 }
 
@@ -138,6 +136,12 @@ function styleTask() {
 }
 
 function documentTask() {
+	var simple = simpleconfig()
+	var jadeData = {
+		config: require('./scripts/config'),
+		env: process.env.NODE_ENV || 'development',
+		simpleconfig: simple
+	}
 	return gulp.src(sources.document.map(function (f) {return 'src/document/' + f}))
 		.pipe(plumber())
 		.pipe(gdata(function () { return jadeData }))
@@ -185,7 +189,7 @@ gulp.task('watch:style', function () {
 
 gulp.task('document', documentTask)
 gulp.task('watch:document', function () {
-	return watch('src/document/**/*.jade', watchOpts, documentTask)
+	return watch(['src/document/**/*.jade', 'config.toml'], watchOpts, documentTask)
 })
 
 gulp.task('lint', function () {
