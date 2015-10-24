@@ -27,11 +27,11 @@ function radioPlayer(opts = {}) {
 
 	let urls
 	if (ismobile && navigator.userAgent.indexOf('iPhone') !== -1) {
-		urls = [['radio_mobile', 'audio/aac'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_opus', 'application/ogg; codecs=opus'], ['radio_normal', 'audio/mpeg'], ['radio', 'audio/mpeg']]
+		urls = [['radio_mobile', 'audio/aac'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_normal', 'audio/mpeg'], ['radio', 'audio/mpeg']]
 	} else if (ismobile) {
-		urls = [['radio_mobile', 'audio/aacp'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_opus', 'application/ogg; codecs=opus'], ['radio_normal', 'audio/mpeg'], ['radio', 'audio/mpeg']]
+		urls = [['radio_mobile', 'audio/aacp'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_normal', 'audio/mpeg'], ['radio', 'audio/mpeg']]
 	} else {
-		urls = [['radio_opus', 'application/ogg; codecs=opus'], ['radio', 'audio/mpeg'], ['radio_mobile', 'audio/aacp']]
+		urls = [['radio', 'audio/mpeg'], ['radio_opus', 'application/ogg; codecs=opus'], ['radio_normal', 'audio/mpeg'], ['radio_mobile', 'audio/aacp']]
 	}
 
 	let baseurl = opts.baseurl
@@ -226,7 +226,6 @@ function radioPlayer(opts = {}) {
 			//requestAnimFrame(update)
 			return
 		}
-
 
 		analyzer.getFloatFrequencyData(liveFreqData)
 
