@@ -3,6 +3,7 @@ html
 	head
 		meta(charset='utf-8')
 		meta(name='viewport', content='width=device-width, initial-scale=1')
+		meta(name='theme-color', content='#2D2D2D')
 
 		title #{config.radio.title}
 
@@ -35,6 +36,8 @@ html
 									option(value='radio') High Quality MP3 320k
 									option(value='radio_opus') High Quality OPUS 128k
 									option(value='gnr') Galaxy News Radio
+									if env == 'development'
+										option(value='radio_dev') Development stream
 								= ' '
 								a#streamLink(href='/stream', target='_blank')
 									img(src='/img/icons/popout.svg', alt='Stream')
