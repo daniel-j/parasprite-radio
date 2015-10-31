@@ -216,7 +216,7 @@ end
 
 # playlists
 default = audio_to_stereo(mksafe(playlist(id="default", reload_mode="watch", reload=600, timeout=600., prefix=confstr("general.media_dir")^"/", "/home/djazz/.mpd/playlists/radio.m3u")))
-#summer = audio_to_stereo(playlist(id="summer", reload_mode="watch", reload=600, timeout=600., prefix=confstr("general.media_dir")^"/", "/home/djazz/.mpd/playlists/summer.m3u"))
+extra = audio_to_stereo(playlist(id="nmn", reload_mode="watch", reload=600, timeout=600., prefix=confstr("general.media_dir")^"/", "/home/djazz/.mpd/playlists/nmn.m3u"))
 friendship = audio_to_stereo(amplify(1.1, playlist(id="friendship", reload_mode="watch", reload=600, "friendship.m3u")))
 
 # queue: requests; announce: plays over music
@@ -225,7 +225,7 @@ announce = audio_to_stereo(request.equeue(id="announce", conservative=true, leng
 
 add_skip_command(command="request.skip", queue)
 
-songs = default #random(weights=[1,1], [summer,default])
+songs = random(weights=[1,1], [extra,default])
 
 source = fallback([queue, songs])
 
