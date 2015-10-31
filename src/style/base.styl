@@ -1,20 +1,20 @@
 @import '_base'
 
 a
-	color #ffb330
+	color color
 	text-decoration none
 
 a:hover
-	text-decoration: underline
+	text-decoration underline
 
 .left
-	float: left
+	float left
 
 .right
-	float: right
+	float right
 
 .textright
-	text-align: right
+	text-align right
 
 
 
@@ -40,131 +40,131 @@ a:hover
 		width 120px
 
 	#cover
-		max-width: 70px
-		max-height: 70px
-		margin-top: 4px
+		max-width 70px
+		max-height 70px
+		margin-top 4px
 		margin-left 10px
 		margin-right 10px
-		border: 1px solid #202020
-		background-color: black
+		border 1px solid #202020
+		background-color black
 
 	#volume
-		position: absolute;
-		top: 80px;
-		right: 120px;
+		position absolute
+		top 80px
+		right 120px
 
 		&:before
-			content: "";
-			left: 0;
-			top: -40px;
-			position: absolute;
-			width: 24px;
-			height: 24px;
-			padding-right: 9px;
-			padding-left: 5px;
-			padding-bottom: 17px;
-			//background: red;
-			background-image: url('/img/icons/volume.png');
-			background-size: 24px;
-			background-repeat: no-repeat;
-			background-position: center center;
-			opacity: 0.5;
+			content ""
+			left 0
+			top -40px
+			position absolute
+			width 24px
+			height 24px
+			padding-right 9px
+			padding-left 5px
+			padding-bottom 17px
+			//background red
+			background-image url('/img/icons/volume.png')
+			background-size 24px
+			background-repeat no-repeat
+			background-position center center
+			opacity 0.5
 
 		& > div
-			z-index: 1;
-			position: absolute;
-			visibility: hidden;
-			background-color: #2d2d2d;
-			padding: 10px;
-			left: -110px;
+			z-index 1
+			position absolute
+			visibility hidden
+			background-color #2d2d2d
+			padding 10px
+			left -110px
 
 		&:hover > div, &:active > div
-			visibility: visible;
+			visibility visible
 
 
 		#radioVolume
-			width: 200px;
+			width 200px
 
 
 
 	.legend
-		position: absolute;
-		line-height: 16px;
-		font-size: 15px;
-		color: rgba(255, 255, 255, 0.5);
+		position absolute
+		line-height 16px
+		font-size 15px
+		color rgba(255, 255, 255, 0.5)
 
 		a
-			opacity: 0.7;
+			opacity 0.7
 
 
 		.listenersicon
-			height: 14px;
-			opacity: 0.5;
-			position: relative;
-			margin-left: 4px;
-			top: 1px;
+			height 14px
+			opacity 0.5
+			position relative
+			margin-left 4px
+			top 1px
 
 	#playstopbtn
 		float right
-		width: 60px;
-		height: 60px;
-		padding: 0;
-		background-color: #ffb330;
-		border: none;
-		position: relative;
-		color: transparent;
-		cursor: pointer;
+		width 60px
+		height 60px
+		padding 0
+		background-color color
+		border none
+		position relative
+		color transparent
+		cursor pointer
 
 		&:focus
-			outline: none;
+			outline none
 
 		&:before
-			position: absolute;
-			content: "";
+			position absolute
+			content ""
 
-			left: 19px;
-			top: 16px;
-			border: 0px solid transparent;
-			border-width: 14px 25px;
-			border-left-color: #2d2d2d;
+			left 19px
+			top 16px
+			border 0px solid transparent
+			border-width 14px 25px
+			border-left-color #2d2d2d
 
 		&.loading:before
-			left: 0;
-			top: 0;
-			right: 0;
-			bottom: 0;
-			border: none;
-			background-image: url('/img/spinner.gif');
-			background-repeat: no-repeat;
-			background-position: center center;
+			left 0
+			top 0
+			right 0
+			bottom 0
+			border none
+			background-image url('/img/spinner.gif')
+			background-repeat no-repeat
+			background-position center center
 
 		&.stop:before
-			left: 17px;
-			top: 17px;
-			border: none;
-			background-color: #2d2d2d;
-			width: 26px;
-			height: 26px;
+			left 17px
+			top 17px
+			border none
+			background-color #2d2d2d
+			width 26px
+			height 26px
 
 #nowplayingwrap
 	#nowtitle, #nowartist
-		overflow: hidden;
-		white-space: nowrap;
-		text-overflow: ellipsis;
+		overflow hidden
+		white-space nowrap
+		text-overflow ellipsis
 
 	#nowtitle
-		font-size: 18px;
+		font-size 18px
 		a
-			color: white;
-			text-decoration: underline;
+			color white
+			text-decoration underline
 
 	#nowartist
-		font-size: 15px;
-		color: rgba(255, 255, 255, 0.5);
-		margin-top: 1px;
+		font-size 15px
+		color rgba(255, 255, 255, 0.5)
+		margin-top 1px
 
 hr
-	border-top 1px solid #ffb330
+	border-top 1px solid color
 	border-bottom none
 
 	width 95%
@@ -175,24 +175,24 @@ input
 		color white
 		padding 5px
 		font-size 14px
-		border 1px solid #C82
+		border 1px solid darken(color, 50%)
 
 		&:focus
 			outline none
 			background-color #151515
-			border-color #ffb330
-			box-shadow inset 0px 0px 3px 1px #ffb330
+			border-color color
+			box-shadow inset 0px 0px 3px 1px color
 
 button
-	background-color #ffb330
+	background-color color
 	color #2d2d2d
 	font-weight bold
 	padding 8px 12px
 	border none
 	font-size 16px
-	border 1px solid #ffb330
+	border 1px solid color
 	outline none
 	&:active
-		color #ffb330
+		color color
 		background-color #2d2d2d
 

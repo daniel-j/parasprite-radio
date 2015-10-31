@@ -1,136 +1,132 @@
-table.track-list {
-	//table-layout:fixed;
-	border-spacing: 0;
-	font-family: monospace;
+table.track-list
+	//table-layout:fixed
+	border-spacing: 0
+	font-family: monospace
 
-	th {
-		padding: 10px 7px;
-		padding-right: 20px;
-		border: 1px solid #aaa;
-		border-left: none;
-		border-top: 1px solid #aaa;
-		white-space: nowrap;
+	th
+		padding: 10px 7px
+		padding-right 20px
+		border 1px solid #aaa
+		border-left none
+		border-top 1px solid #aaa
+		white-space nowrap
 
-		&:first-child {
-			border-left: 1px solid #aaa;
-		}
-
-		h4 {
-			margin: 0;
-		}
-	}
-
-	tbody tr {
-		&:hover td {
-			background-color: rgba(255, 255, 255, 0.1);
-		}
-		&.selected td {
-			background-color: rgba(255, 255, 255, 0.2);
-		}
-
-	}
-
-	tbody td {
-		font-size: 13px;
-		padding: 0;
-		padding: 4px;
-		padding-left: 7px;
-		padding-right: 20px;
-
-		a, span {
-			overflow: hidden;
-			white-space: nowrap;
-			text-overflow: ellipsis;
-		}
-
-		a, span {
-			&.browse {
-				color: orange;
-			}
-			&.play {
-				color: #6F6;
-			}
-			&.shade {
-				opacity: 0.6;
-			}
-		}
-		a {
-			cursor: pointer;
-
-			&.artist {
-				color: #F66;
-			}
-			&.albumartist {
-				color: #F6F;
-			}
-			&.album {
-				color: #09F;
-			}
-			&:hover {
-				text-decoration: underline;
-			}
-		}
-	}
-}
-
-ul.browse-path {
-	list-style-type: none;
-	margin: 0;
-	padding: 0;
-
-	li {
-		display: inline-block;
-		padding: 0 7px;
-		position: relative;
-
-		div {
-			height: 30px;
-			padding: 0px 10px;
-			background-color: orange;
-			border: none;
-			color: black;
-			line-height: 32px;
-			cursor: pointer;
-			min-width: 20px;
-			text-align: center;
-		}
-		&.current {
-
-			div {
-				background-color: yellow;
-			}
-
-			&:after {
-				background-position: -36px 0;
-			}
+		&:first-child
+			border-left 1px solid #aaa
 
 
-			&:before {
-				background-position: -24px 0;
-			}
-		}
-		&:after{
-			content: "";
-			height: 30px;
-			width: 12px;
-			position: absolute;
-			right: -5px;
-			top: 0;
-			background-image: url('../../img/browse-arrows.png');
-			background-position: -12px 0;
-		}
+		h4
+			margin 0
 
-		&:before {
-			content: "";
-			height: 30px;
-			width: 12px;
-			position: absolute;
-			left: -5px;
-			top: 0;
-			background-image: url('../../img/browse-arrows.png');
-		}
-		&:first-child:before {
-			width: 0;
-		}
-	}
-}
+	tbody tr
+		&:hover td
+			background-color rgba(255, 255, 255, 0.1)
+
+		&.selected td
+			background-color rgba(255, 255, 255, 0.2)
+
+
+	tbody td
+		font-size 13px
+		padding 0
+		padding 4px
+		padding-left 7px
+		padding-right 20px
+
+		a, span
+			overflow hidden
+			white-space nowrap
+			text-overflow ellipsis
+
+
+		a, span
+			&.browse
+				color orange
+
+			&.play
+				color #6F6
+
+			&.shade
+				opacity 0.6
+
+
+		a
+			cursor pointer
+
+			&.artist
+				color #F66
+
+			&.albumartist
+				color #F6F
+
+			&.album
+				color #09F
+
+			&:hover
+				text-decoration underline
+
+
+
+
+
+ul.browse-path
+	list-style-type none
+	margin 0
+	padding 0
+
+	li
+		display inline-block
+		padding 0 7px
+		position relative
+
+		div
+			height 30px
+			padding 0px 10px
+			background-color orange
+			border none
+			color black
+			line-height 32px
+			cursor pointer
+			min-width 20px
+			text-align center
+
+		&.current
+
+			div
+				background-color yellow
+
+
+			&:after
+				background-position -36px 0
+
+
+
+			&:before
+				background-position -24px 0
+
+
+		&:after
+			content ""
+			height 30px
+			width 12px
+			position: absolute
+			right: -5px
+			top: 0
+			background-image: url('../../img/browse-arrows.png')
+			background-position: -12px 0
+
+
+		&:before
+			content: ""
+			height: 30px
+			width: 12px
+			position: absolute
+			left: -5px
+			top: 0
+			background-image: url('../../img/browse-arrows.png')
+
+		&:first-child:before
+			width 0
+
+
+

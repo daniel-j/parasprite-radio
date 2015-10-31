@@ -7,31 +7,31 @@
 
 
 #top
-	background-color: bgColor;
-	position: fixed;
-	left: 0;
-	right: 0;
-	top: 0;
-	border-bottom: 1px solid bgBorderColor;
-	height: 80px;
-	z-index: 100000;
+	background-color bgColor
+	position fixed
+	left 0
+	right 0
+	top 0
+	border-bottom 1px solid bgBorderColor
+	height 80px
+	z-index 100000
 
 	#logo
-		float: left;
-		margin-right: 5px;
-		width: 76px;
-		height: 76px;
-		margin-top: 2px;
+		float left
+		margin-right 5px
+		width 76px
+		height 76px
+		margin-top 2px
 
 	h1
-		margin: 0;
-		padding-top: 10px;
-		color: #ffb330;
+		margin 0
+		padding-top 10px
+		color color
 
 	#subtitle
-		padding-left: 2px;
-		opacity: 0.4;
-		font-size: 15px;
+		padding-left 2px
+		opacity 0.4
+		font-size 15px
 
 	.container
 		height 100%
@@ -45,139 +45,131 @@
 	left 350px
 
 	#nowplayingwrap
-		margin-top: 10px
-		text-align: left
+		margin-top 10px
+		text-align left
 
 	#visualizer
 		position absolute
 		bottom 0
-		width: 100%
-		height: 30px
+		width 100%
+		height 30px
 		overflow hidden
 
 	#popout
-		position: absolute
-		top: 10px
-		right: 88px
+		position absolute
+		top 10px
+		right 88px
 
 		img
-			width: 12px;
-			height: 12px;
-			padding: 4px;
+			width 12px
+			height 12px
+			padding 4px
 
 	.legend
-		right: 130px;
-		bottom: 0;
+		right 130px
+		bottom 0
 
 	#playstopbtn
-		margin: 0 20px;
-		margin-top: 10px;
+		margin 0 20px
+		margin-top 10px
 
 
-#navigation {
-	padding-top: 80px;
-	background-color: black;
+#navigation
+	padding-top 80px
+	background-color black
 
-	#mainmenu {
-		padding: 5px;
+	#mainmenu
+		padding 5px
 
-		a {
-			padding: 5px 7px;
-			display: inline-block;
-			cursor: pointer;
-			margin-right: 5px;
-			color: white;
+		a
+			padding 5px 7px
+			display inline-block
+			cursor pointer
+			margin-right 5px
+			color white
 
-			&:hover {
-				background-color: rgba(255, 255, 255, 0.5);
-				text-decoration: none;
-			}
-			&:active {
-				background-color: rgba(255, 255, 255, 0.4);
-			}
-			&.current {
-				background-color: #ffb330;
-				color: #2d2d2d;
-			}
-		}
+			&:hover
+				background-color rgba(255, 255, 255, 0.5)
+				text-decoration none
 
-		#menuAccount, #menuLogout, #menuAdmin, #menuMap {
-			display: none;
-		}
+			&:active
+				background-color rgba(255, 255, 255, 0.4)
 
-	}
-}
+			&.current
+				background-color color
+				color #2d2d2d
 
-.loggedin #navigation #mainmenu {
-	#menuAccount, #menuLogout {
-		display: inline-block;
-	}
-	#menuLogin {
-		display: none;
-	}
-}
+		#menuAccount, #menuLogout, #menuAdmin, #menuMap
+			display none
 
-.isadmin #navigation #mainmenu {
-	#menuAdmin, #menuMap {
-		display: inline-block;
-	}
-}
+
+.loggedin #navigation #mainmenu
+	#menuAccount, #menuLogout
+		display inline-block
+
+	#menuLogin
+		display none
+
+
+.isadmin #navigation #mainmenu
+	#menuAdmin, #menuMap
+		display inline-block
+
 
 
 .page-wrapper
-	padding: 10px 10px;
+	padding 10px 10px
 
 
 #content .container
-	background-color: rgba(0, 0, 0, 0.5);
+	background-color rgba(0, 0, 0, 0.5)
 
 
-.trackstable {
-	width: 100%;
-	border-spacing: 0;
-	border-collapse: collapse;
+.trackstable
+	width 100%
+	border-spacing 0
+	border-collapse collapse
 
-	tr td {
-		&:first-child {
-			width: 32px;
-		}
-		cursor: pointer;
-		height: 32px;
-		padding: 0 10px;
-	}
-	tr td img {
-		max-width: 32px;
-		max-height: 32px;
-		display: block;
-	}
-	tr:hover td {
-		background-color: #ffb330;
-		color: black;
-	}
-	td.date {
-		font-size: 14px;
-		white-space: nowrap;
-		color: rgba(255, 255, 255, 0.5);
-		text-align: right;
-	}
-	.nowplaying td {
-		font-weight: bold;
-		padding-bottom: 10px;
-	}
-}
+	tr td
+		&:first-child
+			width 32px
+
+		cursor pointer
+		height 32px
+		padding 0 10px
+
+	tr td img
+		max-width 32px
+		max-height 32px
+		display block
+
+	tr:hover td
+		background-color color
+		color black
+
+	td.date
+		font-size 14px
+		white-space nowrap
+		color rgba(255, 255, 255, 0.5)
+		text-align right
+
+	.nowplaying td
+		font-weight bold
+		padding-bottom 10px
+
 
 #chat
-	width: 100%
-	height: 410px
-	border: none
+	width 100%
+	height 410px
+	border none
 
 
 #scheduleiframe
-	display: block
-	border: none
-	width: 100%
-	height: 500px
-	overflow: hidden
+	display block
+	border none
+	width 100%
+	height 500px
+	overflow hidden
 
 #liveplayer
 	position relative
@@ -186,15 +178,15 @@
 	height 0
 
 /* custom player skin */
-.flowplayer { width: 854px; height: 480px; display: block; margin: auto; }
-.flowplayer .fp-controls { background-color: rgba(45, 45, 45, 0.8); }
-.flowplayer .fp-timeline { background-color: rgba(0, 0, 0, 0.35); }
-.flowplayer .fp-progress { background-color: rgba(255, 179, 48, 0); }
-.flowplayer .fp-volumelevel { background-color: rgba(255, 179, 48, 1); }
-.flowplayer .fp-buffer { background-color: rgba(255, 179, 48, 0.39)}
-.flowplayer { background-image: url('/img/refugees_by_gign.jpg'); background-size: cover; }
-.flowplayer .fp-brand { display: none; }
-.flowplayer .fp-flash-disabled { display: none; }
+.flowplayer { width: 854px; height: 480px; display: block; margin: auto }
+.flowplayer .fp-controls { background-color: rgba(45, 45, 45, 0.8) }
+.flowplayer .fp-timeline { background-color: rgba(0, 0, 0, 0.35) }
+.flowplayer .fp-progress { background-color: rgba(255, 179, 48, 0) }
+.flowplayer .fp-volumelevel { background-color: rgba(255, 179, 48, 1) }
+.flowplayer .fp-buffer { background-color: rgba(255, 179, 48, 0.39) }
+.flowplayer { background-image: url('/img/refugees_by_gign.jpg') background-size cover }
+.flowplayer .fp-brand { display: none }
+.flowplayer .fp-flash-disabled { display: none }
 
 #googlemap
 	margin auto
