@@ -1,10 +1,11 @@
+'use strict'
+
 import './incl/radioinfo'
 import radioPlayer from './incl/radioplayer'
 
 let radio = radioPlayer({
-	url: 'http://icecast.djazz.se:8000/radio',
+	baseurl: config.general_streamurl,
 	autoplay: true
 })
-
 
 radio.activate()
