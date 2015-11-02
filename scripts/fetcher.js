@@ -17,7 +17,8 @@ function fetcher(url, opt, callback) {
 		path: parsed.path,
 		headers: {
 			'user-agent': config.general.userAgent || 'node'
-		}
+		},
+		rejectUnauthorized: false
 	}
 
 	for (var k in opt) {
