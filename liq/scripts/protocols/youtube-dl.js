@@ -23,7 +23,7 @@ function fetchVideo(data, cb) {
 	if (data.acodec !== 'mp3' || data.vcodec !== 'none') {
 		var tempName = os.tmpdir()+'/tmp.yt.'+data.id+'.mp3'
 		// joint stereo VBR2 mp3
-		var ffmpeg = spawn('avconv', ['-i', data.url, '-codec:a', 'libmp3lame', '-q:a', 2, tempName])
+		var ffmpeg = spawn('avconv', ['-i', data.url, '-codec:a', 'libmp3lame', '-q:a', 2, '-y', tempName])
 		//var ffmpeg = spawn('ffmpeg', ['-i', data.url, '-codec:a', 'libmp3lame', '-q:a', 2, '-joint_stereo', 1, tempName])
 
 		//ffmpeg.stdout.pipe(process.stderr)
