@@ -5,3 +5,4 @@
 /Makefile
 .DS_Store
 ._*
+.sync-config.cson
