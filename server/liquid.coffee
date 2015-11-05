@@ -3,6 +3,8 @@ net = require 'net'
 path = require 'path'
 generateArt = require './utils/generateArt'
 
+sse = require './sse'
+
 timeout = 5000
 
 module.exports = (config) ->
@@ -82,7 +84,7 @@ module.exports = (config) ->
 	API =
 		queue:
 			getList: (cb) ->
-				liqCommand "request.queue", (err, data) ->
+				liqCommand "request.all", (err, data) ->
 					if err or data == ""
 						cb err, []
 					else
@@ -98,7 +100,8 @@ module.exports = (config) ->
 									else
 										data.file = data.filename and data.filename.replace(config.general.media_dir+"/", "") or data.initial_uri
 										delete data.filename
-									meta.push data
+									if data.source and data.source.indexOf('queue') == 0 and data.status and data.status != 'destroyed'
+										meta.push data
 								++i
 								if i < list.length
 									f i
@@ -107,20 +110,20 @@ module.exports = (config) ->
 
 						f 0
 
-			add: (item, cb) ->
-				liqCommand "request.push "+item, (err, data) ->
+			add: (id, item, cb) ->
+				liqCommand "queue"+id+".push "+item, (err, data) ->
 					cb && cb err
 
-			ignore: (rid, cb) ->
-				liqCommand "request.ignore "+rid, (err, data) ->
-					cb err
-			consider: (rid, cb) ->
-				liqCommand "request.consider "+rid, (err, data) ->
-					cb err
+			# ignore: (rid, cb) ->
+			# 	liqCommand "request.ignore "+rid, (err, data) ->
+			# 		cb err
+			# consider: (rid, cb) ->
+			# 	liqCommand "request.consider "+rid, (err, data) ->
+			# 		cb err
 
-			smart: (thing, cb) ->
-				liqCommand "smartqueue "+thing, (err, data) ->
-					cb && cb err
+			# smart: (thing, cb) ->
+			# 	liqCommand "smartqueue "+thing, (err, data) ->
+			# 		cb && cb err
 
 		announce: (message, cb) ->
 			liqCommand 'announce.push smart:'+message, (err, data) ->
@@ -137,7 +140,7 @@ module.exports = (config) ->
 			metadata.albumartist = m.albumartist or null
 			metadata.url    = m.url or null
 			metadata.year   = +m.year or null
-			metadata.art    = config.general.baseurl+'api/now/art/small' #m.art or null
+			metadata.art    = config.server.api_prefix+'/now/art/small' #m.art or null
 			metadata.bitrate = +m.bitrate or m.bitrate or null
 			metadata.ext    = path.extname(path.basename(m.filename)).substring(1)
 			metadata.source = m.source or 'default'
@@ -155,6 +158,8 @@ module.exports = (config) ->
 
 			generateArt (m.art or m.filename), (err, result) ->
 				imagedata = result
+				sse.broadcast 'metadata', metadata, true
+
 
 		updateMeta: (cb) ->
 			liqCommand 'sendmetadata', (err, data) ->
@@ -186,7 +191,7 @@ module.exports = (config) ->
 		eventStarted: (ev) ->
 			list = (ev.description || "").trim().split('\n')
 			for r in list
-				API.queue.add 'smart:'+r
+				API.queue.add 1, 'smart:'+r
 
 
 		eventEnded: (ev) ->

@@ -1,6 +1,6 @@
 window.notifications = false
 
-function checkNotify() {
+function checkNotify(cb) {
 	if ('Notification' in window) {
 		if (Notification.permission !== 'denied') {
 			Notification.requestPermission(function (permission) {
@@ -13,9 +13,11 @@ function checkNotify() {
 					permission = Notification.permission
 					if (permission === 'granted') {
 						window.notifications = true
+						cb && cb(true)
 					}
 					else {
 						window.notifications = false
+						cb && cb(false)
 					}
 				}
 			})
@@ -27,10 +29,19 @@ function notify(title, body, image, time) {
 	if (window.notifications) {
 		if ('Notification' in window) {
 			if (Notification.permission === 'granted') {
-				let notification = new Notification(title, {
+				let opts = {
 					icon: image || '/img/parasprite-radio.png',
 					body: body
-				})
+				}
+				let notification = null
+				try {
+					notification = new Notification(title, opts)
+				} catch (err) {
+					if (err.name == 'TypeError') {
+						// TODO: Add support for Service Worker API
+						return
+					}
+				}
 				if (time !== 0) {
 					notification.onshow = function () {
 

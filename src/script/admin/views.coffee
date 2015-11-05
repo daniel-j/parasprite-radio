@@ -1,5 +1,5 @@
-formattime = require('utils/formattime')
-basename = require 'utils/basename'
+formattime = require('utils/time').formattime
+basename = require('utils/basename').default
 moment = require 'moment'
 
 class View

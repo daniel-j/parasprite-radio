@@ -1,3 +1,5 @@
+'use strict'
+
 express = require 'express'
 path = require 'path'
 fs = require 'fs'
@@ -5,7 +7,9 @@ mm = require 'musicmetadata'
 fetchJSON = require('../scripts/fetcher').fetchJSON
 Song = require './models/song'
 User = require './models/user'
+simpleconfig = require '../scripts/simpleconfig'
 
+sse = require './sse'
 
 cleanpath = (p) ->
 	path.join('/', p).substr(1)
@@ -30,13 +34,15 @@ cors = (res) ->
 	res.set
 		'Access-Control-Allow-Origin': '*'
 		'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
+	res
 
 nocache = (res) ->
 	# http://stackoverflow.com/a/2068407
 	res.set
-		'Cache-Control': 'no-cache, no-store, must-revalidate' # // HTTP 1.1.
+		'Cache-Control': 'no-cache, no-store, must-revalidate' # HTTP 1.1.
 		'Pragma': 'no-cache' # HTTP 1.0.
 		'Expires': '0' # Proxies.
+	res
 
 htmloptions =
 	root: __dirname + '/../build/document/'
@@ -51,6 +57,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 
 	internalRouter = express.Router()
 	defaultRouter = express.Router()
+	apiRouter = express.Router()
 	adminRouter = express.Router()
 
 
@@ -140,35 +147,6 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 	defaultRouter.get '/livestream.html', (req, res) ->
 		res.sendFile 'livestream.html', htmloptions
 
-
-
-
-	defaultRouter.get '/api/config', (req, res) ->
-		getValue = (k, o, i) ->
-			if !i then i = 0
-			x = o[k[i]]
-			if typeof x == 'object' and x != null and !Array.isArray(x)
-				getValue(k, x, i+1)
-			else
-				x
-		keys = [
-			'general.baseurl', 'general.streamurl', 'general.irc', 'general.twitter',
-			'radio.title',
-			'icecast.mounts',
-			'google.publicApiKey', 'google.calendarId',
-			'livestream.url_thumbnail', 'livestream.url_rtmp', 'livestream.url_dash', 'livestream.url_hls',
-
-		]
-		out = {}
-
-		for key in keys
-			k = key.split('.')
-			v = getValue(k, config)
-			if v == undefined || v == null then v = ""
-			out[String(key).replace(/\./g,'_')] = v
-
-		res.json out
-
 	defaultRouter.get '/stream', (req, res) ->
 		res.redirect config.streamurl+config.icecast.mounts[0]
 
@@ -197,15 +175,17 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 			#req.flash 'info', 'You are now logged out'
 		res.redirect '/'
 
+	apiRouter.get '/config', (req, res) ->
+		res.json simpleconfig()
 
-	defaultRouter.get '/api/user', (req, res) ->
+	apiRouter.get '/user', (req, res) ->
 		if req.user
 			User.findWithAuth req.user.id, (err, user) ->
 				res.json user
 		else
 			res.json {}
 
-	defaultRouter.post '/api/show/create', (req, res) ->
+	apiRouter.post '/show/create', (req, res) ->
 		if req.user
 			User.createShow req.user.id, req.body, (err) ->
 				if err
@@ -216,7 +196,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 		else
 			res.json error: 'not logged in'
 
-	defaultRouter.delete '/api/show/:id', (req, res) ->
+	apiRouter.delete '/show/:id', (req, res) ->
 		if req.user
 			User.removeShow req.user.id, req.params.id, (err) ->
 				if err
@@ -227,7 +207,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 		else
 			res.json error: 'not logged in'
 
-	defaultRouter.get '/api/show', (req, res) ->
+	apiRouter.get '/show', (req, res) ->
 		if req.user
 			User.getShows req.user.id, (err, list) ->
 				if err
@@ -238,7 +218,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 		else
 			res.json error: 'not logged in'
 
-	defaultRouter.get '/api/show/:id/updatetoken', (req, res) ->
+	apiRouter.get '/show/:id/updatetoken', (req, res) ->
 		if req.user
 			User.updateToken req.user.id, req.params.id, (err, token) ->
 				if err
@@ -249,14 +229,15 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 		else
 			res.json error: 'not logged in'
 
-	defaultRouter.get '/api/flash', (req, res) ->
+	###
+	apiRouter.get '/flash', (req, res) ->
 		res.json req.flash()
 
-	defaultRouter.get '/api/flash/:name', (req, res) ->
+	defaultRouter.get '/flash/:name', (req, res) ->
 		res.json req.flash req.params.name
+	###
 
-
-	defaultRouter.get '/api/now/art/:size', (req, res) ->
+	apiRouter.get '/now/art/:size', (req, res) ->
 
 		size = req.params.size
 		if size == 'full' then size == 'original'
@@ -282,13 +263,13 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 			res.type 'png'
 			res.sendFile 'cover-small.png', root: __dirname + '/../static/img/cover/'
 	###
-	defaultRouter.get '/api/now/json', (req, res) ->
+	defaultRouter.get '/now/json', (req, res) ->
 		cors(res)
 		res.setHeader "Content-Type", "application/json"
 		res.sendFile 'json', root: __dirname+'/../util/now/'
 	###
 
-	defaultRouter.get '/api/status', (req, res) ->
+	apiRouter.get '/status', (req, res) ->
 		cors res
 		o =
 			meta: liquid.getMeta()
@@ -297,7 +278,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 		res.json o
 
 	###
-	defaultRouter.get '/api/lastfm/recent', (req, res) ->
+	defaultRouter.get '/lastfm/recent', (req, res) ->
 		cors(res)
 
 		fetchJSON 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user='+config.lastfm.username+'&api_key='+config.lastfm.api.key+'&format=json&limit='+config.lastfm.api.limit+'&extended=1', null, (err, data) ->
@@ -307,7 +288,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 				res.json data
 	###
 
-	defaultRouter.get '/api/history', (req, res) ->
+	apiRouter.get '/history', (req, res) ->
 		imagesize = +(req.query.imagesize || 1)
 		if imagesize < 0 then imagesize = 0
 		if imagesize > 3 then imagesize = 3
@@ -317,29 +298,34 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 		cors res
 
 		fetchJSON 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user='+config.lastfm.username+'&api_key='+config.lastfm.api.key+'&format=json&limit='+limit+'&extended=1', null, (err, data) ->
+			tracks = []
 			if err
 				console.log 'lastfm error: ' + err, data
-				tracks = []
 			else
 				try
-					tracks = data.recenttracks.track
-					if !Array.isArray(tracks) then tracks = [tracks]
-					tracks.forEach (track, i) ->
-						tracks[i] =
-							title: track.name
-							artist: track.artist.name
-							album: track.album['#text']
-							art: track.image[imagesize]['#text'] || track.artist.image[imagesize]['#text'] || (config.general.baseurl+'img/cover/cover-small.png')
-							timestamp: if track.date then +track.date.uts else Date.now()/1000|0
-							url: track.url
-						#tracks[i].art = tracks[i].art.replace 'http://', 'https://'
-						tracks[i].text = tracks[i].artist+' - '+tracks[i].title
+					list = data.recenttracks.track
+					if !Array.isArray(list) then list = [list]
+					for t, i in list
+						attr = t['@attr'] || {}
+
+						track =
+							title: t.name
+							artist: t.artist.name
+							album: t.album['#text']
+							art: t.image[imagesize]['#text'] || t.artist.image[imagesize]['#text'] || (config.general.baseurl+'img/cover/cover-small.png')
+							timestamp: if t.date then +t.date.uts else Date.now()/1000|0
+							url: t.url
+						#track.art = tracks.art.replace 'http://', 'https://'
+						if attr.nowplaying
+							delete track.timestamp
+						track.text = track.artist+' - '+track.title
+						tracks.push track
 				catch e
 					console.log 'lastfm error: ' + e, data && data.recenttracks && data.recenttracks.track
 					tracks = []
 			res.json tracks
 
-	defaultRouter.get '/api/radio', (req, res) ->
+	apiRouter.get '/radio', (req, res) ->
 		cors res
 
 		meta = liquid.getMeta()
@@ -352,7 +338,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 			text: text
 			url: meta.url or if meta.artist and meta.title then "http://www.last.fm/music/"+encodeURIComponent(meta.artist)+"/_/"+encodeURIComponent(meta.title)
 			year: meta.year
-			art: meta.art or config.general.baseurl+'api/now/art/small'
+			art: meta.art or config.server.api_prefix+'/now/art/small'
 			bitrate: meta.bitrate
 			ext: meta.ext
 			source: meta.source
@@ -383,7 +369,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 
 				live: meta.live
 
-				url_history: config.general.baseurl+'api/history?limit=5'
+				url_history: config.server.api_prefix+'/history?limit=5'
 
 			livestream:
 				online: livestream.isOnline()
@@ -399,16 +385,19 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 
 		res.json o
 
+	apiRouter.get '/sse', sse.handle
 
-	# \/ ADMIN ENDPOINTS \/
 
-	adminRouter.get '/admin/*', (req, res) ->
+
+	# \/ ADMIN ENDPOINTS \/ #
+
+	adminRouter.get '/*', (req, res) ->
 		res.sendFile 'admin.html', htmloptions
-	adminRouter.get '/admin', (req, res) ->
+	adminRouter.get '/', (req, res) ->
 		res.redirect '/admin/'
 
 
-	adminRouter.get '/api/update', (req, res) ->
+	apiRouter.get '/update', isAdmin, (req, res) ->
 		mpd.update (err) ->
 			if err
 				json = error: err
@@ -416,7 +405,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 				json = error: null
 			res.json json
 
-	adminRouter.get '/api/search', (req, res) ->
+	apiRouter.get '/search', isAdmin, (req, res) ->
 		query = req.query.q
 		type = req.query.t || 'any'
 		mpdres = null
@@ -477,7 +466,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 
 
 	###
-	adminRouter.get '/api/albums', (req, res) ->
+	adminRouter.get '/albums', (req, res) ->
 		mpd.getAlbums (err, albums) ->
 			if err
 				json = []
@@ -485,7 +474,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 				json = albums
 			res.json json
 
-	adminRouter.get '/api/artists', (req, res) ->
+	adminRouter.get '/artists', (req, res) ->
 		mpd.getArtists (err, artists) ->
 			if err
 				json = []
@@ -493,7 +482,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 				json = artists
 			res.json json
 
-	adminRouter.get '/api/track', (req, res) ->
+	adminRouter.get '/track', (req, res) ->
 		filename = req.query.f or null
 		if filename is null
 			res.json error: 'No filename provided'
@@ -507,7 +496,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 				res.json json
 	###
 
-	adminRouter.get '/api/files/*', (req, res) ->
+	apiRouter.get '/files/*', isAdmin, (req, res) ->
 		filename = cleanpath req.params[0]
 		mpd.lsinfo filename, (err, list) ->
 			if err
@@ -516,7 +505,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 				json = list
 			res.json json
 
-	adminRouter.get '/api/playlists', (req, res) ->
+	apiRouter.get '/playlists', isAdmin, (req, res) ->
 		mpd.getPlaylists (err, list) ->
 			if err
 				json = []
@@ -524,7 +513,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 				json = list
 			res.json json
 
-	adminRouter.get '/api/playlist/:name', (req, res) ->
+	apiRouter.get '/playlist/:name', isAdmin, (req, res) ->
 		name = req.params.name
 		mpd.getPlaylist name, (err, list) ->
 			if err
@@ -545,7 +534,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 				res.status(404).end('File not found in the music database')
 	###
 
-	adminRouter.get '/api/metadata/*', (req, res) ->
+	apiRouter.get '/metadata/*', isAdmin, (req, res) ->
 		filename = cleanpath req.params[0]
 		stream = fs.createReadStream config.media_dir+'/'+filename
 		parser = mm stream
@@ -557,7 +546,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 		stream.on 'error', (err) ->
 			res.send ''+err
 
-	###adminRouter.get '/api/set/*', (req, res) ->
+	###adminRouter.get '/set/*', (req, res) ->
 		filename = cleanpath req.params[0]
 		imageFromFile path.join(config.media_dir, filename), (err, type, data) ->
 			if err
@@ -578,7 +567,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 				else
 					res.end 'no image data'###
 
-	adminRouter.get '/api/queue/list', (req, res) ->
+	apiRouter.get '/queue/list', isAdmin, (req, res) ->
 		liquid.queue.getList (err, list) ->
 			if err
 				json = error: err
@@ -586,18 +575,19 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 				json = list
 			res.json json
 
-	adminRouter.get '/api/queue', (req, res) ->
+	apiRouter.get '/queue', isAdmin, (req, res) ->
 		item = req.query.add
+		queueId = req.query.id or 2
 		#if (item.indexOf('/') == 0)
 		#	item = config.general.media_dir+item
-		liquid.queue.add 'smart:'+item, (err) ->
+		liquid.queue.add queueId, 'smart:'+item, (err) ->
 			if err
 				json = error: err
 			else
 				json = error: null
 			res.json json
 
-	adminRouter.get '/api/announce', (req, res) ->
+	apiRouter.get '/announce', isAdmin, (req, res) ->
 		liquid.announce req.query.message, (err) ->
 			if err
 				json = error: err
@@ -605,7 +595,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 				json = error: null
 			res.json json
 
-	adminRouter.get '/api/skip', (req, res) ->
+	apiRouter.get '/skip', isAdmin, (req, res) ->
 		liquid.skip (err) ->
 			if err
 				json = error: err
@@ -613,14 +603,14 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 				json = error: null
 			res.json json
 
-	adminRouter.get '/api/listeners', (req, res) ->
+	apiRouter.get '/listeners', isAdmin, (req, res) ->
 		res.json icecast.getListeners()
 
 
+	app.use '/api', apiRouter
 	app.use '/', defaultRouter
 	app.use '/build/', express.static __dirname + '/../build/', { maxAge: 365*24*60*60*1000 }
-
 	app.use '/', express.static __dirname + '/../static', { maxAge: 365*24*60*60*1000 }
 
+	app.use '/admin', isAdmin, adminRouter
 	app.use '/internal/', isInternal, internalRouter
-	app.use '/', isAdmin, adminRouter

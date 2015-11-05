@@ -42,7 +42,7 @@ app.commands.setHandler 'play:track', (file) ->
 app.commands.setHandler "queue:track", (track) ->
 	path = if track.get('file') then '/audio/'+track.get('file') else track.get('url')
 	$.ajax
-		url: config.apiPath+"/queue?add="+encodeURIComponent(path)
+		url: config.apiPath+"/queue?add="+encodeURIComponent(path)+"&id=3"
 
 app.on 'start', (options) ->
 	app.module('search').start()

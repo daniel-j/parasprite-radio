@@ -1,35 +1,25 @@
 'use strict'
 
-import xhr from './utils/xhr'
 import './incl/radioinfo'
 import radioPlayer from './incl/radioplayer'
 import livestream from './livestream'
-import formattime from './utils/formattime'
+import { formattime, timeago } from './utils/time'
+import api from './entities/api'
 
+const radio = radioPlayer({
+	baseurl: config.general_streamurl,
+	autoplay: false
+})
 
-let radio
+radio.activate()
+
 let menudiv = document.getElementById('mainmenu')
 let scheduleiframe = document.getElementById('scheduleiframe')
 
 let currentPage = 'pageHistory'
 let oldmenu = document.getElementById('menuHistory')
-let config
 
 function initialize() {
-	console.log(config)
-	radio = radioPlayer({
-		baseurl: config.general_streamurl,
-		autoplay: false
-	})
-
-	radio.activate()
-
-	setInterval(updateHistory, 10*1000)
-	updateHistory()
-
-	scheduleiframe.src = 'https://www.google.com/calendar/embed?mode=WEEK&showTitle=0&showCalendars=0&height=350&wkst=2&bgcolor=%23'+bgcolor+'&src='+config.google_calendarId+'&color=%23'+color+'&ctz='+encodeURIComponent(timezone)
-
-
 	let hashMatch = document.querySelector('[data-hash="'+document.location.hash.substr(1)+'"]')
 	if (hashMatch) {
 		document.location.hash = ''
@@ -38,40 +28,32 @@ function initialize() {
 		}
 		hashMatch.click()
 	}
-
 }
 
-xhr('/api/config', function (conf) {
-	config = JSON.parse(conf)
-	// Account
-	xhr('/api/user', function (res) {
-		let info = {}
-		try {
-			info = JSON.parse(res)
-		} catch (e) {
-			return
-		}
-		if (info.user) {
-			let user = info.user
-			document.getElementById('body').classList.add('loggedin')
-			document.getElementById('inputAccountUsername').value = user.username
-			document.getElementById('inputAccountDisplayName').value = user.displayName
-			document.getElementById('inputAccountEmail').value = user.email
-			document.getElementById('accountAvatar').src = document.getElementById('inputAccountAvatarUrl').value = user.avatarUrl
 
-			document.getElementById('inputAccountAvatarUrl').addEventListener('change', function () {
-				document.getElementById('accountAvatar').src = this.value
-			}, false)
+api.user.fetch().then(function () {
+	let info = api.user.get()
 
-			if (user.level >= 5) {
-				document.getElementById('body').classList.add('isadmin')
-			}
-			document.getElementById('editAccountForm').addEventListener('submit', function (e) {
-				e.preventDefault()
-			}, false)
+	if (info.user) {
+		let user = info.user
+		document.getElementById('body').classList.add('loggedin')
+		document.getElementById('inputAccountUsername').value = user.username
+		document.getElementById('inputAccountDisplayName').value = user.displayName
+		document.getElementById('inputAccountEmail').value = user.email
+		document.getElementById('accountAvatar').src = document.getElementById('inputAccountAvatarUrl').value = user.avatarUrl
+
+		document.getElementById('inputAccountAvatarUrl').addEventListener('change', function () {
+			document.getElementById('accountAvatar').src = this.value
+		}, false)
+
+		if (user.level >= 5) {
+			document.getElementById('body').classList.add('isadmin')
 		}
-		initialize()
-	})
+		document.getElementById('editAccountForm').addEventListener('submit', function (e) {
+			e.preventDefault()
+		}, false)
+	}
+	initialize()
 })
 
 document.getElementById('popuplink').addEventListener('click', function (e) {
@@ -82,72 +64,35 @@ document.getElementById('popuplink').addEventListener('click', function (e) {
 }, false)
 
 // History
-let playhistory = document.getElementById('playhistory')
-
-function timeago(timems) {
-	let time = timems|0
-	//let ms = ''
-	let val, name
-	if (time < 60) {val = time; name = 'second'}
-	else if (time < 3600) {val = Math.round(time / 60); name = 'minute'}
-	else if (time < 86400) {val = Math.round(time / 3600); name = 'hour'}
-	else {val = Math.round(time / 86400); name = 'day'}
-	return val+' '+name+(val === 1 ? '':'s')+' ago'
-}
-
-function updateHistory() {
-	xhr('/api/history?limit=20&imagesize=1', function (res) {
-		let tracks
-		try {
-			tracks = JSON.parse(res)
-		} catch (e) {
-			console.log(res)
-			tracks = []
-		}
-
-		while (playhistory.childNodes.length > 0) {
-			playhistory.removeChild(playhistory.firstChild)
-		}
-
-		for (let i = 0; i < tracks.length; i++) {
-			let track = tracks[i]
-
-
-			let row = playhistory.insertRow(-1)
-			row.dataset.url = track.url
-
-			let imgcell = row.insertCell(-1)
-			let titlecell = row.insertCell(-1)
-			let artistcell = row.insertCell(-1)
-			//let albumcell = row.insertCell(-1)
-			let datecell = row.insertCell(-1)
-			datecell.className = 'date'
-
-			let img = new Image()
-			img.src = track.art
-			imgcell.appendChild(img)
-
-			titlecell.textContent = track.title
-			artistcell.textContent = track.artist
-			//albumcell.textContent = track.album['#text']
-			//console.log(track)
-
-			datecell.textContent = timeago(Date.now()/1000 - track.timestamp, true)
-			datecell.title = new Date(track.timestamp*1000)
-		}
-	})
-}
-
-playhistory.addEventListener('click', function (e) {
-	let node = e.target
-	while (node.parentNode !== playhistory) {
-		node = node.parentNode
+let playHistory = {}
+playHistory.controller = function () {
+	api.history.startTimer()
+	this.trackList = api.history.get
+	this.openUrl = function (url) {
+		window.open(url, '_blank')
 	}
-	window.open(node.dataset.url, '_blank')
-}, false)
+}
+playHistory.view = function (ctrl) {
+	return m('div', [
+		m('div', m('strong', 'Recently played tracks')),
+		m('table#playhistorytable.trackstable',
+			m('tbody#playhistory', ctrl.trackList().map(function (track) {
+				return m('tr', {key: track.timestamp+track.text, onclick: m.withAttr('data-url', ctrl.openUrl), 'data-url': track.url}, [
+					m('td', m('img', {src: track.art})),
+					m('td', track.title),
+					m('td', track.artist),
+					!track.timestamp ?
+						m('td.date', 'Now playing') :
+						m('td.date', {title: new Date(track.timestamp*1000)}, timeago(Date.now()/1000 - track.timestamp, true))
+				])
+			}))
+		)
+	])
+}
+m.mount(document.getElementById('pageHistory'), playHistory)
 
 
-
+/*
 // Playlist
 let playlist = document.getElementById('playlist')
 let playlisthours = document.getElementById('playlisthours')
@@ -217,6 +162,7 @@ function toSpotifyPlaylist() {
 }
 
 window.toSpotifyPlaylist = toSpotifyPlaylist
+*/
 
 // Schedule
 let tz = window.jstz.determine()
@@ -224,6 +170,8 @@ let timezone = tz.name()
 
 let bgcolor = '444444'
 let color = '8C500B'
+
+scheduleiframe.src = 'https://www.google.com/calendar/embed?mode=WEEK&showTitle=0&showCalendars=0&height=350&wkst=2&bgcolor=%23'+bgcolor+'&src='+config.google_calendarId+'&color=%23'+color+'&ctz='+encodeURIComponent(timezone)
 
 // reload every 5 min
 setInterval(function () {
@@ -234,14 +182,11 @@ setInterval(function () {
 // Map
 let map
 let mapmarkers = {}
+function fetchMap() {
+	return m.request({method: 'GET', url: '/api/listeners'})
+}
 function updateMap() {
-	xhr('/api/listeners', function (res) {
-		let list = []
-		try {
-			list = JSON.parse(res)
-		} catch (e) {
-
-		}
+	fetchMap().then(function (list) {
 		let idlist = []
 		for (let i = 0; i < list.length; i++) {
 			let l = list[i]
@@ -297,7 +242,6 @@ window.initMap = initMap
 
 
 menudiv.addEventListener('click', function (e) {
-	if (!config) return
 	let newmenu = e.target
 	if (!newmenu.dataset.page && !newmenu.dataset.url) {
 		return
@@ -332,4 +276,3 @@ menudiv.addEventListener('click', function (e) {
 		}
 	}
 }, false)
-

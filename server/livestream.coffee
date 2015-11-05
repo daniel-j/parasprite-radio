@@ -1,5 +1,6 @@
 
 fetchXML = require('../scripts/fetcher').fetchXML
+sse = require './sse'
 
 interval = 5000
 
@@ -7,11 +8,14 @@ interval = 5000
 module.exports = (config) ->
 
 	stats = null
-	viewers = -1
+	viewers = 0
+	online = false
+
+	sse.broadcast 'livestreamstatus', {online: false, viewers: 0}, true
 
 	updateStats = ->
 		fetchXML config.livestream.url_stats, null, (err, data) ->
-			viewers = -1
+			viewers = 0
 			isOnline = false
 			try
 				stream = data.rtmp.server[0].application[0].live[0].stream[0]
@@ -28,6 +32,10 @@ module.exports = (config) ->
 			catch e
 				stats = null
 
+			online = isOnline
+
+			sse.broadcast 'livestreamstatus', {online: isOnline, viewers: viewers}, true
+
 			#console.log isOnline, viewers
 
 	updateStats()
@@ -37,14 +45,11 @@ module.exports = (config) ->
 	API =
 
 		getViewCount: ->
-			if viewers != -1
-				viewers
-			else
-				0
+			viewers
 
 
 		isOnline: ->
-			return viewers != -1
+			return online
 
 		getInfo: ->
 			viewers: @getViewCount()

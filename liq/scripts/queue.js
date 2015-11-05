@@ -7,11 +7,10 @@ var client = net.connect(config.liquidsoap.port_telnet, config.liquidsoap.host)
 
 client.pipe(process.stdout)
 
-client.on('connect', function () {
+client.once('connect', function () {
 	if (process.argv[2]) {
-		client.write('smartqueue '+process.argv[2]+'\r\n')
+		client.write('queue3.push smart:'+process.argv[2]+'\r\n')
 	}
-	client.write('request.queue\r\n')
 	client.write('quit\r\n')
 	client.end()
 })

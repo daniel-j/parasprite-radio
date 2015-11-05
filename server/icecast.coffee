@@ -2,6 +2,7 @@
 http = require 'http'
 fetchXML = require('../scripts/fetcher').fetchXML
 iplookup = require '../scripts/iplookup'
+sse = require './sse'
 
 timeout = 5000
 
@@ -15,17 +16,21 @@ module.exports = (config) ->
 	listenerPeak = 0
 	ipcache = {}
 
+	sse.broadcast 'listenercount', 0, true
+	sse.broadcast 'icecaststatus', {online: false}, true
+
 	config.icecast.host = config.icecast.host || 'localhost'
 	config.icecast.port = config.icecast.port || 8000
 	config.icecast.user = config.icecast.user || 'admin'
 	config.icecast.admin.password = config.icecast.admin.password || 'hackmemore'
 
-	servers[config.icecast.host+':'+config.icecast.port] =
+	masterServer = servers[config.icecast.host+':'+config.icecast.port] =
 		host: config.icecast.host,
 		port: config.icecast.port,
 		user: config.icecast.admin.user,
 		password: config.icecast.admin.password
 		relay: false
+
 
 	relays = config.icecast.relay || []
 	for relay, i in relays
@@ -45,10 +50,13 @@ module.exports = (config) ->
 
 		iceReady = false
 		client = null
+		isMaster = server == masterServer
 
 		iceOnReady = ->
 			console.log 'Icecast: Ready!'
 			iceReady = true
+			if isMaster
+				sse.broadcast 'icecaststatus', {online: true}, true
 
 		iceOnEvent = (ev) ->
 			data = ev.match(/^[^ ]* ([^ ]*) ([^ ]*) (.*)$/)
@@ -76,12 +84,16 @@ module.exports = (config) ->
 					updateListenerInfo()
 				lastListenerCount = count
 				console.log "listener count: "+count
+				sse.broadcast 'listenercount', count, true
 
 		iceOnError = (err) ->
 			console.error "Icecast: Socket error: "+err
 			client = null
 			iceReady = false
 			iceData[k] = stats = {}
+
+			if isMaster
+				sse.broadcast 'icecaststatus', {online: false}, true
 
 			setTimeout iceConnect, timeout
 
@@ -90,6 +102,8 @@ module.exports = (config) ->
 			client = null
 			iceReady = false
 			iceData[k] = stats = {}
+			if isMaster
+				sse.broadcast 'icecaststatus', {online: false}, true
 
 			setTimeout iceConnect, timeout
 

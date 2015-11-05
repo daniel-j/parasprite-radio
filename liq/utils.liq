@@ -22,7 +22,7 @@ end
 def add_skip_command(~command,s)
 	# Register the command:
 	server.register(
-		usage="skip",
+		usage=command,
 		description="Skip the current song in source.",
 		command,
 		fun(_) -> begin

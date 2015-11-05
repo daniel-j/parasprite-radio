@@ -1,4 +1,6 @@
-import xhr from 'utils/xhr'
+'use strict'
+
+import api from './entities/api'
 
 //let viewercount = document.getElementById('viewercount')
 let liveplayer = document.getElementById('liveplayer')
@@ -12,14 +14,14 @@ function startPlayer() {
 	window.jw = player
 	player.setup({
 		playlist: [
-			{ file: 'http://vm.djazz.se/dash/pr/stream.mpd', image: 'http://vm.djazz.se/rec/thumb/stream.png?t='+Date.now() },
-			{ file: 'http://vm.djazz.se/hls/pr/stream.m3u8', image: 'http://vm.djazz.se/rec/thumb/stream.png?t='+Date.now() },
-			{ file: 'rtmp://vm.djazz.se/live/stream', image: 'http://vm.djazz.se/rec/thumb/stream.png?t='+Date.now() }
+			{ file: config.livestream_url_dash, image: config.livestream_url_thumbnail+'?t='+Date.now() },
+			{ file: config.livestream_url_hls, image: config.livestream_url_thumbnail+'?t='+Date.now() },
+			{ file: config.livestream_url_rtmp, image: config.livestream_url_thumbnail+'?t='+Date.now() }
 		],
 		dash: true,
 		androidhls: true,
 		rtmp: {
-			bufferlength: 5
+			bufferlength: 2
 		},
 		height: '100%',
 		width: '100%'
@@ -29,38 +31,19 @@ function startPlayer() {
 	})
 }
 
+api.events.on('livestreamstatus', function (data) {
 
-function updateStatus() {
-	setTimeout(updateStatus, 5*1000)
-	//console.log("fetching now playing")
-	xhr('/api/status', function (res) {
-		let data
-		try {
-			data = JSON.parse(res)
-		} catch (e) {
-			console.log(res)
-			data = {}
-			return
-		}
+	if (data.online) {
+		viewercount.textContent = data.viewers
+		liveplayer.classList.remove('offline')
+	} else {
+		viewercount.textContent = '-'
+		liveplayer.classList.add('offline')
+		player.stop()
+	}
+})
 
-		if (!data || !data.livestream) {
-			return
-		}
-
-		if (data.livestream.online) {
-			viewercount.textContent = data.livestream.viewers
-			liveplayer.classList.remove('offline')
-		} else {
-			viewercount.textContent = '-'
-			liveplayer.classList.add('offline')
-			player.stop()
-		}
-
-
-	})
-}
 
 startPlayer()
-updateStatus()
 
 module.exports = player

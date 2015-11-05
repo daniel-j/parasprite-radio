@@ -3,7 +3,7 @@
 import './incl/radioinfo'
 import radioPlayer from './incl/radioplayer'
 
-let radio = radioPlayer({
+const radio = radioPlayer({
 	baseurl: config.general_streamurl,
 	autoplay: true
 })

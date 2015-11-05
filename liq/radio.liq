@@ -100,16 +100,6 @@ def update_nowplaying(m)
 end
 
 server.register(
-	usage="smartqueue <url/file>",
-	description="Smart queue command.",
-	"smartqueue",
-	fun(arg) -> begin
-		print("Queueing #{arg}")
-		ignore(server.execute("request.push smart:"^arg))
-		"OK!"
-	end
-)
-server.register(
 	usage="sendmetadata",
 	description="Triggers a HTTP request to the server with metadata.",
 	"sendmetadata",
@@ -216,18 +206,23 @@ end
 
 # playlists
 default = audio_to_stereo(mksafe(playlist(id="default", reload_mode="watch", reload=600, timeout=600., prefix=confstr("general.media_dir")^"/", "/home/djazz/.mpd/playlists/radio.m3u")))
-extra = audio_to_stereo(mksafe(playlist(id="nmn", reload_mode="watch", reload=600, timeout=600., prefix=confstr("general.media_dir")^"/", "/home/djazz/.mpd/playlists/nmn.m3u")))
+#extra = audio_to_stereo(mksafe(playlist(id="nmn", reload_mode="watch", reload=600, timeout=600., prefix=confstr("general.media_dir")^"/", "/home/djazz/.mpd/playlists/nmn.m3u")))
 friendship = audio_to_stereo(amplify(1.1, playlist(id="friendship", reload_mode="watch", reload=600, "friendship.m3u")))
 
-# queue: requests; announce: plays over music
-queue = audio_to_stereo(request.equeue(id="request", conservative=true, length=300., timeout=3600.))
-announce = audio_to_stereo(request.equeue(id="announce", conservative=true, length=300., timeout=3600.))
+# queues: requests; announce: plays over music
+queue1 = audio_to_stereo(request.equeue(id="queue1", conservative=true, length=60., timeout=1000.))
+queue2 = audio_to_stereo(request.equeue(id="queue2", conservative=true, length=60., timeout=1000.))
+queue3 = audio_to_stereo(request.equeue(id="queue3", conservative=true, length=60., timeout=1000.))
+announce = audio_to_stereo(request.equeue(id="announce", conservative=true, length=20., timeout=60.))
 
-add_skip_command(command="request.skip", queue)
+add_skip_command(command="queue1.skip", queue1)
+add_skip_command(command="queue2.skip", queue2)
+add_skip_command(command="queue3.skip", queue3)
+add_skip_command(command="announce.skip", announce)
 
-songs = random(weights=[1,1], [extra,default])
+songs = default #random(weights=[1,1], [extra,default])
 
-source = fallback([queue, songs])
+source = fallback([queue1, queue2, queue3, songs])
 
 # scrobble music (last.fm & tunein) but not jingles etc..
 source = store_metadata(id="history", size=20, source)
@@ -317,7 +312,7 @@ end, source)
 source = on_metadata(update_nowplaying, source)
 
 # play announcements over the music
-source = smooth_add(delay=0.3, p=0.3, normal=source, special=amplify(2., nrj(announce)))
+source = smooth_add(delay=0.3, p=0.3, normal=source, special=amplify(1.5, nrj(announce)))
 #source = add(normalize=false, [source, amplify(1.8, nrj(announce))])
 
 # audio tweaking

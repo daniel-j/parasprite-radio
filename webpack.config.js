@@ -22,7 +22,12 @@ module.exports = {
 			//{ test: /\.coffee$/, loader: 'coffeelint-loader', exclude: /node_modules/ },
 		],
 		loaders: [
-			{ test: /\.js$/, loader: inProduction?'babel':'babel?sourceMaps=true', exclude: /node_modules/ },
+			{
+				test: /\.js$/, loader: 'babel', exclude: /node_modules/, query: {
+					sourceMaps: inProduction,
+					presets: ['es2015']
+				}
+			},
 			{ test: /\.coffee$/, loader: 'coffee-loader', exclude: /node_modules/ },
 			{ test: /\.mustache$/, loader: 'mustache', exclude: /node_modules/ }
 		]
@@ -63,7 +68,8 @@ module.exports = {
 			$: 'jquery',
 			Backbone: 'backbone',
 			_: 'underscore',
-			Marionette: 'backbone.marionette'
+			Marionette: 'backbone.marionette',
+			m: 'mithril'
 		})
 	],
 
