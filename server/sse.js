@@ -11,7 +11,7 @@ function handle(req, res) {
 		'Content-Type': 'text/event-stream',
 		'Cache-Control': 'no-cache',
 		'Access-Control-Allow-Origin': '*',
-		'X-Accel-Buffering', 'no'
+		'X-Accel-Buffering': 'no'
 	})
 	res.write(':' + Array(2049).join(' ') + '\n', 'utf8') // 2kB padding for IE
 	res.write('retry: 10000\n', 'utf8')
