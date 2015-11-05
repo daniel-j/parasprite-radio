@@ -6,7 +6,6 @@ var recievers = []
 var pastEvents = {}
 
 function handle(req, res) {
-	console.log(req)
 	var parsedURL = url.parse(req.url, true)
 	res.writeHead(200, {
 		'Content-Type': 'text/event-stream',
