@@ -20,12 +20,14 @@ function handle(req, res) {
 
 	// keep-alive
 	var kaTimer = setInterval(function () {
+		console.log(': KA\n\n')
 		res.write(': KA\n\n', 'utf8')
 	}, 10*1000)
 	recievers.push(res)
 
 	// send initial data
 	for (var ev in pastEvents) {
+		console.log(pastEvents[ev])
 		res.write(pastEvents[ev])
 	}
 
@@ -43,6 +45,7 @@ function broadcast(event, data, remember) {
 	if (event && remember && pastEvents[event] === msg) {
 		// same message already sent
 	} else {
+		console.log(msg)
 		recievers.forEach(function (res) {
 			res.write(msg, 'utf8')
 		})
