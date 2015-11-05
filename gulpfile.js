@@ -211,7 +211,10 @@ gulp.task('watch:lint', function () {
 
 gulp.task('browsersync', function () {
 	return browserSync.init({
-		proxy: config.server.host+':'+config.server.port
+		proxy: config.server.host+':'+config.server.port,
+		open: false,
+		online: false,
+		reloadOnRestart: true
 	})
 })
 
@@ -224,4 +227,3 @@ gulp.task('default', function (done) {
 gulp.task('watch', function (done) {
 	sequence('default', ['watch:lint', 'watch:script', 'watch:style', 'watch:document', 'browsersync'], done)
 })
-
