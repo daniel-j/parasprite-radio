@@ -21,6 +21,7 @@ function handle(req, res) {
 	// keep-alive
 	var kaTimer = setInterval(function () {
 		res.write(': KA\n\n', 'utf8')
+		res.flush()
 	}, 10*1000)
 	recievers.push(res)
 
@@ -28,6 +29,7 @@ function handle(req, res) {
 	for (var ev in pastEvents) {
 		res.write(pastEvents[ev])
 	}
+	res.flush()
 
 	res.once('close', function () {
 		clearInterval(kaTimer)
@@ -45,6 +47,7 @@ function broadcast(event, data, remember) {
 	} else {
 		recievers.forEach(function (res) {
 			res.write(msg, 'utf8')
+			res.flush()
 		})
 		if (event && remember) {
 			pastEvents[event] = msg
