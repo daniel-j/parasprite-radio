@@ -57,11 +57,12 @@ function esConnect() {
 	es.onerror = esError
 	es.onopen = esOpen
 	es.onmessage = esMessage
-	esTimer = setTimeout(() => esError(), 10*1000)
+	esTimer = setTimeout(esError, 10*1000)
 }
 function esOpen() {
 	console.log('sse open')
 	clearTimeout(esTimer)
+	esTimer = setTimeout(esError, 20*1000)
 }
 function esMessage(e) {
 	let json = JSON.parse(e.data)
@@ -70,6 +71,8 @@ function esMessage(e) {
 	//console.log('sse msg', ev, data)
 	console.log('Event:', ev, data)
 	events.emit(ev, data)
+	clearTimeout(esTimer)
+	esTimer = setTimeout(esError, 20*1000)
 }
 function esError() {
 	if (!es) {

@@ -20,7 +20,7 @@ function handle(req, res) {
 
 	// keep-alive
 	var kaTimer = setInterval(function () {
-		res.write(': KA\n\n', 'utf8')
+		res.write(formatMessage('ka', 1))
 		res.flush()
 	}, 10*1000)
 	recievers.push(res)
