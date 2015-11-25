@@ -9,6 +9,11 @@ var xmp_ext = ['mod','s3m','xm','it','j2b']
 var ext = path.extname(process.argv[2]).substr(1)
 var name = path.basename(process.argv[2])
 
+// prevents mediainfo from crashing
+// LC_ALL and LANG are set to C by Liquidsoap. But why?
+delete process.env.LC_ALL
+process.env.LANG = 'en_US.UTF-8' // I hope your system has this locale
+
 mediainfo(process.argv[2]).then(function (res) {
 	//delete res[0].cover_data
 	//console.error(res[0])
