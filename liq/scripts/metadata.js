@@ -2,7 +2,7 @@
 'use strict'
 var child_process = require('child_process')
 var path = require('path')
-var mediainfo = require("mediainfoq")
+var mediainfo = require('mediainfoq')
 
 var output = {}
 var xmp_ext = ['mod','s3m','xm','it','j2b']
