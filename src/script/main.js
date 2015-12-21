@@ -5,6 +5,7 @@ import radioPlayer from './incl/radioplayer'
 import livestream from './livestream'
 import { formattime, timeago } from './utils/time'
 import api from './entities/api'
+import './incl/snow'
 
 const radio = radioPlayer({
 	baseurl: config.general_streamurl,
