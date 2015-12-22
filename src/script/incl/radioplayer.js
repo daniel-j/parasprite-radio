@@ -77,7 +77,6 @@ function radioPlayer(opts = {}) {
 	playstopbtn.disabled = false
 
 
-
 	function initializeVisualizer() {
 		acx = new AudioContext()
 		if (!acx.createGain || !acx.createMediaElementSource || !acx.createAnalyser) {
