@@ -144,6 +144,7 @@ function radioPlayer(opts = {}) {
 		audioTag.addEventListener('error', handleStreamEnded, false)
 		audioTag.addEventListener('ended', handleStreamEnded, false)
 		audioTag.addEventListener('canplay', handleStreamCanPlay, false)
+		audioTag.addEventListener('canplay', canPlayAudio, false)
 
 		if (useVisualizer) {
 			gainNode.gain.value = volume
@@ -167,7 +168,8 @@ function radioPlayer(opts = {}) {
 		audioTag.play()
 		notify.check()
 
-		audioTag.addEventListener('canplay', () => {
+		function canPlayAudio(e) {
+			audioTag.removeEventListener('canplay', canPlayAudio)
 			streamName = audioTag.currentSrc.substr(baseurl.length)
 			streamSelect.value = streamName
 			streamLink.href = baseurl+streamName
@@ -182,7 +184,7 @@ function radioPlayer(opts = {}) {
 				source.connect(analyzer)
 				update()
 			}
-		}, false)
+		}
 	}
 
 	function togglePlay() {
