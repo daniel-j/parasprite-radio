@@ -69,7 +69,9 @@ function esMessage(e) {
 	let ev = json.e
 	let data = json.d
 	//console.log('sse msg', ev, data)
-	console.log('Event:', ev, data)
+	if (ev !== 'ka') {
+		console.log('Event:', ev, data)
+	}
 	events.emit(ev, data)
 	clearTimeout(esTimer)
 	esTimer = setTimeout(esError, 20*1000)
