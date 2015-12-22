@@ -1,4 +1,7 @@
 'use strict'
+
+import ismobile from '../utils/ismobile'
+
 // load ThreeJS
 let scriptTag = document.createElement('script')
 scriptTag.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r73/three.min.js'
@@ -7,7 +10,10 @@ document.body.appendChild(scriptTag)
 // snow code and snowflake image from
 // http://soledadpenades.com/articles/three-js-tutorials/rendering-snow-with-shaders/
 
+
+
 window.addEventListener('load', function () {
+
 	let renderer,
 		scene,
 		camera,
@@ -39,7 +45,7 @@ window.addEventListener('load', function () {
 
 		scene = new THREE.Scene()
 
-		camera = new THREE.PerspectiveCamera( 40, 4/3, 1, 100 )
+		camera = new THREE.PerspectiveCamera( 60, 4/3, 1, 1000 )
 		cameraTarget = new THREE.Vector3( 0, 0, 0 )
 
 		texture = new THREE.TextureLoader().load('img/snowflake.png')
@@ -49,13 +55,13 @@ window.addEventListener('load', function () {
 			height = particleSystemHeight,
 			depth = 100,
 			parameters = {
-				color: 0xDDDDFF,
+				color: 0xddddff,
 				height: particleSystemHeight,
 				radiusX: 2.5,
 				radiusZ: 2.5,
 				size: 100,
-				scale: 4.0,
-				opacity: 0.6,
+				scale: 4.5,
+				opacity: 0.55,
 				speedH: 0.5,
 				speedV: 0.5
 			},
@@ -142,10 +148,14 @@ window.addEventListener('load', function () {
 		disableBtn.addEventListener('click', toggleSnow, false)
 		r.addEventListener('click', toggleSnow, false)
 
-		if (window.DeviceOrientationEvent) {
-			window.addEventListener('deviceorientation', orientation, false)
-		} else{
-			console.log('DeviceOrientationEvent is not supported :(')
+		if (ismobile) {
+			if (window.DeviceOrientationEvent) {
+				window.addEventListener('deviceorientation', orientation, false)
+			} else{
+				console.log('DeviceOrientationEvent is not supported :(')
+			}
+		} else {
+			window.addEventListener('mousemove', onMouseMove, false)
 		}
 
 		clock = new THREE.Clock()
@@ -166,10 +176,14 @@ window.addEventListener('load', function () {
 		}
 	}
 
-	function orientation() {
-		cameraX = cameraRadius * Math.cos( (event.gamma + 90)*2 * (Math.PI/180) * 0.3 )
-		cameraY = cameraRadius * Math.sin( (event.beta + 180) * (Math.PI/180) * 0.1 )
-		//console.log(cameraX, cameraY)
+	function orientation(e) {
+		cameraX = cameraRadius * -Math.sin( (e.gamma + 90)*2 * (Math.PI/180) ) * 0.2
+		cameraY = cameraRadius * Math.sin( (e.beta - 90) * (Math.PI/180) ) * 0.3
+	}
+
+	function onMouseMove(e) {
+		cameraX = cameraRadius * -Math.sin( ((e.clientX/window.innerWidth)*2-1)*2 * (Math.PI/180) )
+		cameraY = cameraRadius * Math.sin( ((e.clientY/window.innerHeight)*2-1)*3 * (Math.PI/180) )
 	}
 
 	function rand( v ) {
@@ -189,6 +203,7 @@ window.addEventListener('load', function () {
 
 		camera.position.set( cameraX, cameraY, cameraZ )
 		camera.lookAt( cameraTarget )
+		camera.position.setLength(cameraRadius)
 
 		renderer.clear()
 		renderer.render( scene, camera )
