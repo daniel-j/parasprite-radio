@@ -30,7 +30,6 @@ window.addEventListener('load', function () {
 		disableBtn
 
 	init()
-	animate()
 
 
 	function init() {
@@ -48,7 +47,7 @@ window.addEventListener('load', function () {
 		camera = new THREE.PerspectiveCamera( 60, 4/3, 1, 1000 )
 		cameraTarget = new THREE.Vector3( 0, 0, 0 )
 
-		texture = new THREE.TextureLoader().load('img/snowflake.png')
+		texture = new THREE.TextureLoader().load('img/snowflake.png', animate)
 
 		let numParticles = 10000,
 			width = 100,
