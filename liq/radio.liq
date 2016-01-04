@@ -206,7 +206,7 @@ end
 
 # playlists
 default = audio_to_stereo(mksafe(playlist(id="default", reload_mode="watch", reload=600, timeout=600., prefix=confstr("general.media_dir")^"/", "/home/djazz/.mpd/playlists/radio.m3u")))
-extra = audio_to_stereo(mksafe(playlist(id="extra", reload_mode="watch", reload=600, timeout=600., prefix=confstr("general.media_dir")^"/", "/home/djazz/.mpd/playlists/extra.m3u")))
+extra = audio_to_stereo(playlist(id="extra", reload_mode="watch", reload=600, timeout=600., prefix=confstr("general.media_dir")^"/", "/home/djazz/.mpd/playlists/extra.m3u"))
 friendship = audio_to_stereo(amplify(1.1, playlist(id="friendship", reload_mode="watch", reload=600, "friendship.m3u")))
 
 # queues: requests; announce: plays over music
