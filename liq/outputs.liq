@@ -23,7 +23,6 @@ mumbleOut = output.external(id="mumble",
 		restart_on_crash=true,
 		process="node scripts/mumble.js"
 	),
-	reopen_delay=0.0,
 	start=confbool('mumble.enable'),
 	"true"
 )
