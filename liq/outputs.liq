@@ -17,7 +17,7 @@ out = output.icecast(
 
 mumbleOut = output.external(id="mumble",
 	%external(
-		channels=2,
+		channels=1,
 		samplerate=48000,
 		header=false,
 		restart_on_crash=true,
@@ -38,9 +38,7 @@ if inDev then
 				id3v2 = true
 			),
 			source
-		),
-
-		mumbleOut(source)
+		)
 	])
 else
 
@@ -138,9 +136,7 @@ else
 		),
 		start = true,
 		source
-	),
-
-	mumbleOut(source)
+	)
 
 	])
 
@@ -149,3 +145,4 @@ else
 end
 
 
+clock.assign_new(sync=false,[mumbleOut(mean(mksafe(buffer(buffer=5.0,source))))])
