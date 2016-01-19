@@ -31,7 +31,7 @@ function radioPlayer(opts = {}) {
 	} else if (ismobile) {
 		urls = [['radio_mobile', 'audio/aacp'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_normal', 'audio/mpeg'], ['radio', 'audio/mpeg']]
 	} else {
-		urls = [['radio', 'audio/mpeg'], ['radio_opus', 'application/ogg; codecs=opus'], ['radio_normal', 'audio/mpeg'], ['radio_mobile', 'audio/aacp']]
+		urls = [['radio', 'audio/mpeg'], /*['radio_opus', 'application/ogg; codecs=opus'],*/ ['radio_normal', 'audio/mpeg'], ['radio_mobile', 'audio/aacp'], ['radio_mobile_vorbis', 'application/ogg']]
 	}
 
 	let baseurl = opts.baseurl
@@ -94,7 +94,7 @@ function radioPlayer(opts = {}) {
 		analyzer = acx.createAnalyser()
 		analyzer.fftSize = 32
 		analyzer.connect(gainNode)
-		analyzer.smoothingTimeConstant = 0.5
+		analyzer.smoothingTimeConstant = 0.4
 
 		liveFreqData = new Float32Array(analyzer.frequencyBinCount)
 	}

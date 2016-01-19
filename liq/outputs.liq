@@ -95,7 +95,7 @@ else
 			channels = 2,
 			signal = "music"
 		),
-		start = true,
+		start = false,
 		source
 	),
 
