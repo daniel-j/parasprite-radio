@@ -11,7 +11,7 @@ var gdata = require('gulp-data')
 var del = require('del')
 var gulpif = require('gulp-if')
 var plumber = require('gulp-plumber')
-var cssmin = require('gulp-minify-css')
+var cssnano = require('gulp-cssnano')
 var mergeStream = require('merge-stream')
 var assign = require('lodash').assign
 var browserSync = require('browser-sync').create()
@@ -61,7 +61,7 @@ var stylusOpts = {
 	use: nib,
 	compress: inProduction
 }
-var cssminOpts = {
+var cssnanoOpts = {
 
 }
 
@@ -129,7 +129,7 @@ function styleTask() {
 		.pipe(plumber())
 		.pipe(gulpif(!inProduction, sourcemaps.init()))
 			.pipe(stylus(stylusOpts))
-			.pipe(gulpif(inProduction, cssmin(cssminOpts)))
+			.pipe(gulpif(inProduction, cssnano(cssnanoOpts)))
 		.pipe(gulpif(!inProduction, sourcemaps.write()))
 		.pipe(gulp.dest('build/style/'))
 		.pipe(browserSync.stream())
