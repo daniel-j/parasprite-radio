@@ -29,7 +29,9 @@ var keys = [
 
 	'tunein.stationId',
 	'tunein.partnerId',
-	'tunein.partnerKey'
+	'tunein.partnerKey',
+
+	'mumble.enable'
 ]
 
 function getValue(k, o, i) {

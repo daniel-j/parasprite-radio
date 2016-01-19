@@ -15,6 +15,18 @@ out = output.icecast(
 	fallible = true
 )
 
+mumbleOut = output.external(id="mumble",
+	%external(
+		channels=1,
+		samplerate=48000,
+		header=false,
+		restart_on_crash=true,
+		process="node scripts/mumble.js"
+	),
+	reopen_delay=0.0,
+	start=confbool('mumble.enable'),
+	"true"
+)
 
 if inDev then
 	clock.assign_new(id="output_clock",[
@@ -132,3 +144,5 @@ else
 	# to FM transmitter
 	#output.alsa(id="alsa", bufferize=true, fallible = true, source)
 end
+
+mumbleOut(mean(source))

@@ -102,13 +102,19 @@ key = ""
 limit = 10
 
 [tunein]
-enabled=true
+enable=true
 stationId  = "s225092"
 partnerId  = ""
 partnerKey = ""
 
 [ipinfodb]
 apiKey = ""
+
+[mumble]
+enable=false
+botname="RadioBot"
+uri="mumble://mumble.djazz.se/Parasprite%20Radio"
+
 
 # external sources
 [soundcloud]
