@@ -18,7 +18,7 @@ mumble.connect(config.mumble.uri, options, function ( error, connection ) {
 
 	connection.authenticate(config.mumble.botname)
 	connection.on('initialized', function () {
-		process.stdin.pipe(connection.inputStream({gain: 0.6, channels: 1}))
+		process.stdin.pipe(connection.inputStream({gain: 0.6, channels: 2}))
 	})
 })
 
