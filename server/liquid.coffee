@@ -143,6 +143,8 @@ module.exports = (config) ->
 			metadata.art    = config.server.api_prefix+'/now/art/small' #m.art or null
 			metadata.bitrate = +m.bitrate or m.bitrate or null
 			metadata.ext    = path.extname(path.basename(m.filename)).substring(1)
+			metadata.duration = +m.duration
+			metadata.on_air = new Date(m.on_air).getTime()
 			metadata.source = m.source or 'default'
 			metadata.live =
 				active: false

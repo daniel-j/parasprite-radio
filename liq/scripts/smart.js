@@ -13,6 +13,7 @@ switch (parsedUrl.protocol) {
 
 	default:
 		switch (parsedUrl.hostname) {
+			case 'm.soundcloud.com':
 			case 'soundcloud.com':
 				handler = require('./protocols/soundcloud')
 				break
@@ -20,6 +21,7 @@ switch (parsedUrl.protocol) {
 			case 'www.youtube.com':
 			case 'youtube.com':
 			case 'youtu.be':
+			case 'm.youtube.com':
 				handler = require('./protocols/youtube-dl')
 				break
 

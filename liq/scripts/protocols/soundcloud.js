@@ -41,7 +41,7 @@ function protocol(arg, parsedUrl, handleCb) {
 			artist: track.user.username,
 			url: track.permalink_url,
 			art: arturl,
-			time: Math.round(track.duration/1000),
+			duration: Math.round(track.duration/1000),
 			year: year,
 
 			source: audiourl

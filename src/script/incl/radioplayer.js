@@ -102,6 +102,7 @@ function radioPlayer(opts = {}) {
 	function stopRadio() {
 		isPlaying = false
 		window.playing = false
+		document.body.classList.remove('radioplaying')
 
 		if (source) {
 			source.disconnect(0)
@@ -131,6 +132,7 @@ function radioPlayer(opts = {}) {
 	function startRadio() {
 		stopRadio()
 		isPlaying = true
+		document.body.classList.add('radioplaying')
 
 		if (window.nowplayingdata) {
 			document.title = window.nowplayingdata + ' - Parasprite Radio'

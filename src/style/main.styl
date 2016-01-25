@@ -9,7 +9,7 @@
 
 #top
 	background-color bgColor
-	position fixed
+	position absolute
 	left 0
 	right 0
 	top 0
@@ -38,7 +38,14 @@
 		height 100%
 		position relative
 
+.radioplaying
+	#top
+		position fixed
+		h1, #subtitle
+				display none
 
+	#player
+		left 80px
 
 #player
 	position absolute
@@ -125,38 +132,142 @@
 #content .container
 	background-color rgba(0, 0, 0, 0.5)
 
+#bigbackground
+	position absolute
+	top -20px
+	bottom -20px
+	left -20px
+	right -20px
+	z-index -1
+	-webkit-filter blur(20px)
+	-moz-filter blur(20px)
+	-o-filter blur(20px)
+	-ms-filter blur(20px)
+	filter blur(20px)
+	background-size cover
+	background-position center
+	overflow hidden
+	box-shadow inset 0 20px 20px 20px #000
 
-.trackstable
-	width 100%
-	border-spacing 0
-	border-collapse collapse
+#pageHistory
+	position relative
+	overflow hidden
+	padding 20px 0
+	//z-index 1
 
-	tr td
-		&:first-child
-			width 32px
+#bigplayer
+	width 50%
+	float left
+	height 100%
 
+	.helper
+		padding 0 10%
+		margin 0 auto
+
+	.headline
+		padding 5px
+		font-weight bold
+		font-size 15px
+		color rgba(255, 255, 255, 0.4)
+
+	#bigcover
+		width 100%
+		padding-top 100%
+		background-size cover
+		background-position center
+
+	.info
+		font-size 12px
+		color rgba(255,255,255,0.7)
+		padding 5px
+		#bigplayertime
+			float left
+		#bigplayerduration
+			float right
+
+	#bigplayerprogressbar
+		margin-top 10px
+		position relative
+		height 1px
+		background-color rgba(0,0,0,0.3)
+		border 1px solid rgba(0,0,0,0.0)
+		div
+			position absolute
+			left 0
+			right 0
+			top 0
+			width 0
+			border-top white 1px solid
+			//border-bottom alpha(white, 0.5) 1px solid
+			-webkit-transition width .1s ease-out
+			-moz-transition width .1s ease-out
+			transition width .1s ease-out
+
+
+
+#playhistory
+	//width 100%
+	width 50%
+	float right
+
+	.headline
+		padding 5px
+		padding-left 45px
+		font-weight bold
+		font-size 15px
+		color rgba(255, 255, 255, 0.4)
+
+	.row
+		position relative
 		cursor pointer
-		height 32px
-		padding 0 10px
+		height 40px
+		&:hover
+			background-color color
+			*
+				color black
+			img
+				opacity 0.7
 
-	tr td img
-		max-width 32px
-		max-height 32px
-		display block
+	.img
+		width 40px
+		img
+			max-width 40px
+			max-height 40px
+			display block
 
-	tr:hover td
-		background-color color
-		color black
+	.content
+		position absolute
+		top 0
+		left 45px
+		right 150px
 
-	td.date
-		font-size 14px
+	.right
+		position absolute
+		top 0
+		right 10px
 		white-space nowrap
-		color rgba(255, 255, 255, 0.5)
 		text-align right
 
-	.nowplaying td
-		font-weight bold
-		padding-bottom 10px
+	.title, .artist
+		white-space nowrap
+		text-overflow ellipsis
+		overflow hidden
+
+	.title, .timeago
+		margin-top 2px
+		line-height 18px
+		font-size 14px
+
+	.artist
+		font-size 13px
+		color rgba(255,255,255,0.6)
+
+	.timeago
+		color rgba(255, 255, 255, 0.8)
+
+	.timestamp
+		font-size 13px
+		color rgba(255,255,255,0.5)
 
 
 #chat

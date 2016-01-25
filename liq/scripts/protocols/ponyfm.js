@@ -24,7 +24,7 @@ function protocol(arg, parsedUrl, handleCb) {
 			artist: track.user.name,
 			url: track.url,
 			art: arturl,
-			time: track.duration,
+			duration: track.duration,
 			year: year,
 
 			source: audiourl

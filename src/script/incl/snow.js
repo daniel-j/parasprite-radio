@@ -146,6 +146,7 @@ window.addEventListener('load', function () {
 
 		disableBtn.addEventListener('click', toggleSnow, false)
 		r.addEventListener('click', toggleSnow, false)
+		toggleSnow() // disable snow by default
 
 		if (ismobile) {
 			if (window.DeviceOrientationEvent) {

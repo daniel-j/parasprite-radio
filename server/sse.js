@@ -25,6 +25,8 @@ function handle(req, res) {
 	}, 10*1000)
 	recievers.push(res)
 
+	res.write(formatMessage('timestamp', Date.now()))
+
 	// send initial data
 	for (var ev in pastEvents) {
 		res.write(pastEvents[ev])

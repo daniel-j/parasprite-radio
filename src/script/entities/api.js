@@ -5,6 +5,8 @@ import EventSource from 'event-source'
 
 console.log('api --->')
 
+window.serverTimeDiff = 0
+
 function create(uri, def, data) {
 	const d = new EventEmitter
 	d.get = m.prop(def)
@@ -71,6 +73,9 @@ function esMessage(e) {
 	//console.log('sse msg', ev, data)
 	if (ev !== 'ka') {
 		console.log('Event:', ev, data)
+	}
+	if (ev === 'timestamp') {
+		window.serverTimeDiff = Date.now() - data
 	}
 	events.emit(ev, data)
 	clearTimeout(esTimer)

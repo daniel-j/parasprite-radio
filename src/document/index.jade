@@ -79,7 +79,7 @@ html
 		#navigation.container
 
 			nav#mainmenu
-				a#menuHistory.current(data-page='pageHistory') Play History
+				a#menuHistory.current(data-page='pageHistory') Music
 				//- a#menuPlaylist(data-page='pagePlaylist') Playlist
 				a#menuSchedule(data-page='pageSchedule', data-hash='schedule') Schedule
 				a#menuLivestream(data-page='pageLivestream', data-hash='livestream') Livestream
@@ -96,11 +96,20 @@ html
 		#content
 			.container
 				#pageHistory.page-wrapper
+					#bigbackground(style='background-image: url("/api/now/art/original")')
 
-					div
-						strong Recently played tracks
-					table#playhistorytable.trackstable
-						tbody#playhistory
+					#bigplayer
+						.helper
+							.headline Now playing
+							a(href='/api/now/art/original', target='_blank')
+								#bigcover(style='background-image: url("/api/now/art/original")')
+							#bigplayerprogressbar
+								div
+							.info
+								#bigplayertime
+								#bigplayerduration
+
+					#playhistory
 				//- TODO: Remove inline CSS
 				#pagePlaylist.page-wrapper(style='display: none;')
 					div

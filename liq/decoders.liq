@@ -24,7 +24,7 @@ add_oblivious_decoder(
 	end,
 	fun(f) -> "xmp --nocmd -o - -d wav "^quote(f)^" 2>/dev/null"
 )
-add_metadata_resolver("XMP", file_metadata)
+#add_metadata_resolver("XMP", file_metadata)
 
 
 add_decoder(

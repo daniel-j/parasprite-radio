@@ -5,7 +5,7 @@ var path = require('path')
 var mediainfo = require('mediainfoq')
 
 var output = {}
-var xmp_ext = ['mod','s3m','xm','it','j2b']
+var extensions = ['mod','s3m','xm','it','j2b']
 var ext = path.extname(process.argv[2]).substr(1)
 var name = path.basename(process.argv[2])
 
@@ -36,19 +36,26 @@ mediainfo(process.argv[2]).then(function (res) {
 	if (res[0].genre) {
 		output.genre = res[0].genre
 	}
+	if (res[0].overall_bit_rate) {
+		output.bitrate = parseInt(res[0].overall_bit_rate, 10)
+	}
 	if (res[0].duration) {
 		var d = res[0].duration.match(/^(?:(\d*)h)?\s?(?:(\d*)mn)?\s?(?:(\d*)s)?$/)
 		if (d) {
 			var duration = (d[1]||0)*60*60 + (d[2]||0)*60 + (d[3]||0)*1
-			output.time = duration
+			output.duration = duration
 		}
+	}
+	// convert everything to string, because Liquidsoap
+	for (var key in output) {
+		output[key] = ''+output[key]
 	}
 	console.log(JSON.stringify(output))
 
 }).catch(function (err) {
 	console.error('Mediainfo '+err.error)
 
-	if (xmp_ext.indexOf(ext.toLowerCase()) !== -1) {
+	if (extensions.indexOf(ext.toLowerCase()) !== -1) {
 		output.title = name
 
 		child_process.exec('file '+JSON.stringify(process.argv[2]), function (err, stdout, stderr) {

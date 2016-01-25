@@ -38,7 +38,7 @@ function protocol(arg, parsedUrl, handleCb) {
 
 			url: root+'/songs/'+id,
 			art: arturl,
-			time: +track.duration,
+			duration: +track.duration,
 			year: year,
 
 			source: audiourl
