@@ -68,12 +68,12 @@ end
 
 def scrobble_nowplaying(m)
 	audioscrobbler.nowplaying(user=confstr("lastfm.username"), password=confstr("lastfm.password"), m)
-	audioscrobbler.submit(user=confstr("lastfm.username"), password=confstr("lastfm.password"), m)
 	tunein.nowplaying(partner_id=confstr("tunein.partnerId"), partner_key=confstr("tunein.partnerKey"), station_id=confstr("tunein.stationId"), m)
 end
 
-#def scrobble_submit(t, m)
-#end
+def scrobble_submit(t, m)
+	audioscrobbler.submit(user=confstr("lastfm.username"), password=confstr("lastfm.password"), m)
+end
 
 # send metadata to server and print the response
 def send_metadata(m)
@@ -230,7 +230,7 @@ source = store_metadata(id="history", size=20, source)
 # this makes it only scrobble tracks in production
 source = if inProd then
 	source = on_track(scrobble_nowplaying, source)
-	#source = on_end(delay=0., scrobble_submit, source)
+	source = on_end(delay=0., scrobble_submit, source)
 	source
 else source end
 
