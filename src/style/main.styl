@@ -325,10 +325,62 @@
 		color rgba(255,255,255,0.5)
 
 
+#chatbox
+	position relative
+	height 410px
+#togglechat
+	position absolute
+	right 0
+	padding 14px
+	background-color #1B1B1B
+	cursor pointer
+	img
+		width 20px
+		height 20px
+		display block
+
+
 #chat
 	width 100%
-	height 410px
+	height 100%
 	border none
+
+.chatfullscreen #chatbox
+	position fixed
+	top 81px
+	left 0
+	right 0
+	bottom 0
+	height auto
+	#togglechat img
+		transform rotateZ(180deg)
+.chatfullscreen
+	overflow hidden
+	#top
+		position fixed
+	#togglesnow
+		left auto
+		bottom auto
+		right 100px
+		top 90px
+		opacity 0.7
+	#pageSchedule, #pageLivestream, #pageMap
+		visibility hidden
+
+.livestreamonline.chatfullscreen
+	#pageLivestream
+		display block !important
+		visibility visible
+		position fixed
+		top 81px
+		left 0
+		width 60%
+		bottom 0
+		background-color black
+	#chatbox
+		width 40%
+		left auto
+
 
 
 #scheduleiframe
@@ -388,5 +440,13 @@
 		overflow hidden
 		box-sizing border-box
 
+#togglesnow
+	position fixed
+	bottom 0
+	left 0
+	z-index 100000
+	opacity 0.6
+	font-size 14px
+	padding 6px 10px
 
 @require 'responsive'

@@ -36,10 +36,12 @@ api.events.on('livestreamstatus', function (data) {
 	if (data.online) {
 		viewercount.textContent = data.viewers
 		liveplayer.classList.remove('offline')
+		document.body.classList.add('livestreamonline')
 	} else {
 		viewercount.textContent = '-'
 		liveplayer.classList.add('offline')
 		player.stop()
+		document.body.classList.remove('livestreamonline')
 	}
 })
 

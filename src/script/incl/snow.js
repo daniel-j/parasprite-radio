@@ -35,6 +35,7 @@ window.addEventListener('load', function () {
 	function init() {
 
 		disableBtn = document.createElement('button')
+		disableBtn.id = 'togglesnow'
 		disableBtn.type = 'button'
 		disableBtn.textContent = 'Toggle snow'
 
@@ -132,15 +133,11 @@ window.addEventListener('load', function () {
 		document.body.appendChild( disableBtn )
 
 		let r = renderer.domElement
-		disableBtn.style.position = r.style.position = 'fixed'
-		disableBtn.style.left = r.style.left = 0
+		r.style.position = 'fixed'
+		r.style.left = 0
 		r.style.top = 0
-		disableBtn.style.bottom = 0
-		disableBtn.style.zIndex = r.style.zIndex = 100000
+		r.style.zIndex = 100000
 		r.style.pointerEvents = 'none'
-		disableBtn.style.opacity = 0.6
-		disableBtn.style.fontSize = '14px'
-		disableBtn.style.padding = '6px 10px'
 
 		window.addEventListener( 'resize', onWindowResize, false )
 
