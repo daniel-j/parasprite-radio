@@ -214,7 +214,8 @@ gulp.task('browsersync', function () {
 		proxy: config.server.host+':'+config.server.port,
 		open: false,
 		online: false,
-		reloadOnRestart: true
+		reloadOnRestart: true,
+		ghostMode: false
 	})
 })
 
