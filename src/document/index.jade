@@ -98,18 +98,28 @@ html
 				#pageHistory.page-wrapper
 					#bigbackground(style='background-image: url("/api/now/art/original")')
 
+					#bigplayertop
+						#bigplayertitle
+						#bigplayerartist
+
 					#bigplayer
 						.helper
 							.headline Now playing
 							a(href='/api/now/art/original', target='_blank')
 								#bigcover(style='background-image: url("/api/now/art/original")')
-							#bigplayerprogressbar
-								div
-							.info
+							#bigplayerinfo
+								#bigplayerprogressbar
+									div
+								#bigplayerformat
 								#bigplayertime
 								#bigplayerduration
+								#bigplayeralbum
+							#bigplayercomment
+
+
 
 					#playhistory
+
 				//- TODO: Remove inline CSS
 				#pagePlaylist.page-wrapper(style='display: none;')
 					div

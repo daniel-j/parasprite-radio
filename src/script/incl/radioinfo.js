@@ -4,6 +4,7 @@ import * as notify from '../utils/notify'
 import api from '../entities/api'
 
 import moment from 'moment'
+import linker from '../utils/linker'
 
 let nowtitle = document.getElementById('nowtitle')
 let nowartist = document.getElementById('nowartist')
@@ -14,6 +15,12 @@ let bigplayerduration = document.getElementById('bigplayerduration')
 let bigplayerprogress = document.querySelector('#bigplayerprogressbar div')
 let bigcover = document.getElementById('bigcover')
 let bigbackground = document.getElementById('bigbackground')
+let bigplayerformat = document.getElementById('bigplayerformat')
+let bigplayerinfo = document.getElementById('bigplayerinfo')
+let bigplayercomment = document.getElementById('bigplayercomment')
+let bigplayertitle = document.getElementById('bigplayertitle')
+let bigplayerartist = document.getElementById('bigplayerartist')
+let bigplayeralbum = document.getElementById('bigplayeralbum')
 let lastnowplaying = ''
 let isOnline = false
 let lastMeta = null
@@ -49,7 +56,24 @@ function updateMetadata(m) {
 		lastnowplaying = title+' - '+artist
 
 		if (bigplayerprogress) {
+			bigplayertitle.textContent = title
+			bigplayerartist.textContent = artist
+			if (albumartist && artist!==albumartist && album!==albumartist && albumartist.length < 25) {
+				bigplayeralbum.textContent = albumartist+' - '+album
+			} else {
+				bigplayeralbum.textContent = album
+			}
+
 			updateProgress()
+			if (m.duration > 10) {
+				bigplayerformat.textContent = m.ext.toUpperCase()+' '+m.bitrate+' kbps'+(m.bitrate_mode==='variable'?' VBR':'')
+				bigplayercomment.textContent = ((m.url|| '')+'\n'+(m.comment|| '')).trim()
+				bigplayercomment.innerHTML = linker(bigplayercomment.innerHTML).replace(/\n/g, '<br/>')
+				bigplayerinfo.style.opacity = 1
+			} else {
+				bigplayercomment.textContent = ''
+				bigplayerinfo.style.opacity = 0
+			}
 		}
 
 		window.nowplayingdata = lastnowplaying
@@ -60,6 +84,7 @@ function updateMetadata(m) {
 		cover.src = '/api/now/art/tiny?t='+Date.now()
 		if (bigcover && bigbackground) {
 			bigcover.style.backgroundImage = bigbackground.style.backgroundImage = 'url("/api/now/art/original?t='+Date.now()+'")'
+			bigcover.style.backgroundImage = bigbackground.style.backgroundImage = 'url("/api/now/art/original?t='+Date.now()+'"), url("/api/now/art/small?t='+Date.now()+'"), url("/api/now/art/tiny?t='+Date.now()+'")'
 		}
 		if (window.playing) {
 			notify.show(title, artist, cover.src)
@@ -81,16 +106,12 @@ function updateMetadata(m) {
 
 function updateProgress() {
 	let m = lastMeta
-	if (m && m.duration) {
+	if (m && m.duration > 10) { // at least 10 seconds long
 		let duration = m.duration*1000
-		let time = Math.min(duration, Math.max(0, Date.now()-m.on_air-window.serverTimeDiff))
+		let time = Math.min(duration, Math.max(0, Date.now()-m.on_air-window.serverTimeDiff-2000))
 		bigplayerprogress.style.width = (time/duration)*100+'%'
 		bigplayertime.textContent = moment(time).format('m:ss')
 		bigplayerduration.textContent = moment(duration).format('m:ss')
-	} else {
-		bigplayertime.textContent = ''
-		bigplayerduration.textContent = ''
-		bigplayerprogress.style.width = 0
 	}
 }
 

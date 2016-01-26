@@ -11,6 +11,13 @@
 	#player
 		left 110px
 
+	#bigplayertop
+		padding-bottom 5px
+		#bigplayertitle
+			font-size 24px
+		#bigplayerartist
+			font-size 22px
+
 	#badges-title
 		margin-left 7px
 	#badges
@@ -20,32 +27,63 @@
 			width 33%
 
 @media screen and (max-width: 700px)
+
+
+
+	#bigplayertop
+		#bigplayertitle
+			font-size 22px
+		#bigplayerartist
+			font-size 20px
+
+	#playhistory
+		margin-bottom 20px
+		.content
+			right 5px
+		.right
+			display none
+
+@media screen and (max-width: 480px)
+
 	#logo
 		display none
 
 	#player
 		left 0
 
-	#playhistory
-		.content
-			right 5px
-		.right
-			display none
+	#pageHistory
+		padding-top 20px
 
-	#badges
-		img
-			width 50%
-
-@media screen and (max-width: 480px)
 	#bigplayer, #playhistory
 		width 100%
 
-	#bigplayer .content
-		padding 5%
-		#bigcover
-			max-width 80%
+	#bigplayer #bigplayerinfo
+		padding 0 5%
+		padding-top 10px
+	#bigplayer #bigcover
+		width 90%
+		padding-top 90%
+	#bigplayer .headline
+		display none
+
+	#bigplayertop
+		padding-bottom 10px
+		text-align center
+		#bigplayertitle
+			font-size 20px
+		#bigplayerartist
+			font-size 18px
+
+	#bigplayercomment
+		margin-top 10px
+		margin-left 0
+		margin-right 0
+		padding 5px 5%
+		overflow visible
+		max-height none
 
 	#playhistory
+		margin-bottom 0
 		.content
 			right 110px
 		.right
@@ -54,4 +92,4 @@
 
 	#badges
 		img
-			width 100%
+			width 50%

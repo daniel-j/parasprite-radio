@@ -37,13 +37,18 @@ mediainfo(process.argv[2]).then(function (res) {
 		output.genre = res[0].genre
 	}
 	if (res[0].overall_bit_rate) {
-		output.bitrate = parseInt(res[0].overall_bit_rate, 10)
+		output.bitrate = parseInt(res[0].overall_bit_rate.replace(/\s/g,''), 10)
+	}
+	if (res[0].overall_bit_rate_mode) {
+		output.bitrate_mode = res[0].overall_bit_rate_mode.toLowerCase()
 	}
 	if (res[0].duration) {
-		var d = res[0].duration.match(/^(?:(\d*)h)?\s?(?:(\d*)mn)?\s?(?:(\d*)s)?$/)
+		var d = res[0].duration.match(/^(?:(\d*)h)?\s?(?:(\d*)mn)?\s?(?:(\d*)s)?\s?(?:(\d*)ms)?$/)
 		if (d) {
-			var duration = (d[1]||0)*60*60 + (d[2]||0)*60 + (d[3]||0)*1
-			output.duration = duration
+			var duration = Math.round((d[1]||0)*60*60 + (d[2]||0)*60 + (d[3]||0)*1 + (d[4]||0)*0.001)
+			if (duration > 0) {
+				output.duration = duration
+			}
 		}
 	}
 	// convert everything to string, because Liquidsoap

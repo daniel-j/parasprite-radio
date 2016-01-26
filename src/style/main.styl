@@ -23,6 +23,7 @@
 		width 76px
 		height 76px
 		margin-top 2px
+		transition margin-left .3s ease-out
 
 	h1
 		margin 0
@@ -46,6 +47,8 @@
 	position absolute
 	right 0
 	left 350px
+	transition left .3s ease-out
+	background-color bgColor
 
 	#nowplayingwrap
 		margin-top 10px
@@ -127,6 +130,14 @@
 #content .container
 	background-color rgba(0, 0, 0, 0.5)
 
+
+#pageHistory
+	position relative
+	overflow hidden
+	padding 0
+	padding-top 25px
+	//z-index 1
+
 #bigbackground
 	position absolute
 	top -20px
@@ -142,13 +153,19 @@
 	background-size cover
 	background-position center
 	overflow hidden
-	box-shadow inset 0 20px 20px 20px #000
+	box-shadow inset 0 30px 20px 20px #000
 
-#pageHistory
-	position relative
-	overflow hidden
-	padding 20px 0
-	//z-index 1
+#bigplayertop
+	padding-top 10px
+	padding-bottom 10px
+	padding-left 6%
+	padding-right 6%
+	#bigplayertitle
+		font-size 32px
+		margin-bottom 5px
+	#bigplayerartist
+		font-size 26px
+		color rgba(255,255,255,0.7)
 
 #bigplayer
 	width 50%
@@ -156,32 +173,44 @@
 	height 100%
 
 	.helper
-		padding 0 10%
+		padding 0 12%
 		margin 0 auto
 
 	.headline
-		padding 5px
+		visibility hidden
+		padding-bottom 5px
 		font-weight bold
-		font-size 15px
+		font-size 13px
 		color rgba(255, 255, 255, 0.4)
 
 	#bigcover
+		margin 0 auto
 		width 100%
 		padding-top 100%
 		background-size cover
 		background-position center
 
-	.info
+	#bigplayerinfo
+		opacity 0
 		font-size 12px
-		color rgba(255,255,255,0.7)
-		padding 5px
-		#bigplayertime
-			float left
-		#bigplayerduration
-			float right
+		color rgba(255,255,255,0.8)
+		padding-top 10px
+		-webkit-transition opacity .5s ease-in-out
+		-moz-transition opacity .5s ease-in-out
+		transition opacity .5s ease-in-out
+	#bigplayerformat
+		text-align center
+		height 0
+		color rgba(255,255,255,0.5)
+	#bigplayertime
+		margin-left 5px
+		float left
+	#bigplayerduration
+		margin-right 5px
+		float right
 
 	#bigplayerprogressbar
-		margin-top 10px
+		margin-bottom 5px
 		position relative
 		height 1px
 		background-color rgba(0,0,0,0.3)
@@ -194,22 +223,53 @@
 			width 0
 			border-top white 1px solid
 			//border-bottom alpha(white, 0.5) 1px solid
-			-webkit-transition width .1s ease-out
-			-moz-transition width .1s ease-out
-			transition width .1s ease-out
+
+	#bigplayeralbum
+		clear both
+		font-size 14px
+		//margin-top 15px
+		//margin-bottom -20px
+		padding 0 5px
+		text-align center
+
+#bigplayercomment
+	clear both
+	font-size 12px
+	color rgba(255,255,255,0.6)
+	margin-top 5px
+	margin-bottom 10px
+	padding-top 5px
+	padding-left 5px
+	padding-right 5px
+	padding-bottom 10px
+	max-height 100px
+	overflow auto
+	overflow-wrap break-word
+	word-wrap break-word
+	word-break break-word
+	-ms-hyphens auto
+	-moz-hyphens auto
+	-webkit-hyphens auto
+	hyphens auto
+
+	a
+		color rgba(255,255,255,0.7)
+		text-decoration underline
 
 
 
 #playhistory
 	//width 100%
 	width 50%
+	margin-bottom 50px
 	float right
 
 	.headline
 		padding 5px
+		padding-top 0
 		padding-left 45px
 		font-weight bold
-		font-size 15px
+		font-size 13px
 		color rgba(255, 255, 255, 0.4)
 
 	.row
