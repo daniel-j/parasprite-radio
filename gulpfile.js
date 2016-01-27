@@ -2,6 +2,7 @@
 
 var config = require('./scripts/config')
 var simpleconfig = require('./scripts/simpleconfig')
+var fs = require('fs')
 
 // gulp and utilities
 var gulp = require('gulp')
@@ -18,6 +19,7 @@ var browserSync = require('browser-sync').create()
 var sequence = require('run-sequence').use(gulp)
 var watch = require('gulp-watch')
 var lazypipe = require('lazypipe')
+var realFavicon = require ('gulp-real-favicon')
 
 // script
 var eslint = require('gulp-eslint')
@@ -85,6 +87,9 @@ var watchOpts = {
 	verbose: true
 }
 
+// File where the favicon markups are stored
+var faviconDataFile = 'build/icons/favicon-data.json'
+
 if (inProduction) {
 	webpackConfig.plugins.push(new webpack.optimize.DedupePlugin())
 	webpackConfig.plugins.push(new webpack.optimize.OccurenceOrderPlugin(false))
@@ -147,6 +152,7 @@ function documentTask() {
 		.pipe(gdata(function () { return jadeData }))
 		.pipe(jade(jadeOpts))
 		.pipe(gulpif(inProduction, htmlmin(htmlminOpts)))
+		.pipe(realFavicon.injectFaviconMarkups(JSON.parse(fs.readFileSync(faviconDataFile)).favicon.html_code))
 		.pipe(gulp.dest('build/document/'))
 		.pipe(browserSync.stream())
 }
@@ -163,6 +169,9 @@ var lintCSPipe = lazypipe()
 gulp.task('clean', function () {
 	return del('build')
 })
+gulp.task('clean:quick', ['clean:script', 'clean:style', 'clean:document'], function (done) {
+	done()
+})
 gulp.task('clean:script', function () {
 	return del('build/script')
 })
@@ -171,6 +180,9 @@ gulp.task('clean:style', function () {
 })
 gulp.task('clean:document', function () {
 	return del('build/document')
+})
+gulp.task('clean:icons', function () {
+	return del('build/icons')
 })
 
 // Main tasks
@@ -190,6 +202,74 @@ gulp.task('watch:style', function () {
 gulp.task('document', documentTask)
 gulp.task('watch:document', function () {
 	return watch(['src/document/**/*.jade', 'config.toml'], watchOpts, documentTask)
+})
+
+// Generate the icons. This task takes a few seconds to complete.
+// You should run it at least once to create the icons. Then,
+// you should run it whenever RealFaviconGenerator updates its
+// package (see the update-favicon task below).
+gulp.task('generate-favicon', ['clean:icons'], function (done) {
+	realFavicon.generateFavicon({
+		masterPicture: 'static/img/icons/parasprite-radio-logo.png',
+		dest: 'build/icons/',
+		iconsPath: '/',
+		design: {
+			ios: {
+				masterPicture: 'static/img/icons/parasprite-radio-logo-hex.png',
+				pictureAspect: 'backgroundAndMargin',
+				backgroundColor: '#2d2d2d',
+				margin: '0%',
+				appName: 'Parasprite Radio'
+			},
+			desktopBrowser: {},
+			windows: {
+				pictureAspect: 'noChange',
+				backgroundColor: '#da532c',
+				onConflict: 'override',
+				appName: 'Parasprite Radio'
+			},
+			androidChrome: {
+				masterPicture: 'static/img/icons/parasprite-radio-logo-hex.png',
+				pictureAspect: 'noChange',
+				themeColor: '#2d2d2d',
+				manifest: {
+					name: 'Parasprite Radio',
+					display: 'standalone',
+					orientation: 'notSet',
+					onConflict: 'override',
+					declared: true
+				}
+			},
+			safariPinnedTab: {
+				pictureAspect: 'silhouette',
+				themeColor: '#ffb330'
+			}
+		},
+		settings: {
+			scalingAlgorithm: 'Lanczos',
+			errorOnImageTooSmall: false
+		},
+		versioning: true,
+		markupFile: faviconDataFile
+	}, function() {
+		done()
+	})
+})
+gulp.task('update-favicon', function (done) {
+		try {
+			var currentVersion = JSON.parse(fs.readFileSync(faviconDataFile)).version
+		} catch(e) {}
+
+		if (currentVersion) {
+			realFavicon.checkForUpdates(currentVersion, function (err) {
+				if (err) {
+					throw err
+				}
+				done()
+			})
+		} else {
+			sequence('generate-favicon', 'document', done)
+		}
 })
 
 gulp.task('lint', function () {
@@ -221,7 +301,7 @@ gulp.task('browsersync', function () {
 
 // Default task
 gulp.task('default', function (done) {
-	sequence('clean', ['script', 'style', 'document', 'lint'], done)
+	sequence('clean:quick', 'update-favicon', ['script', 'style', 'document', 'lint'], done)
 })
 
 // Watch task

@@ -610,6 +610,7 @@ module.exports = (app, passport, config, mpd, liquid, icecast, scheduler, livest
 	app.use '/api', apiRouter
 	app.use '/', defaultRouter
 	app.use '/build/', express.static __dirname + '/../build/', { maxAge: 365*24*60*60*1000 }
+	app.use '/', express.static __dirname + '/../build/icons/', { maxAge: 365*24*60*60*1000 }
 	app.use '/', express.static __dirname + '/../static', { maxAge: 365*24*60*60*1000 }
 
 	app.use '/admin', isAdmin, adminRouter
