@@ -151,8 +151,8 @@ function documentTask() {
 		.pipe(plumber())
 		.pipe(gdata(function () { return jadeData }))
 		.pipe(jade(jadeOpts))
-		.pipe(gulpif(inProduction, htmlmin(htmlminOpts)))
 		.pipe(realFavicon.injectFaviconMarkups(JSON.parse(fs.readFileSync(faviconDataFile)).favicon.html_code))
+		.pipe(gulpif(inProduction, htmlmin(htmlminOpts)))
 		.pipe(gulp.dest('build/document/'))
 		.pipe(browserSync.stream())
 }
