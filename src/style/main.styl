@@ -91,7 +91,7 @@
 			padding 5px 7px
 			display inline-block
 			cursor pointer
-			margin-right 5px
+			margin-right 0px
 			color white
 
 			&:hover
@@ -327,52 +327,82 @@
 
 #chatbox
 	position relative
-	height 410px
+	overflow hidden
+	height 330px
+#reloadchat
+	position absolute
+	left 0
+	top 0
+	padding 10px 10px
+	background-color color
+	cursor pointer
+	color black
+	font-size 13px
+	font-weight bold
 #togglechat
 	position absolute
-	right 0
-	padding 14px
-	background-color #1B1B1B
+	top 0
+	right 70px
+	padding 5px 16px 10px 20px
+	background-color color
 	cursor pointer
 	img
 		width 20px
 		height 20px
 		display block
-
+#chatwrapper
+	position absolute
+	top -73px
+	left 0
+	right 0
+	bottom -3px
 
 #chat
+	display block
 	width 100%
 	height 100%
 	border none
+	background-color #EEE
 
-.chatfullscreen #chatbox
-	position fixed
-	top 81px
-	left 0
-	right 0
-	bottom 0
-	height auto
-	#togglechat img
-		transform rotateZ(180deg)
 .chatfullscreen
 	overflow hidden
 	#top
 		position fixed
+		border-bottom none
 	#togglesnow
-		left auto
 		bottom auto
-		right 100px
-		top 90px
-		opacity 0.7
+		top 80px
+		opacity 1
+		left 0
+		padding 10px 10px
+		height auto
 	#pageSchedule, #pageLivestream, #pageMap
 		visibility hidden
+
+	#chatbox
+		position fixed
+		top 80px
+		left 0
+		right 0
+		bottom 0
+		height auto
+
+	#reloadchat
+		display none
+
+	#togglechat
+		right 50%
+		padding 10px 30px
+		margin-right -40px
+		img
+			transform rotateZ(180deg)
 
 .livestreamonline.chatfullscreen
 	#pageLivestream
 		display block !important
 		visibility visible
 		position fixed
-		top 81px
+		top 80px
 		left 0
 		width 60%
 		bottom 0
@@ -380,6 +410,26 @@
 	#chatbox
 		width 40%
 		left auto
+		border-left 1px solid black
+
+	#togglesnow
+		top auto
+		left auto
+		right 0
+		bottom 0
+		opacity 0.5
+
+
+
+@media screen and (max-height: 360px)
+	.chatfullscreen
+		#top
+			top -80px
+
+		.livestreamonline #pageLivestream, #chatbox, #togglesnow
+			top 0
+
+
 
 
 

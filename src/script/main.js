@@ -247,6 +247,9 @@ window.initMap = initMap
 document.getElementById('togglechat').addEventListener('click', function () {
 	document.body.classList.toggle('chatfullscreen')
 }, false)
+document.getElementById('reloadchat').addEventListener('click', function () {
+	document.getElementById('chat').src += ''
+}, false)
 
 
 menudiv.addEventListener('click', function (e) {

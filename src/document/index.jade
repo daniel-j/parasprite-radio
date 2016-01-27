@@ -8,11 +8,9 @@ html
 		meta(name='og:description', content='Tune in to #{config.radio.title}!')
 		meta(name='viewport', content='width=device-width, initial-scale=1')
 		meta(name='mobile-web-app-capable', content='yes')
-		meta(name='theme-color', content='#2D2D2D')
 
 		title #{config.radio.title}
 
-		link(rel='icon', type='image/x-icon', href='/favicon.ico')
 		//- link(rel='stylesheet' type='text/css', href='//releases.flowplayer.org/6.0.1/skin/minimalist.css')
 		link(rel='stylesheet', type='text/css', href='/build/style/main.css')
 
@@ -83,6 +81,7 @@ html
 				//- a#menuPlaylist(data-page='pagePlaylist') Playlist
 				a#menuSchedule(data-page='pageSchedule', data-hash='schedule') Schedule
 				a#menuLivestream(data-page='pageLivestream', data-hash='livestream') Livestream
+				a#menuAbout(data-page='pageAbout', data-hash='about') About
 				a#menuMap(data-page='pageMap', data-hash='map') Map
 
 				div(class='right')
@@ -142,6 +141,30 @@ html
 						#streamoffline
 							span Livestream is offline
 
+				#pageAbout.page-wrapper(style='display: none')
+					#badges-title Friends & tech:
+					#badges
+						a(target='_blank', href='http://www.bronydom.net/')
+							img(src='/img/badges/bronydom.png', alt='Bronydom Network')
+						a(target='_blank', href='http://canternet.org')
+							img(src='/img/badges/canternet.png', alt='Canternet IRC network')
+						a(target='_blank', href='http://ponyvillelive.com/')
+							img(src='/img/badges/ponyvillelive.png', alt='Ponyville Live!')
+
+						a(target='_blank', href='http://liquidsoap.fm/')
+							img(src='/img/badges/liquidsoap.png', alt='Liquidsoap')
+						a(target='_blank', href='https://www.citycloud.com/')
+							img(src='/img/badges/citycloud.png', alt='City Cloud')
+						a(target='_blank', href='http://icecast.org/')
+							img(src='/img/badges/icecast.png', alt='Icecast')
+
+						a(target='_blank', href='http://gulpjs.com/')
+							img(src='/img/badges/gulp.png', alt='Gulp.js')
+						a(target='_blank', href='http://nodejs.org')
+							img(src='/img/badges/nodejs.png', alt='Node.js')
+						a(target='_blank', href='https://webpack.github.io/')
+							img(src='/img/badges/webpack.png', alt='Webpack')
+
 				#pageMap(style='display: none')
 					#googlemap
 
@@ -175,34 +198,13 @@ html
 						button#editAccount(type='submit') Save
 
 				#chatbox
+					#chatwrapper
+						iframe#chat(src='//kiwiirc.com/client?settings=b1a34e3682f988d06a435e884c8d3fef')
+					#reloadchat Reload
 					#togglechat
 						img(src='/img/icons/popout.svg', alt='Fullscreen')
-					iframe#chat(src='https://kiwiirc.com/client?settings=b1a34e3682f988d06a435e884c8d3fef')
 
 				.page-wrapper
-					//- TODO: Remove inline CSS
-					#badges-title Friends & tech:
-					#badges
-						a(target='_blank', href='http://www.bronydom.net/')
-							img(src='/img/badges/bronydom.png', alt='Bronydom Network')
-						a(target='_blank', href='http://canternet.org')
-							img(src='/img/badges/canternet.png', alt='Canternet IRC network')
-						a(target='_blank', href='http://ponyvillelive.com/')
-							img(src='/img/badges/ponyvillelive.png', alt='Ponyville Live!')
-
-						a(target='_blank', href='http://liquidsoap.fm/')
-							img(src='/img/badges/liquidsoap.png', alt='Liquidsoap')
-						a(target='_blank', href='https://www.citycloud.com/')
-							img(src='/img/badges/citycloud.png', alt='City Cloud')
-						a(target='_blank', href='http://icecast.org/')
-							img(src='/img/badges/icecast.png', alt='Icecast')
-
-						a(target='_blank', href='http://gulpjs.com/')
-							img(src='/img/badges/gulp.png', alt='Gulp.js')
-						a(target='_blank', href='http://nodejs.org')
-							img(src='/img/badges/nodejs.png', alt='Node.js')
-						a(target='_blank', href='https://webpack.github.io/')
-							img(src='/img/badges/webpack.png', alt='Webpack')
 
 					a(target='_blank', href='http://tun.in/sffEA') TuneIn
 					= ' - '
