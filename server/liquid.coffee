@@ -9,6 +9,8 @@ timeout = 5000
 
 module.exports = (config) ->
 
+	badComment = /^([0-9A-F]{8} ){9}[0-9A-F]{8}$/
+
 
 	liqCommand = (command, cb) ->
 		command = command+"\r\n"
@@ -147,7 +149,7 @@ module.exports = (config) ->
 			metadata.on_air = new Date(m.on_air).getTime()
 			metadata.duration = +m.duration
 			metadata.source = m.source or 'default'
-			metadata.comment = (m.comment != '0' and m.comment) or null
+			metadata.comment = (m.comment != '0' and !badComment.test(m.comment) and m.comment) or null
 			metadata.live =
 				active: false
 				stream_name: m.live_name or null
