@@ -8,6 +8,9 @@ import ismobile from '../utils/ismobile'
 
 let AudioContext = window.AudioContext || window.webkitAudioContext
 
+function log10(num) {
+	return Math.log(num) / Math.LN10
+}
 
 function radioPlayer(opts = {}) {
 
@@ -41,7 +44,6 @@ function radioPlayer(opts = {}) {
 
 	let audioTag = null
 	let source = null
-	let segmentcount = 16
 
 	if (useVisualizer) {
 		if (!AudioContext) {
@@ -92,9 +94,9 @@ function radioPlayer(opts = {}) {
 		gainNode.connect(acx.destination)
 
 		analyzer = acx.createAnalyser()
-		analyzer.fftSize = 32
+		analyzer.fftSize = 2048
 		analyzer.connect(gainNode)
-		analyzer.smoothingTimeConstant = 0.4
+		analyzer.smoothingTimeConstant = 0.5
 
 		liveFreqData = new Float32Array(analyzer.frequencyBinCount)
 	}
@@ -219,7 +221,7 @@ function radioPlayer(opts = {}) {
 
 	function update() {
 
-		canvas.width = visualizerDiv.offsetWidth - 60
+		canvas.width = visualizerDiv.offsetWidth - 50
 		canvas.height = visualizerDiv.offsetHeight
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -229,35 +231,26 @@ function radioPlayer(opts = {}) {
 			//requestAnimFrame(update)
 			return
 		}
+		window.requestAnimFrame(update.bind(this), canvas)
 
 		analyzer.getFloatFrequencyData(liveFreqData)
 
-		let i
+		let widthScale = canvas.width/2.5
 
-		let segments = []
-		for (i = 0; i < segmentcount; i++) {
-			segments[i] = 0
-		}
 
-		let samplesPerSegment = liveFreqData.length/segments.length
-
-		for (i = 0; i < liveFreqData.length; i++) {
+		for (let i = 0; i < liveFreqData.length; i++) {
 			//let freq = i*acx.sampleRate/analyzer.fftSize
+			let x = log10((i+2)/2)*widthScale|0
+			let dw = Math.ceil(log10((i+3)/2)*widthScale-log10((i+2)/2)*widthScale)
 
-			let magnitude = Math.min(Math.max((liveFreqData[i]-analyzer.minDecibels)/90, 0), 1)
+			let magnitude = Math.min(Math.max((liveFreqData[i]-analyzer.minDecibels)/95, 0), 1)
 
-			segments[i / samplesPerSegment|0] += magnitude
+			//ctx.fillStyle = 'hsl('+Math.min(Math.floor((i/(liveFreqData.length*0.7))*360), 359)+', 100%, '+Math.floor(magnitude*100-10)+'%)'
+			ctx.fillStyle = 'hsl('+(Math.floor((x/canvas.width)*20)+25)+', 100%, '+Math.max(magnitude*90+10, 20)+'%)'
+			ctx.fillRect(x, canvas.height, dw, -magnitude*(canvas.height)|0)
+			// PR hue: 38
+
 		}
-
-		for (i = 0; i < segments.length; i++) {
-			segments[i] = (segments[i] / samplesPerSegment)
-			//let style = visualizerDiv.childNodes[i].style;
-			//style.height = segments[i]+"%";
-			ctx.fillStyle = 'hsl(38, 100%, '+(segments[i]*50+59/2)+'%)'
-			ctx.fillRect((canvas.width/segments.length)*i|0, canvas.height, Math.ceil(canvas.width/segments.length), -segments[i]*canvas.height|0)
-		}
-
-		window.requestAnimFrame(update.bind(this), canvas)
 	}
 
 

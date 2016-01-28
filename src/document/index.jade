@@ -24,6 +24,14 @@ html
 
 		#top
 			.container
+				a(href='')
+					img#logo(src='/img/icons/parasprite-radio-logo-hex-256.png', alt='Logo', title='#{config.radio.title}')
+				.left
+					h1
+						a(href='/') #{config.radio.title}
+					#subtitle by
+						= ' '
+						a(href='https://twitter.com/daniel_hede', target='_blank') djazz
 
 				#player
 					.leftside
@@ -63,15 +71,6 @@ html
 						.legend
 							span#listenercount
 							img.listenersicon(src='/img/icons/listeners.png', alt='listeners')
-
-				a(href='')
-					img#logo(src='/img/icons/parasprite-radio-logo-hex-256.png', alt='Logo', title='#{config.radio.title}')
-				.left
-					h1
-						a(href='/') #{config.radio.title}
-					#subtitle by
-						= ' '
-						a(href='https://twitter.com/daniel_hede', target='_blank') djazz
 
 
 		#navigation.container
