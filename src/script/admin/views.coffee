@@ -21,19 +21,20 @@ class View.Track extends Marionette.ItemView
 		'click': 'doubleClicked'
 
 	templateHelpers: ->
+		extraclasses = []
 		if !@model.get('directory')
 			timefix = if typeof @model.get('time') == 'number' then formattime @model.get('time') else ''
 			titlefix = @model.get('title') or basename @model.get('file')
 			path = @model.get('file').split '/'
 			name = path.pop()
 			dir = path.join '/'
-			extraclasses = (if !@model.get('title') then ' shade')
+			if !@model.get('title')
+				extraclasses.push 'shade'
 		else
 			timefix = ''
 			titlefix = @model.get('directory').split('/').pop()
 			name = ''
 			dir = ''
-			extraclasses = ''
 
 		lm = @model.get('last-modified')
 
@@ -42,7 +43,7 @@ class View.Track extends Marionette.ItemView
 		name: name or @model.get('url') or ''
 		dir: dir
 		'last-modified': if lm then moment(lm).format('MMM D YYYY hh:mm:ss') else ''
-		extraclasses: extraclasses
+		extraclasses: extraclasses.join ' '
 
 	doubleClicked: (e) ->
 		e.preventDefault()
@@ -76,6 +77,12 @@ class View.Track extends Marionette.ItemView
 				App.commands.execute 'search', @model.get('albumartist'), 'albumartist', true
 		else if type == 'genre'
 			App.commands.execute 'search', @model.get('genre'), 'genre', true
+
+	initialize: () ->
+		if @model.get('inPlaylist')
+			@el.classList.add 'inplaylist'
+		if @model.get('source')
+			@el.classList.add 'source-'+@model.get('source')
 
 class View.Tracks extends Marionette.CompositeView
 	tagName: 'table'

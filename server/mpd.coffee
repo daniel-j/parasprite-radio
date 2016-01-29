@@ -76,11 +76,13 @@ fixGenre = (track) ->
 		track.genrefix = genremap +m[1]
 	else
 		track.genrefix = track.genre
+	track
 
 module.exports = (config) ->
 
 	mpdReady = false
 	client = null
+	mainPlaylist = []
 
 	mpdOnReady = ->
 		console.log 'MPD: Ready!'
@@ -92,8 +94,14 @@ module.exports = (config) ->
 					console.warn "MPD: Password INCORRECT"
 					return
 				console.log "MPD: Password OK"
+				mpdInit()
+		else
+			mpdInit()
 
-	mpdOnUpdate = (type) ->
+	mpdInit = () ->
+		updateMainPlaylist()
+
+	mpdOnUpdate = () ->
 		client.sendCommand mpd.cmd('status', []), (err, data) ->
 			if err
 				console.error err
@@ -109,6 +117,9 @@ module.exports = (config) ->
 						dbUpdateCallbacks[i](null)
 						i++
 					dbUpdateCallbacks.length = 0
+	mpdOnStoredPlaylist = () ->
+		updateMainPlaylist()
+
 	mpdOnError = (err) ->
 		console.error "MPD: Socket error: "+err
 
@@ -125,6 +136,7 @@ module.exports = (config) ->
 		console.log "MPD: Connecting.."
 		client.on 'ready', mpdOnReady
 		client.on 'system-update', mpdOnUpdate
+		client.on 'system-stored_playlist', mpdOnStoredPlaylist
 		client.on 'error', mpdOnError
 		client.on 'end', mpdOnEnd
 
@@ -176,6 +188,27 @@ module.exports = (config) ->
 
 	mpdConnect()
 
+	updateMainPlaylist = () ->
+		mpdCommand 'listplaylist', [config.mpd.mainPlaylist], (err, data) ->
+			if err
+				console.error err
+			else
+				list = parseArrayMessage data
+				mainPlaylist.length = 0
+				for i of list
+					mainPlaylist.push list[i].file
+
+				console.log "MPD: Updated main playlist with "+mainPlaylist.length+" tracks"
+	setInterval () ->
+		if mpdReady
+			updateMainPlaylist()
+	, 10*60*1000
+
+	trackInList = (track) ->
+		if !track then return null
+		if mainPlaylist.indexOf(track.file) != -1
+			track.inPlaylist = true
+		track
 
 
 	API =
@@ -197,9 +230,10 @@ module.exports = (config) ->
 				else
 					tracks = parseArrayMessage data
 					i = 0
-					while i < Math.min(tracks.length, 50)
-						fixGenre tracks[i]
+					while i < Math.min(tracks.length, 100)
 						if tracks[i].hasOwnProperty 'file'
+							fixGenre tracks[i]
+							trackInList tracks[i]
 							i++
 						else
 							tracks.splice i, 1
@@ -257,7 +291,7 @@ module.exports = (config) ->
 				if err
 					cb err, null
 				else
-					cb null, fixGenre parseKeyValueMessage data
+					cb null, trackInList fixGenre parseKeyValueMessage data
 
 		lsinfo: (uri = '', cb) ->
 			mpdCommand 'lsinfo', [uri], (err, data) ->
@@ -267,6 +301,7 @@ module.exports = (config) ->
 					list = parseArrayMessage data
 					list.forEach (track) ->
 						fixGenre track
+						trackInList track
 					cb null, list
 
 		getPlaylists: (cb) ->

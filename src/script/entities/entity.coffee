@@ -58,6 +58,8 @@ class Entity.Track extends Backbone.Model
 		'last-modified': null
 		date: null
 		genre: ''
+		inPlaylist: false
+		source: null
 
 		selected: false
 
