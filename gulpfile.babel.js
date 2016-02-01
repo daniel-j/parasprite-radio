@@ -41,7 +41,7 @@ var sources = {
 	style: ['main.styl', 'admin.styl', 'popout.styl', 'livestream.styl'],
 	document: ['index.jade', 'admin.jade', 'popout.jade', 'livestream.jade']
 }
-var lintES = ['src/script/**/*.js', 'server/**/*.js', 'scripts/**/*.js', 'liq/scripts/**/*.js', 'gulpfile.js', 'webpack.config.js']
+var lintES = ['src/script/**/*.js', 'server/**/*.js', 'scripts/**/*.js', 'liq/scripts/**/*.js', 'gulpfile.babel.js', 'webpack.config.js']
 var lintCS = ['src/script/**/*.coffee', 'server/**/*.coffee']
 
 
