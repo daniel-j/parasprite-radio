@@ -1,10 +1,10 @@
 'use strict'
-var webpack = require('webpack')
-var coffeelintStylish = require('coffeelint-stylish')
+import webpack from 'webpack'
+import coffeelintStylish from 'coffeelint-stylish'
 
-var inProduction = process.env.NODE_ENV === 'production' || process.argv.indexOf('-p') !== -1
+let inProduction = process.env.NODE_ENV === 'production' || process.argv.indexOf('-p') !== -1
 
-module.exports = {
+export default {
 	entry: {
 		main:		['./src/script/main'],
 		admin:		['./src/script/admin'],
@@ -34,18 +34,17 @@ module.exports = {
 	},
 
 	coffeelint: {
-		reporter: function (results) {
+		reporter: (results) => {
 			//results = [].concat(results.warn, results.error)
-			var self = this
-			var errors = [].concat(results.error)
-			var warnings = [].concat(results.warn)
-			var clog = console.log
+			let errors = [].concat(results.error)
+			let warnings = [].concat(results.warn)
+			let clog = console.log
 			if (errors.length > 0) {
-				console.log = function (str) {self.emitError(str.replace(/^\n+|\n+$/g, ''))}
+				console.log = (str) => {this.emitError(str.replace(/^\n+|\n+$/g, ''))}
 				coffeelintStylish.reporter('', errors)
 			}
 			if (warnings.length > 0) {
-				console.log = function (str) {self.emitWarning(str.replace(/^\n+|\n+$/g, ''))}
+				console.log = (str) => {this.emitWarning(str.replace(/^\n+|\n+$/g, ''))}
 				coffeelintStylish.reporter('', warnings)
 			}
 			console.log = clog
@@ -68,8 +67,7 @@ module.exports = {
 			$: 'jquery',
 			Backbone: 'backbone',
 			_: 'underscore',
-			Marionette: 'backbone.marionette',
-			m: 'mithril'
+			Marionette: 'backbone.marionette'
 		})
 	],
 

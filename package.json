@@ -14,6 +14,7 @@
     "coffeelint": "^1.14.2",
     "coffeelint-loader": "^0.1.1",
     "coffeelint-stylish": "^0.1.2",
+    "dateformat-light": "^1.0.14",
     "del": "^2.2.0",
     "eslint": "^1.10.3",
     "eslint-loader": "^1.2.1",
@@ -33,19 +34,20 @@
     "gulp-uglify": "^1.5.1",
     "gulp-util": "^3.0.7",
     "gulp-watch": "^4.3.5",
+    "hogan.js": "^3.0.2",
     "jquery": "^2.2.0",
     "lazypipe": "^1.0.1",
     "loader-utils": "^0.2.12",
     "lodash": "^3.10.1",
     "merge-stream": "^1.0.0",
     "mithril": "^0.2.2-rc.1",
-    "moment": "~2.11.1",
     "mustache-loader": "^0.3.1",
     "nib": "^1.1.0",
     "run-sequence": "^1.1.5",
     "webpack": "^1.12.12"
   },
   "dependencies": {
+    "babel-preset-node5": "^10.5.0",
     "body-parser": "^1.14.2",
     "coffee-script": "^1.10.0",
     "commander": "^2.9.0",
@@ -64,7 +66,7 @@
     "mpd": "^1.3.0",
     "musicmetadata": "^2.0.2",
     "mysql": "^2.10.2",
-    "node-schedule": "^0.6.0",
+    "node-schedule": "^1.0.0",
     "passport": "^0.3.2",
     "passport-oauth2": "^1.1.2",
     "passport-twitter": "^1.0.4",
@@ -75,5 +77,8 @@
   },
   "optionalDependencies": {
     "mumble": "^0.3.8"
+  },
+  "eslintConfig": {
+    "parser": "babel-eslint"
   }
 }
