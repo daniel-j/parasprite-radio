@@ -1,12 +1,15 @@
 'use strict'
 
+// hidden import: mithril
 import './incl/radioinfo'
 import radioPlayer from './incl/radioplayer'
 import livestream from './livestream'
 import { formattime, timeago } from './utils/time'
 import api from './entities/api'
 import './incl/snow'
-import moment from 'moment'
+import dateFormat from 'dateformat-light'
+
+import m from 'mithril'
 
 const radio = radioPlayer({
 	baseurl: config.general_streamurl,
@@ -86,9 +89,9 @@ playHistory.view = function (ctrl) {
 				m('div.content', [m('div.title', track.title), m('div.artist', track.artist + (track.album?' ('+track.album+')':''))]),
 				!track.timestamp ?
 					m('div.right', 'Now playing') :
-					m('div.right', {title: moment(new Date(track.timestamp*1000)).format('LLL')}, [
+					m('div.right', {title: dateFormat(new Date(track.timestamp*1000))}, [
 						m('div.timeago', timeago(Date.now()/1000 - track.timestamp, true)),
-						m('div.timestamp', moment(new Date(track.timestamp*1000)).format('D MMM HH:mm'))
+						m('div.timestamp', dateFormat(new Date(track.timestamp*1000), 'd mmm HH:MM'))
 					])
 			])
 		}))

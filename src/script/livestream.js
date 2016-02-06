@@ -1,6 +1,6 @@
 'use strict'
 
-import api from './entities/api'
+import events from './entities/events'
 
 //let viewercount = document.getElementById('viewercount')
 let liveplayer = document.getElementById('liveplayer')
@@ -31,7 +31,7 @@ function startPlayer() {
 	})
 }
 
-api.events.on('livestreamstatus', function (data) {
+events.on('livestreamstatus', function (data) {
 
 	if (data.online) {
 		viewercount.textContent = data.viewers
@@ -48,4 +48,4 @@ api.events.on('livestreamstatus', function (data) {
 
 startPlayer()
 
-module.exports = player
+export default player

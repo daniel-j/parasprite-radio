@@ -1,9 +1,9 @@
 'use strict'
 
 import * as notify from '../utils/notify'
-import api from '../entities/api'
+import events from '../entities/events'
 
-import moment from 'moment'
+import dateFormat from 'dateformat-light'
 import linker from '../utils/linker'
 
 let nowtitle = document.getElementById('nowtitle')
@@ -110,8 +110,8 @@ function updateProgress() {
 		let duration = m.duration*1000
 		let time = Math.min(duration, Math.max(0, Date.now()-m.on_air-window.serverTimeDiff-2000))
 		bigplayerprogress.style.width = (time/duration)*100+'%'
-		bigplayertime.textContent = moment(time).format('m:ss')
-		bigplayerduration.textContent = moment(duration).format('m:ss')
+		bigplayertime.textContent = dateFormat(new Date(time), 'M:ss')
+		bigplayerduration.textContent = dateFormat(new Date(duration), 'M:ss')
 	}
 }
 
@@ -119,13 +119,13 @@ if (bigplayerprogress) {
 	setInterval(updateProgress, 100)
 }
 
-api.events.on('metadata', updateMetadata)
+events.on('metadata', updateMetadata)
 
-api.events.on('icecaststatus', function (info) {
+events.on('icecaststatus', function (info) {
 	isOnline = info.online
 	updateMetadata(lastMeta)
 })
 
-api.events.on('listenercount', function (count) {
+events.on('listenercount', function (count) {
 	listenercount.textContent = count
 })

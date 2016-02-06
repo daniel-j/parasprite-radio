@@ -1,6 +1,6 @@
 formattime = require('utils/time').formattime
 basename = require('utils/basename').default
-moment = require 'moment'
+dateFormat = require 'dateformat-light'
 
 class View
 
@@ -42,7 +42,7 @@ class View.Track extends Marionette.ItemView
 		title: titlefix
 		name: name or @model.get('url') or ''
 		dir: dir
-		'last-modified': if lm then moment(lm).format('MMM D YYYY hh:mm:ss') else ''
+		'last-modified': if lm then dateFormat(lm, 'mmm D yyyy HH:MM:ss') else ''
 		extraclasses: extraclasses.join ' '
 
 	doubleClicked: (e) ->
