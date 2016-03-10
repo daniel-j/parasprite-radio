@@ -38,19 +38,36 @@ function updateMetadata(m) {
 		let artist = m.artist || ''
 		let album = m.album || ''
 		let albumartist = m.albumartist || ''
-		let url = m.url || ''
+		let url = m.live.url || m.url || ''
+
+		if (m.live.active && title) {
+
+			let splitUp = title.split(" - ");
+			if (splitUp.length===2) {
+				title = splitUp[1]
+				artist = artist || splitUp[0]
+			}
+		}
+
+		if (!url && m.live.twitter_handle) {
+			url = 'https://twitter.com/'+m.live.twitter_handle
+		}
 		if (url) {
 			let a = document.createElement('a')
 			a.href = url
 			a.target = '_blank'
-			a.textContent = title
+			a.textContent = (m.live.stream_name? m.live.stream_name : title)
 			nowtitle.textContent = ''
 			nowtitle.appendChild(a)
 		} else {
-			nowtitle.textContent = title
+			nowtitle.textContent = m.live.stream_name || title
 		}
 		nowtitle.title = nowtitle.textContent
-		nowartist.textContent = artist+(album?' ('+(albumartist&&artist!==albumartist&&album!==albumartist?albumartist+' - ':'')+album+')':'')
+		if (m.live.active) {
+			nowartist.textContent = m.live.description
+		} else {
+			nowartist.textContent = artist+(album?' ('+(albumartist&&artist!==albumartist&&album!==albumartist?albumartist+' - ':'')+album+')':'')
+		}
 		nowartist.title = nowartist.textContent
 		//nowplaying.href = "http://www.lastfm.se/search?q="+encodeURIComponent(title.replace(" - ", " "))
 		lastnowplaying = title+' - '+artist

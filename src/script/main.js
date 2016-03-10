@@ -1,6 +1,6 @@
 'use strict'
 
-// hidden import: mithril
+import m from 'mithril'
 import './incl/radioinfo'
 import radioPlayer from './incl/radioplayer'
 import livestream from './livestream'
@@ -8,8 +8,6 @@ import { formattime, timeago } from './utils/time'
 import api from './entities/api'
 import './incl/snow'
 import dateFormat from 'dateformat-light'
-
-import m from 'mithril'
 
 const radio = radioPlayer({
 	baseurl: config.general_streamurl,

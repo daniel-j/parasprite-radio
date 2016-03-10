@@ -136,7 +136,7 @@ module.exports = (config) ->
 				cb && cb err
 
 		setMeta: (m) ->
-			metadata.title  = m.title or path.basename(m.filename, path.extname(m.filename))
+			metadata.title  = m.title or (m.filename and path.basename(m.filename, path.extname(m.filename))) or null
 			metadata.artist = m.artist or null
 			metadata.album  = m.album or null
 			metadata.albumartist = m.albumartist or null
@@ -152,13 +152,13 @@ module.exports = (config) ->
 			metadata.comment = (m.comment != '0' and !badComment.test(m.comment) and m.comment) or null
 			metadata.live =
 				active: false
-				stream_name: m.live_name or null
-				user: m.live_displayname or null
-				#username: m.live_username or null
+				stream_name: m.live_ice_name or m.live_name or null
+				host: m.live_displayname or m.live_username or null
 				url: m.live_url or null
 				twitter_handle: m.live_twitter or null
+				description: m.live_ice_description or m.live_description or null
 
-			if m.live_connected == 'yes'
+			if m.live_userId
 				metadata.live.active = true
 				metadata.source = 'live'
 
