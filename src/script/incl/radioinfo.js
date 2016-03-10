@@ -42,7 +42,7 @@ function updateMetadata(m) {
 
 		if (m.live.active && title) {
 
-			let splitUp = title.split(" - ");
+			let splitUp = title.split('' - '')
 			if (splitUp.length===2) {
 				title = splitUp[1]
 				artist = artist || splitUp[0]
