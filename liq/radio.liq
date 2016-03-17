@@ -50,6 +50,8 @@ live_meta = ref []
 live_token = ref ""
 live_stop_record = ref (fun () -> ())
 live_src = ref blank()
+live_busy = ref false
+skip_source = ref blank()
 
 archiveEncoder = %mp3.vbr(quality=0, stereo_mode="joint_stereo", internal_quality=0, id3v2=true)
 
@@ -113,7 +115,7 @@ def auth_live(user,password)
 	print("LIVE: A user is connecting...")
 	current_token = !live_token
 
-	if current_token == "" or current_token == password then
+	if current_token == "" or current_token == password or !live_busy == false then
 
 		data = snd(http.post(
 			data    = json_of(compact=true, [("username", user), ("password", password)]),
@@ -142,7 +144,7 @@ end
 
 
 def user_connected(headers)
-	print("live headers")
+	print("LIVE: Headers")
 	print(headers)
 	m = list.set_list([
 		("live_ice_name", headers["ice-name"]),
@@ -176,15 +178,26 @@ def live_start_recording(mm)
 	ls = !live_src
 	token = !live_token
 
-	if token != "" then
+	if token != "" and !live_busy == false then
+
+		# skip currently playing song
+		source.skip(!skip_source)
 
 		filename = "../archive/"^mm["live_username"]^"-"^mm["live_name"]^"/%Y-%m-%d/%Y-%m-%d-%H_%M_%S "^mm["live_name"]^".mp3"
 
 		# Record the live stream
 		outfile = output.file(
 			archiveEncoder,
-			on_start={print("LIVE: Starting recording...")}, # would be nice to get the actual filename here aswell..
-			on_close=fun(f) -> print("LIVE: Recording finished! #{f}"),
+			on_start=fun() -> begin
+				live_busy := true
+				# would be nice to get the actual filename here aswell..
+				print("LIVE: Starting recording...")
+			end,
+			on_close=fun(f) -> begin
+				live_busy := false
+				live_token := ""
+				print("LIVE: Recording finished! #{f}")
+			end,
 			fallible=true,
 			filename,
 			ls
@@ -196,11 +209,8 @@ end
 
 def live_end_recording(t, m)
 	print("LIVE: Stream ended!")
-	print(m)
 	f = !live_stop_record
 	f()
-
-	live_token := "" # release lock
 end
 
 
@@ -208,6 +218,7 @@ end
 default = audio_to_stereo(mksafe(playlist(id="default", reload_mode="watch", reload=600, timeout=600., prefix=confstr("general.media_dir")^"/", "/home/djazz/.mpd/playlists/radio.m3u")))
 extra = audio_to_stereo(playlist(id="extra", reload_mode="watch", reload=600, timeout=600., prefix=confstr("general.media_dir")^"/", "/home/djazz/.mpd/playlists/extra.m3u"))
 friendship = audio_to_stereo(amplify(1.1, playlist(id="friendship", reload_mode="watch", reload=600, "friendship.m3u")))
+ads = audio_to_stereo(playlist(id="ads", reload_mode="watch", reload=600, prefix=confstr("general.media_dir")^"/", "/home/djazz/.mpd/playlists/ads.m3u"))
 
 # queues: requests; announce: plays over music
 queue1 = audio_to_stereo(request.equeue(id="queue1", conservative=true, length=60., timeout=1000.))
@@ -238,6 +249,7 @@ else source end
 source = rotate(weights=[1,7], [friendship,source])
 
 add_skip_command(command="skip", source)
+skip_source := source
 
 # cleanup temp files
 source = on_end(delay=0., track_end_cleanup, source)
@@ -254,11 +266,18 @@ def to_live(old,new)
 	sequence(merge=true, [old,new])
 end
 
-def to_songs(old,new)
-	old = fade.final(duration=3., old)
-	new = fade.initial(duration=3., new)
-	#source.skip(new)
-	sequence([old,new])
+def to_songs(a,b)
+	#old = fade.final(duration=3., old)
+	#new = fade.initial(duration=5., new)
+	#sequence([old,new])
+	#source.skip(b)
+	add(normalize=false, [
+		sequence([
+			amplify(0.0, fade.final(duration=3.0, b)),
+			fade.initial(duration=3.0, b)
+		]),
+		fade.final(duration=8.0, a)
+	])
 end
 
 
@@ -266,7 +285,8 @@ end
 live = audio_to_stereo(input.harbor(
 	"/", # supporting shoutcast and icecast (empty mount) sources
 	id = "live",
-	buffer = 5.,
+	buffer = 10.,
+	max = 15.,
 	port = port_input,
 	auth = auth_live,
 	icy = true, # enables Shoutcast support (untested, uses port_input+1)
@@ -278,20 +298,29 @@ live = audio_to_stereo(input.harbor(
 
 live = map_metadata(fun(m) -> !live_meta, live)
 
-#live = map_metadata(fun(m) -> begin
-	#l = ref []
+live = map_metadata(fun(m) -> begin
+	l = ref []
 
-	#if m["title"] != "" then
-	#	l := list.add(("title", m["live_name"]^" - "^m["title"]), !l)
-	#else
-	#	l := list.add(("title", m["live_name"]), !l)
-	#end
+	if m["song"] != "" then
+		info = string.extract(pattern="(.*?) - (.*)$", m["song"])
+		artist = info["1"]
+		title = info["2"]
+		l := list.append([
+			("title", title),
+			("artist", artist)
+		], !l)
+	else
+		if m["live_name"] != "" then
+			l := list.add(("title", m['live_name']), !l)
+		end
+	end
 
 	#list.append([
 	#	("artist", m["live_displayname"]),
 	#	("album", m["live_description"])
 	#], !l)
-#end, live)
+	!l
+end, live)
 
 live_src := live
 

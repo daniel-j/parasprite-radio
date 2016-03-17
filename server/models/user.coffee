@@ -166,7 +166,7 @@ API =
 				cb 'invalid token'
 				return
 			API.findWithAuth show.UserId, (err, user) ->
-				if err or !user or !user.user or !user.user.canMakeShows
+				if err or !user or !user.user
 					cb 'permission denied'
 					return
 				cb null, show, user.user, user.auths

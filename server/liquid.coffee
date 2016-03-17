@@ -164,6 +164,7 @@ module.exports = (config) ->
 
 			generateArt (m.art or m.filename), (err, result) ->
 				imagedata = result
+				console.log(err)
 				sse.broadcast 'metadata', metadata, true
 
 
