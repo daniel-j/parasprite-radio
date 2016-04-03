@@ -413,11 +413,17 @@
 		position fixed
 		top 80px
 		left 0
-		width 60%
+		width 65%
 		bottom 0
 		background-color black
+	#liveplayer
+		position relative
+		padding-bottom 0
+		padding-top 0
+		height 100%
+		width 100%
 	#chatbox
-		width 40%
+		width 35%
 		left auto
 		border-left 1px solid black
 
@@ -429,7 +435,6 @@
 		opacity 0.5
 
 
-
 @media screen and (max-height: 360px)
 	.chatfullscreen
 		#top
@@ -438,8 +443,13 @@
 		.livestreamonline #pageLivestream, #chatbox, #togglesnow
 			top 0
 
-
-
+@media screen and (min-width: 1100px)
+	.livestreamonline.chatfullscreen
+		#pageLivestream
+			width auto
+			right 400px
+		#chatbox
+			width 400px
 
 
 #scheduleiframe

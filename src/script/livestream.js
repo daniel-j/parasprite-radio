@@ -6,10 +6,43 @@ import events from './entities/events'
 let liveplayer = document.getElementById('liveplayer')
 
 let player = null
+let playerType = 'bitdash'
+let isOnline = false
+let socket = io('/livestream', {path: '/socket.io', autoConnect: false})
+let enabled = false
 
-function startPlayer() {
+let bitdashConf = {
+	key: '3c1f43e7-c788-4f4a-a13c-ab3569f63bc0',
+	source: {
+		dash:   config.livestream_url_dash,
+		hls:    config.livestream_url_hls,
+		poster: config.livestream_url_thumbnail+'?t='+Date.now()
+	},
+	style: {
+		height: '100%',
+		width: '100%'
+	},
+	events: {
+		onPlay: function () {
+			console.log('PLAY')
+			socket.connect()
+		},
+		onPause: function () {
+			console.log('PAUSE')
+			socket.disconnect()
+		},
+		onSourceUnloaded: function () {
+			console.log('UNLOADED')
+			socket.disconnect()
+		}
+	}
+}
 
-	let id = 'jwplayer'
+/*
+function startJwPlayer() {
+	playerType = 'jw'
+
+	let id = 'livevideoplayer'
 	player = jwplayer(id)
 	window.jw = player
 	player.setup({
@@ -30,22 +63,85 @@ function startPlayer() {
 		document.getElementById(id).classList.remove('jw-flag-aspect-mode')
 	})
 }
+*/
+
+function startBitDashPlayer() {
+	if (player || !isOnline || !enabled) {
+		return
+	}
+	playerType = 'bitdash'
+
+	player = bitdash('livevideoplayer')
+	window.player = player
+
+	console.log('START PLAYER')
+
+	player.setup(bitdashConf).then(function () {
+		// Success
+		console.log('Successfully created bitdash player instance')
+		player.play()
+	}, function (reason) {
+		// Error!
+		console.log('Error while creating bitdash player instance', reason)
+		//startJwPlayer()
+		player = null
+		setTimeout(startBitDashPlayer, 5000)
+	})
+}
 
 events.on('livestreamstatus', function (data) {
-
+	isOnline = data.online
 	if (data.online) {
 		viewercount.textContent = data.viewers
 		liveplayer.classList.remove('offline')
 		document.body.classList.add('livestreamonline')
+		API.start()
 	} else {
 		viewercount.textContent = '-'
 		liveplayer.classList.add('offline')
-		player.stop()
+		API.stop()
 		document.body.classList.remove('livestreamonline')
 	}
 })
 
+setInterval(function () {
+	if (playerType !== 'bitdash' || !player || !player.setPosterImage || !isOnline) return
+	player.setPosterImage(config.livestream_url_thumbnail+'?t='+Date.now())
+}, 10*1000)
 
-startPlayer()
 
-export default player
+const API = {
+	enable() {
+		enabled = true
+		API.start()
+	},
+	disable() {
+		enabled = false
+		API.stop()
+	},
+	start() {
+		if (playerType === 'bitdash') {
+			startBitDashPlayer()
+		}
+	},
+	stop() {
+		if (!player) {
+			return
+		}
+		if (playerType === 'bitdash') {
+			if (player.pause) player.pause()
+			//if (player.unload) player.unload()
+			if (player.destroy) player.destroy()
+		} else {
+			player.stop()
+		}
+		player = null
+		socket.disconnect()
+	}
+}
+
+if (window.autostartLivestream) {
+	API.enable()
+}
+
+export default API

@@ -33,18 +33,21 @@ bodyParser = require 'body-parser'
 SessionStore = require 'express-mysql-session'
 cookieParser = require 'cookie-parser'
 
+
+app = express()
+server = require('http').createServer(app)
+io = require('socket.io')(server, {path: '/socket.io'})
+inDev = app.get('env') == 'development'
+
 require(__dirname+'/passport')(passport)
 mpd = require(__dirname+'/mpd')(config)
 liquid = require(__dirname+'/liquid')(config)
 icecast = require(__dirname+'/icecast')(config)
 scheduler = require(__dirname+'/scheduler')(config)
-livestream = require(__dirname+'/livestream')(config)
+livestream = require(__dirname+'/livestream')(config, io)
 
 scheduler.on 'started', liquid.eventStarted
 scheduler.on 'ended', liquid.eventEnded
-
-app = express()
-inDev = app.get('env') == 'development'
 
 app.disable 'x-powered-by' # save some bits
 
@@ -91,7 +94,7 @@ require(__dirname+'/routes')(app, passport, config, mpd, liquid, icecast, schedu
 
 
 # launch the server!
-server = app.listen config.server.port, "0.0.0.0", ->
+server.listen config.server.port, "0.0.0.0", ->
 	console.log 'Parasprite Radio http server listening on port %d', server.address().port
 server.on 'error', (err) ->
 	console.error 'Server '+err, config.server.port

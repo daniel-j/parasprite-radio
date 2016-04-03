@@ -5,7 +5,7 @@
 	background-color black
 	overflow hidden
 
-	#streamoffline, #jwplayer
+	#streamoffline, #livevideoplayer
 		position absolute
 		left 0
 		width 100%
@@ -48,16 +48,19 @@
 			background-color bgColor
 			padding 10px 20px
 
-	#jwplayer
+	#livevideoplayer
 		top 0%
 		opacity 1
 		.jw-rightclick
+			display none
+		.bitdash-watermark, .bitdash-ctxt-menu
 			display none
 
 	#viewercount
 		position absolute
 		right 0
 		top 0
+		z-index 1000
 		font-size 14px
 		color white
 		background-color rgba(0,0,0,0.7)
@@ -80,5 +83,5 @@
 		#streamoffline
 			top 0%
 
-		#jwplayer
+		#livevideoplayer
 			opacity 0

@@ -247,6 +247,11 @@ window.initMap = initMap
 
 document.getElementById('togglechat').addEventListener('click', function () {
 	document.body.classList.toggle('chatfullscreen')
+	if (document.body.classList.contains('chatfullscreen')) {
+		livestream.enable()
+	} else if (currentPage !== 'pageLivestream') {
+		livestream.disable()
+	}
 }, false)
 document.getElementById('reloadchat').addEventListener('click', function () {
 	document.getElementById('chat').src += ''
@@ -282,9 +287,9 @@ menudiv.addEventListener('click', function (e) {
 		}
 
 		if (currentPage === 'pageLivestream') {
-
+			livestream.enable()
 		} else {
-			livestream.stop()
+			livestream.disable()
 		}
 	}
 }, false)
