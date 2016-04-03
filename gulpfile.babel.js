@@ -12,7 +12,6 @@ import gdata from 'gulp-data'
 import del from 'del'
 import gulpif from 'gulp-if'
 import plumber from 'gulp-plumber'
-import cssnano from 'gulp-cssnano'
 import mergeStream from 'merge-stream'
 import { assign } from 'lodash'
 import BrowserSync from 'browser-sync'
@@ -30,6 +29,7 @@ import webpackConfig from './webpack.config.babel.js'
 // style
 import stylus from 'gulp-stylus'
 import nib from 'nib'
+import csso from 'gulp-csso'
 
 // document
 import jade from 'gulp-jade'
@@ -61,11 +61,12 @@ let eslintOpts = {
 
 let stylusOpts = {
 	use: nib(),
-	compress: inProduction
+	compress: false
 }
-let cssnanoOpts = {
+let cssoOpts = {
+	restructure: true
+}
 
-}
 
 let jadeOpts = {
 	pretty: !inProduction
@@ -134,7 +135,7 @@ function styleTask() {
 		.pipe(plumber())
 		.pipe(gulpif(!inProduction, sourcemaps.init()))
 			.pipe(stylus(stylusOpts))
-			.pipe(gulpif(inProduction, cssnano(cssnanoOpts)))
+			.pipe(gulpif(inProduction, csso(cssoOpts)))
 		.pipe(gulpif(!inProduction, sourcemaps.write()))
 		.pipe(gulp.dest('build/style/'))
 		.pipe(browserSync.stream())
