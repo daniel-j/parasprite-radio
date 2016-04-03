@@ -105,7 +105,7 @@ events.on('livestreamstatus', function (data) {
 })
 
 setInterval(function () {
-	if (playerType !== 'bitdash' || !player || !player.setPosterImage || !isOnline) return
+	if (playerType !== 'bitdash' || !player || !player.setPosterImage || !isOnline || player.isPlaying() || !enabled) return
 	player.setPosterImage(config.livestream_url_thumbnail+'?t='+Date.now())
 }, 10*1000)
 
