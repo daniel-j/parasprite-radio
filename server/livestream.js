@@ -24,7 +24,7 @@ module.exports = function (config, io) {
 				stats = stream
 				var count = 0
 				stream.client.forEach(function (client) {
-					if (client.flashver[0] !== 'ngx-local-relay' && !client.publishing) {
+					if ((client.flashver && client.flashver[0] !== 'ngx-local-relay') && !client.publishing) {
 						count++
 					}
 				})
