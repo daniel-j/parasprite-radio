@@ -75,6 +75,7 @@ function startBitDashPlayer() {
 	window.player = player
 
 	console.log('START PLAYER')
+	bitdashConf.source.poster = config.livestream_url_thumbnail+'?t='+Date.now()
 
 	player.setup(bitdashConf).then(function () {
 		// Success
@@ -105,8 +106,9 @@ events.on('livestreamstatus', function (data) {
 })
 
 setInterval(function () {
+	bitdashConf.source.poster = config.livestream_url_thumbnail+'?t='+Date.now()
 	if (playerType !== 'bitdash' || !player || !player.setPosterImage || !isOnline || player.isPlaying() || !enabled) return
-	player.setPosterImage(config.livestream_url_thumbnail+'?t='+Date.now())
+	player.setPosterImage(bitdashConf.source.poster)
 }, 10*1000)
 
 
