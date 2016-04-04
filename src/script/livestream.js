@@ -10,6 +10,7 @@ let playerType = 'bitdash'
 let isOnline = false
 let socket = io('/livestream', {path: '/socket.io', autoConnect: false})
 let enabled = false
+let bufferTimer
 
 let bitdashConf = {
 	key: '3c1f43e7-c788-4f4a-a13c-ab3569f63bc0',
@@ -22,6 +23,21 @@ let bitdashConf = {
 		height: '100%',
 		width: '100%'
 	},
+	cast: {
+		enable: true
+	},
+
+	logs: {
+		bitmovin: false
+	},
+	tweaks: {
+		//search_real_end: true
+	},
+
+	playback: {
+		autoplay: true
+	},
+
 	events: {
 		onPlay: function () {
 			console.log('PLAY')
@@ -34,6 +50,21 @@ let bitdashConf = {
 		onSourceUnloaded: function () {
 			console.log('UNLOADED')
 			socket.disconnect()
+		},
+		onStartBuffering: function () {
+			console.log('STALLED')
+			clearTimeout(bufferTimer)
+			bufferTimer = setTimeout(function () {
+				if (!player || player.getTotalStalledTime() < 15) {
+					return
+				}
+				API.stop()
+				API.start()
+			}, 15*1000)
+		},
+		onStopBuffering: function () {
+			console.log('UNSTALLED')
+			clearTimeout(bufferTimer)
 		}
 	}
 }
@@ -80,7 +111,6 @@ function startBitDashPlayer() {
 	player.setup(bitdashConf).then(function () {
 		// Success
 		console.log('Successfully created bitdash player instance')
-		player.play()
 	}, function (reason) {
 		// Error!
 		console.log('Error while creating bitdash player instance', reason)
