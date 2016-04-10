@@ -96,10 +96,6 @@ function startJwPlayer() {
 	player = jwplayer(playerId)
 	window.jw = player
 	player.setup(jwConfig)
-	player.on('all', function (e) {
-		//console.log(playerElement.classList.contains('jw-flag-aspect-mode'))
-		playerElement.classList.remove('jw-flag-aspect-mode')
-	})
 	player.on('ready', function () {
 		player.play()
 	})
