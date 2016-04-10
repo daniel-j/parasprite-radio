@@ -89,11 +89,10 @@ function fixGenre(track) {
 	if (!track || !track.genre) {
 		return
 	}
-	m = (track.genre+'').match(/^\((\d*)\)$/)
+	let m = (track.genre+'').match(/^\((\d*)\)$/)
 	if (m) {
 		track.genrefix = genremap(+m[1])
-	}
-	else {
+	} else {
 		track.genrefix = track.genre
 	}
 	return track
