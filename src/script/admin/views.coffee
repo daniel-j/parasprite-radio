@@ -42,7 +42,7 @@ class View.Track extends Marionette.ItemView
 		title: titlefix
 		name: name or @model.get('url') or ''
 		dir: dir
-		'last-modified': if lm then dateFormat(lm, 'mmm D yyyy HH:MM:ss') else ''
+		'last-modified': if lm then dateFormat(lm, 'mmm d yyyy HH:MM:ss') else ''
 		extraclasses: extraclasses.join ' '
 
 	doubleClicked: (e) ->
