@@ -6,7 +6,9 @@ import events from './entities/events'
 let liveplayer = document.getElementById('liveplayer')
 
 let player = null
-let playerType = 'bitdash'
+let playerId = 'livevideoplayer'
+let playerElement = document.getElementById(playerId)
+let playerType = 'jw'
 let isOnline = false
 let socket = io('/livestream', {path: '/socket.io', autoConnect: false})
 let enabled = false
@@ -69,32 +71,49 @@ let bitdashConf = {
 	}
 }
 
-/*
+var jwConfig = {
+	playlist: [{
+		image: config.livestream_url_thumbnail+'?t='+Date.now(), sources: [
+			{ file: config.livestream_url_dash, label: 'DASH', type: 'application/dash+xml' },
+			{ file: config.livestream_url_hls, label: 'HLS', type: 'application/vnd.apple.mpegurl' },
+			{ file: config.livestream_url_rtmp, image: 'RTMP Flash', type: 'application/x-fcs' }
+		]
+	}],
+	height: '100%',
+	width: '100%',
+	//autostart: true,
+	primary: 'html5'
+}
+
+
 function startJwPlayer() {
+	if (player || !isOnline || !enabled) {
+		return
+	}
 	playerType = 'jw'
 
-	let id = 'livevideoplayer'
-	player = jwplayer(id)
+
+	player = jwplayer(playerId)
 	window.jw = player
-	player.setup({
-		playlist: [
-			{ file: config.livestream_url_dash, image: config.livestream_url_thumbnail+'?t='+Date.now() },
-			{ file: config.livestream_url_hls, image: config.livestream_url_thumbnail+'?t='+Date.now() },
-			{ file: config.livestream_url_rtmp, image: config.livestream_url_thumbnail+'?t='+Date.now() }
-		],
-		dash: true,
-		androidhls: true,
-		rtmp: {
-			bufferlength: 2
-		},
-		height: '100%',
-		width: '100%'
+	player.setup(jwConfig)
+	player.on('all', function (e) {
+		//console.log(playerElement.classList.contains('jw-flag-aspect-mode'))
+		playerElement.classList.remove('jw-flag-aspect-mode')
 	})
-	player.on('all', function () {
-		document.getElementById(id).classList.remove('jw-flag-aspect-mode')
+	player.on('ready', function () {
+		player.play()
+	})
+	player.on('play', function () {
+		socket.connect()
+	})
+	player.on('pause', function () {
+		socket.disconnect()
+	})
+	player.on('buffer', function () {
+
 	})
 }
-*/
+
 
 function startBitDashPlayer() {
 	if (player || !isOnline || !enabled) {
@@ -102,7 +121,7 @@ function startBitDashPlayer() {
 	}
 	playerType = 'bitdash'
 
-	player = bitdash('livevideoplayer')
+	player = bitdash(playerId)
 	window.player = player
 
 	console.log('START PLAYER')
@@ -136,9 +155,15 @@ events.on('livestreamstatus', function (data) {
 })
 
 setInterval(function () {
-	bitdashConf.source.poster = config.livestream_url_thumbnail+'?t='+Date.now()
-	if (playerType !== 'bitdash' || !player || !player.setPosterImage || !isOnline || player.isPlaying() || !enabled) return
-	player.setPosterImage(bitdashConf.source.poster)
+	bitdashConf.source.poster = jwConfig.playlist[0].image = config.livestream_url_thumbnail+'?t='+Date.now()
+	if (!player || !isOnline || !enabled) return
+	if (playerType === 'bitdash') {
+		if (!player.setPosterImage || player.isPlaying()) return
+		player.setPosterImage(bitdashConf.source.poster)
+	} else if (playerType === 'jw') {
+		if (player.getState() === 'playing') return
+		document.querySelector('.jw-preview').style.backgroundImage = 'url("'+jwConfig.playlist[0].image+'")'
+	}
 }, 10*1000)
 
 
@@ -154,6 +179,8 @@ const API = {
 	start() {
 		if (playerType === 'bitdash') {
 			startBitDashPlayer()
+		} else if (playerType === 'jw') {
+			startJwPlayer()
 		}
 	},
 	stop() {
@@ -166,6 +193,7 @@ const API = {
 			if (player.destroy) player.destroy()
 		} else {
 			player.stop()
+			player.remove()
 		}
 		player = null
 		socket.disconnect()
