@@ -1,4 +1,4 @@
-'use strict'
+
 var imageType = require('image-type')
 var imageFromFile = require('./imageFromFile')
 var fetcher = require('../../scripts/fetcher').fetcher

@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
-process.argv.splice(2, 0, __dirname + "/server/cluster.coffee");
+process.env.NODE_ENV = 'production'
 
-process.env.NODE_ENV = "production";
+require('babel-core/register')({
+	"presets": ["node5"]
+})
 
-require(__dirname + '/node_modules/coffee-script/lib/coffee-script/command').run();
+require(__dirname+'/server/cluster')

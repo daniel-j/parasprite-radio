@@ -25,7 +25,8 @@ export default {
 			{
 				test: /\.js$/, loader: 'babel', exclude: /node_modules/, query: {
 					sourceMaps: inProduction,
-					presets: ['es2015']
+					presets: ['es2015'],
+					plugins: ['transform-strict-mode']
 				}
 			},
 			{ test: /\.coffee$/, loader: 'coffee-loader', exclude: /node_modules/ },

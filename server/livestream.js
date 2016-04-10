@@ -62,7 +62,7 @@ module.exports = function (config, io) {
 	})
 
 
-	API = {
+	const API = {
 
 		getViewCount() {
 			return viewers+ioUsers
