@@ -92,14 +92,21 @@ function startJwPlayer() {
 	}
 	playerType = 'jw'
 
+	try {
+		jwConfig.mute = localStorage['jwplayer.mute']
+	} catch (e) {}
 
 	player = jwplayer(playerId)
-	window.jw = player
+	window.player = player
 	player.setup(jwConfig)
 	player.on('ready', function () {
 		player.play()
 	})
 	player.on('play', function () {
+		// we don't want viewers with flash to be counted twice
+		if (player.getProvider().indexOf('rtmp') !== -1) {
+			return
+		}
 		socket.connect()
 	})
 	player.on('pause', function () {
