@@ -101,7 +101,7 @@ export default function(app, passport, config, mpd, liquid, icecast, scheduler, 
 				}
 
 				let userTwitter = ''
-				for (a of userAuth) {
+				for (let a of userAuth) {
 					if (a.provider === 'twitter') {
 						userTwitter = a.username
 					}
