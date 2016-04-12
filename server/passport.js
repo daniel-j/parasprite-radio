@@ -27,7 +27,7 @@ export default function (passport) {
 				return
 			}
 
-			userInfo = {
+			let userInfo = {
 				provider: provider,
 				accessToken: accessToken,
 				refreshToken: refreshToken,
@@ -50,7 +50,7 @@ export default function (passport) {
 	passport.use(new TwitterStrategy(config.passport.twitter, function (accessToken, refreshToken, profile, done) {
 		let provider = 'twitter'
 
-		userInfo = {
+		let userInfo = {
 			provider: provider,
 			accessToken: accessToken,
 			refreshToken: refreshToken,
