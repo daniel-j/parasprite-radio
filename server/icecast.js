@@ -257,7 +257,7 @@ export default function (config) {
 		if (m && m.audio_info) {
 			let info = m.audio_info.split(';')
 			info.forEach((v, i) => {
-				pair = v.split('=')
+				let pair = v.split('=')
 				o[pair[0]] = pair[1]
 			})
 			o.type = m.server_type
