@@ -255,7 +255,7 @@ export default function (config) {
 	function fixAudioInfo(m) {
 		let o = {}
 		if (m && m.audio_info) {
-			info = m.audio_info.split(';')
+			let info = m.audio_info.split(';')
 			info.forEach((v, i) => {
 				pair = v.split('=')
 				o[pair[0]] = pair[1]

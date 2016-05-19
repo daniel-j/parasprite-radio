@@ -402,7 +402,7 @@ export default function(app, passport, config, mpd, liquid, icecast, scheduler, 
 		events.calendar = config.google.calendarId
 		events.now = new Date()
 
-		o = {
+		let o = {
 			general: {
 				name: config.radio.title,
 				description: config.radio.description,
