@@ -44,12 +44,10 @@ Start MPD: `./startmpd`
 
 Start Liquidsoap: in development `./startliq dev` or production `./startliq`
 
-You can start the web server with `./radio`
-
-To build the app for production: `./build-release`
-
-To run the web server in development: `./radio -d`
+Start web server: in development `./radio -p` or production `./radio`
 
 If you haven't changed the default port, you can view the radio page here: [http://localhost:8002](http://localhost:8002)
 
 For debugging with BrowserSync, run `gulp watch`, `./radio -d` and open [http://localhost:3000](http://localhost:3000)
+
+To build the app for production: `./build-release` (or `gulp -p`)
