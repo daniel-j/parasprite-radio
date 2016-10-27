@@ -5,22 +5,19 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 
 function createConfig {
-	echo "Creating config files..."
-	cp -n config.default.toml config.toml
-	cp -n liq/credentials.default.liq liq/credentials.liq
+	cp -nv config.default.toml config.toml
 }
 
 echo "Installing dependencies and building Parasprite Radio..."
 
 createConfig
 
-echo "Installing node dependencies..."
-npm install
+echo "Installing nodejs dependencies..."
+npm install --no-optional
 
 echo "Building app for development"
 gulp
 
-echo "Done! Now edit config.json, setup Redis and a MySQL server. Start server with ./radio -d (remove the -d when in production)"
-
-
-
+echo "Done! Now edit config.json, setup Icecast, MySQL, MPD etc."
+echo "Start server with ./radio -d (or remove the -d for running in production)"
+echo "Then open http://localhost:8002 in your web browser."
