@@ -1,10 +1,8 @@
-Parasprite Radio
-===
+# Parasprite Radio
 
 Under development! See the live site: http://radio.djazz.se
 
-Installation
----
+## Installation
 
 Note: Installation instructions are not complete!
 
@@ -42,6 +40,8 @@ touch ~/.mpd/playlists/radio
 # Start Icecast and MySQL services
 ```
 
+## Usage
+
 Start MPD: `./startmpd`
 
 Start Liquidsoap: in development `./startliq dev` or production `./startliq`
@@ -55,4 +55,3 @@ To run the web server in development: `./radio -d`
 If you haven't changed the default port, you can view the radio page here: [http://localhost:8002](http://localhost:8002)
 
 For debugging with BrowserSync, run `gulp watch`, `./radio -d` and open [http://localhost:3000](http://localhost:3000)
-
