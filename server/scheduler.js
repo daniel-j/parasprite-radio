@@ -133,7 +133,7 @@ export default function (config) {
 		fetchCalendar()
 		setInterval(fetchCalendar, fetchDelay)
 	} else {
-		console.warn("Warning: No Google API key. Disabling Google Calendar fetching.")
+		console.warn('Warning: No Google API key. Disabling Google Calendar fetching.')
 	}
 
 	ee.getEvents = function () {
