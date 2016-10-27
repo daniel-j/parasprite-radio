@@ -289,6 +289,7 @@ gulp.task('watch:lint', () => {
 
 gulp.task('browsersync', () => {
 	return browserSync.init({
+		host: '0.0.0.0',
 		proxy: {
 			target: config.server.host+':'+config.server.port,
 			ws: true

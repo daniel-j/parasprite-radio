@@ -164,7 +164,9 @@ export default function (config) {
 
 	function mpdConnect() {
 
-		client = mpd.connect({
+		client = mpd.connect(config.mpd.socket ? {
+			path: config.mpd.socket.replace(/^~/, process.env.HOME || '')
+		} : {
 			host: config.mpd.host || 'localhost',
 			port: config.mpd.port || 6600
 		})

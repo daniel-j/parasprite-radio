@@ -38,6 +38,8 @@ set("audio.converter.samplerate.libsamplerate.quality","best")
 #set("decoder.debug",true)
 #set("extproto.use_server_name",true)
 
+set("say.program", "scripts/liquidtts")
+
 serverport = (if getenv("SERVER_PORT") == "" then "#{confint('server.port', 8002)}" else getenv("SERVER_PORT") end)
 
 %include "utils.liq"

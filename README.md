@@ -6,26 +6,52 @@ Under development! See the live site: http://radio.djazz.se
 Installation
 ---
 
-Note: Installations instructions are not complete!
+Note: Installation instructions are not complete!
 
-Setup Icecast, MySQL and MPD servers. The app uses Twitter authentication, so you have to [set up that too](https://apps.twitter.com/). You also need Liquidsoap.
+The app uses Twitter authentication, so you have to [set up an app key](https://apps.twitter.com/).
 
+### Arch Linux
+```
+# Install using pacman:
+sudo pacman -S nodejs npm mariadb mpd icecast mediainfo ffmpeg
+
+# Follow [these instructions](https://wiki.archlinux.org/index.php/MySQL#Installation) to set up the MySQL service.
+
+# (optional) For text-to-speech support:
+sudo pacman -S festival sox
+```
+Now [install Liquidsoap](http://liquidsoap.fm/download.html) from [AUR](https://aur.archlinux.org/packages/liquidsoap/) or [OPAM](https://opam.ocaml.org/packages/liquidsoap/).
+
+
+### Set up
 ```
 # Install Gulp globally:
-npm install -g gulp # (run as root if required)
+sudo npm install -g gulp
 
 # Install nodejs dependencies and build the app in debug mode:
 ./install
+
+# Create structure for MPD:
+mkdir -p ~/.mpd/playlists
+touch ~/.mpd/playlists/radio
+
+# Edit /etc/icecast.xml and increase <sources> from 2 to 10. Also, change passwords!
+# Create a MySQL database for the radio
+# Edit config.toml and mpd.conf
+# Start Icecast and MySQL services
 ```
 
-Now edit config.toml with correct details for MySQL, Icecast, MPD, Twitter, Google...
+Start MPD: `./startmpd`
 
-You can start the web server with `./radio -d` and gulp's watch mode with `gulp watch`
+Start Liquidsoap: in development `./startliq dev` or production `./startliq`
 
-To build the app for deployment/release: `./build-release`
+You can start the web server with `./radio`
 
-To run the server in production: `./radio`
+To build the app for production: `./build-release`
 
-When running on default port, view the radio page here: [http://localhost:8002](http://localhost:8002)
+To run the web server in development: `./radio -d`
+
+If you haven't changed the default port, you can view the radio page here: [http://localhost:8002](http://localhost:8002)
 
 For debugging with BrowserSync, run `gulp watch`, `./radio -d` and open [http://localhost:3000](http://localhost:3000)
+
