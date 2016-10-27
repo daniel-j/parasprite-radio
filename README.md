@@ -8,8 +8,9 @@ Note: Installation instructions are not complete!
 
 The app uses Twitter authentication, so you have to [set up an app key](https://apps.twitter.com/).
 
-### Arch Linux
-Install dependencies:
+### Install dependencies
+
+#### Arch Linux
 
 `sudo pacman -S nodejs npm mariadb mpd icecast mediainfo ffmpeg`
 
@@ -35,13 +36,7 @@ mkdir -p ~/.mpd/playlists
 touch ~/.mpd/playlists/radio.m3u
 ```
 
-Edit `/etc/icecast.xml` and increase `<sources>` from 2 to 10. Also, change passwords!
-
-Create a MySQL database for the radio
-
-Edit config.toml and mpd.conf
-
-Start Icecast and MySQL services
+Edit `/etc/icecast.xml` and increase `<sources>` from 2 to 10. Also, change passwords! Create a MySQL database for the radio. Edit `config.toml` and `mpd.conf`. Start Icecast and MySQL services.
 
 ## Usage
 
