@@ -33,7 +33,7 @@ password = "hackme"
 
 [icecast.admin]
 user     = "admin"
-password = "hackmemore"
+password = "hackme"
 
 #[[icecast.relay]]
 #host = "hostname"
