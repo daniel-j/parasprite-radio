@@ -2,7 +2,7 @@
 
 [general]
 media_dir = "~/Music"
-baseurl   = "http://localhost/"
+baseurl   = "http://localhost:8002/"
 streamurl = "http://localhost:8000/"
 userAgent = "ParaspriteRadio/0.0.0"
 clientId  = "paraspriteradio"
@@ -64,7 +64,7 @@ host = "localhost"
 port = 8002
 cookieSecret  = "secret"
 sessionSecret = "secret"
-api_prefix = "http://localhost/api"
+api_prefix = "http://localhost:8002/api"
 
 # database & session storage
 [mysql]
@@ -92,6 +92,12 @@ callbackURL = "http://localhost/auth/poniverse/callback"
 apiKey = ""
 calendarId = "nj4dn0ck0u66t6f38qtqnj324k@group.calendar.google.com"
 
+[livestream]
+url_stats = "http://vm.djazz.se/stat"
+url_thumbnail = "/live/thumb/stream.jpg"
+url_rtmp = "rtmp://vm.djazz.se/live/stream"
+url_dash = "/live/dash/stream.mpd"
+url_hls = "/live/hls/stream.m3u8"
 
 
 # scrobbling
