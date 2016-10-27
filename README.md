@@ -12,7 +12,7 @@ Setup Icecast, MySQL and MPD servers. The app uses Twitter authentication, so yo
 
 ```
 # Install Gulp globally:
-npm install -g gulp` # (run as root if required)
+npm install -g gulp # (run as root if required)
 
 # Install nodejs dependencies and build the app in debug mode:
 ./install
