@@ -11,16 +11,13 @@ Note: Installation instructions are not complete!
 The app uses Twitter authentication, so you have to [set up an app key](https://apps.twitter.com/).
 
 ### Arch Linux
-```
-# Install using pacman:
-sudo pacman -S nodejs npm mariadb mpd icecast mediainfo ffmpeg
-```
+`sudo pacman -S nodejs npm mariadb mpd icecast mediainfo ffmpeg`
+
 Follow [these instructions](https://wiki.archlinux.org/index.php/MySQL#Installation) to set up the MySQL service.
 
-```
-# (optional) For text-to-speech support:
-sudo pacman -S festival sox
-```
+(optional) For text-to-speech support:
+`sudo pacman -S festival sox`
+
 Now [install Liquidsoap](http://liquidsoap.fm/download.html) from [AUR](https://aur.archlinux.org/packages/liquidsoap/) or [OPAM](https://opam.ocaml.org/packages/liquidsoap/).
 
 
