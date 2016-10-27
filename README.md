@@ -32,7 +32,7 @@ sudo npm install -g gulp
 
 # Create structure for MPD:
 mkdir -p ~/.mpd/playlists
-touch ~/.mpd/playlists/radio
+touch ~/.mpd/playlists/radio.m3u
 
 # Edit /etc/icecast.xml and increase <sources> from 2 to 10. Also, change passwords!
 # Create a MySQL database for the radio
