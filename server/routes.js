@@ -331,13 +331,17 @@ export default function(app, passport, config, mpd, liquid, icecast, scheduler, 
 	*/
 
 	apiRouter.get('/history', (req, res) => {
+		cors(res)
+		if (!config.lastfm.api.key) {
+			res.json([])
+			return
+		}
 		let imagesize = +(req.query.imagesize || 1)
 		if (imagesize < 0) imagesize = 0
 		if (imagesize > 3) imagesize = 3
 		let limit = +(req.query.limit || config.lastfm.api.limit)
 		if (limit < 1) limit = 1
 		if (limit > config.lastfm.api.limit) limit = config.lastfm.api.limit
-		cors(res)
 
 		fetchJSON('http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user='+config.lastfm.username+'&api_key='+config.lastfm.api.key+'&format=json&limit='+limit+'&extended=1', null, function (err, data) {
 			let tracks = []
