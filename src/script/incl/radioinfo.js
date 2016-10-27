@@ -28,7 +28,7 @@ let lastMetaTimestamp = 0
 window.nowplayingdata = ''
 
 cover.addEventListener('error', function () {
-	cover.src = '/img/cover/cover-small.png'
+	cover.src = '/img/cover/cover-small-blue.png'
 }, false)
 
 

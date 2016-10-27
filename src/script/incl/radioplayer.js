@@ -246,7 +246,7 @@ function radioPlayer(opts = {}) {
 			let magnitude = Math.min(Math.max((liveFreqData[i]-analyzer.minDecibels)/95, 0), 1)
 
 			//ctx.fillStyle = 'hsl('+Math.min(Math.floor((i/(liveFreqData.length*0.7))*360), 359)+', 100%, '+Math.floor(magnitude*100-10)+'%)'
-			ctx.fillStyle = 'hsl('+(Math.floor((x/canvas.width)*20)+25)+', 100%, '+Math.max(magnitude*90+10, 20)+'%)'
+			ctx.fillStyle = 'hsl('+(Math.floor((x/canvas.width)*20)+180)+', 30%, '+Math.max(magnitude*90+10, 20)+'%)'
 			ctx.fillRect(x, canvas.height, dw, -magnitude*(canvas.height)|0)
 			// PR hue: 38
 

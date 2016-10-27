@@ -299,7 +299,7 @@ export default function(app, passport, config, mpd, liquid, icecast, scheduler, 
 		} else {
 			nocache(res)
 			res.type('png')
-			res.sendFile('cover-small.png', {root: __dirname + '/../static/img/cover/'})
+			res.sendFile('cover-small-blue.png', {root: __dirname + '/../static/img/cover/'})
 		}
 	})
 
@@ -356,7 +356,7 @@ export default function(app, passport, config, mpd, liquid, icecast, scheduler, 
 							title: t.name,
 							artist: t.artist.name,
 							album: t.album['#text'],
-							art: t.image[imagesize]['#text'] || t.artist.image[imagesize]['#text'] || (config.general.baseurl+'img/cover/cover-small.png'),
+							art: t.image[imagesize]['#text'] || t.artist.image[imagesize]['#text'] || (config.general.baseurl+'img/cover/cover-small-blue.png'),
 							timestamp: t.date ? +t.date.uts : Date.now()/1000|0,
 							url: t.url
 						}
