@@ -14,9 +14,10 @@ The app uses Twitter authentication, so you have to [set up an app key](https://
 ```
 # Install using pacman:
 sudo pacman -S nodejs npm mariadb mpd icecast mediainfo ffmpeg
+```
+Follow [these instructions](https://wiki.archlinux.org/index.php/MySQL#Installation) to set up the MySQL service.
 
-# Follow [these instructions](https://wiki.archlinux.org/index.php/MySQL#Installation) to set up the MySQL service.
-
+```
 # (optional) For text-to-speech support:
 sudo pacman -S festival sox
 ```
