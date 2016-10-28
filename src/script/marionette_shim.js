@@ -1,2 +1,2 @@
-//require('backbone').$ = $ || jQuery;
-//lol = 123
+// require('backbone').$ = $ || jQuery;
+// lol = 123

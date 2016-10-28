@@ -24,125 +24,122 @@ let bigplayeralbum = document.getElementById('bigplayeralbum')
 let lastnowplaying = ''
 let isOnline = false
 let lastMeta = null
-let lastMetaTimestamp = 0
 window.nowplayingdata = ''
 
 cover.addEventListener('error', function () {
-	cover.src = '/img/cover/cover-small.png'
+  cover.src = '/img/cover/cover-small.png'
 }, false)
 
+function updateMetadata (m) {
+  if (isOnline && m && lastMeta !== m) {
+    let title = m.title || ''
+    let artist = m.artist || ''
+    let album = m.album || ''
+    let albumartist = m.albumartist || ''
+    let url = m.live.url || m.url || ''
 
-function updateMetadata(m) {
-	if (isOnline && m && lastMeta !== m) {
-		let title = m.title || ''
-		let artist = m.artist || ''
-		let album = m.album || ''
-		let albumartist = m.albumartist || ''
-		let url = m.live.url || m.url || ''
+    if (m.live.active && title) {
+      let splitUp = title.split('' - '')
+      if (splitUp.length === 2) {
+        title = splitUp[1]
+        artist = artist || splitUp[0]
+      }
+    }
 
-		if (m.live.active && title) {
+    if (!url && m.live.twitter_handle) {
+      url = 'https://twitter.com/' + m.live.twitter_handle
+    }
+    if (url) {
+      let a = document.createElement('a')
+      a.href = url
+      a.target = '_blank'
+      a.textContent = m.live.stream_name ? m.live.stream_name : title
+      nowtitle.textContent = ''
+      nowtitle.appendChild(a)
+    } else {
+      nowtitle.textContent = m.live.stream_name || title
+    }
+    nowtitle.title = nowtitle.textContent
+    if (m.live.active) {
+      nowartist.textContent = m.live.description
+    } else {
+      nowartist.textContent = artist + (album ? ' (' + (albumartist && artist !== albumartist && album !== albumartist ? albumartist + ' - ' : '') + album + ')' : '')
+    }
+    nowartist.title = nowartist.textContent
+    // nowplaying.href = "http://www.lastfm.se/search?q="+encodeURIComponent(title.replace(" - ", " "))
+    lastnowplaying = title + ' - ' + artist
 
-			let splitUp = title.split('' - '')
-			if (splitUp.length===2) {
-				title = splitUp[1]
-				artist = artist || splitUp[0]
-			}
-		}
+    if (bigplayerprogress) {
+      bigplayertitle.textContent = title
+      bigplayerartist.textContent = artist
+      if (albumartist && artist !== albumartist && album !== albumartist && albumartist.length < 25) {
+        bigplayeralbum.textContent = albumartist + ' - ' + album
+      } else {
+        bigplayeralbum.textContent = album
+      }
 
-		if (!url && m.live.twitter_handle) {
-			url = 'https://twitter.com/'+m.live.twitter_handle
-		}
-		if (url) {
-			let a = document.createElement('a')
-			a.href = url
-			a.target = '_blank'
-			a.textContent = (m.live.stream_name? m.live.stream_name : title)
-			nowtitle.textContent = ''
-			nowtitle.appendChild(a)
-		} else {
-			nowtitle.textContent = m.live.stream_name || title
-		}
-		nowtitle.title = nowtitle.textContent
-		if (m.live.active) {
-			nowartist.textContent = m.live.description
-		} else {
-			nowartist.textContent = artist+(album?' ('+(albumartist&&artist!==albumartist&&album!==albumartist?albumartist+' - ':'')+album+')':'')
-		}
-		nowartist.title = nowartist.textContent
-		//nowplaying.href = "http://www.lastfm.se/search?q="+encodeURIComponent(title.replace(" - ", " "))
-		lastnowplaying = title+' - '+artist
+      updateProgress()
+      if (m.duration > 10) {
+        bigplayerformat.textContent = m.ext.toUpperCase() + ' ' + m.bitrate + ' kbps' + (m.bitrate_mode === 'variable' ? ' VBR' : '')
+        bigplayercomment.textContent = ((m.url || '') + '\n' + (m.comment || '')).trim()
+        bigplayercomment.innerHTML = linker(bigplayercomment.innerHTML).replace(/\n/g, '<br/>')
+        bigplayerinfo.style.opacity = 1
+      } else {
+        bigplayercomment.textContent = ''
+        bigplayerinfo.style.opacity = 0
+      }
+    }
 
-		if (bigplayerprogress) {
-			bigplayertitle.textContent = title
-			bigplayerartist.textContent = artist
-			if (albumartist && artist!==albumartist && album!==albumartist && albumartist.length < 25) {
-				bigplayeralbum.textContent = albumartist+' - '+album
-			} else {
-				bigplayeralbum.textContent = album
-			}
+    window.nowplayingdata = lastnowplaying
+    if (window.playing) {
+      document.title = window.nowplayingdata + ' - Parasprite Radio'
+    }
 
-			updateProgress()
-			if (m.duration > 10) {
-				bigplayerformat.textContent = m.ext.toUpperCase()+' '+m.bitrate+' kbps'+(m.bitrate_mode==='variable'?' VBR':'')
-				bigplayercomment.textContent = ((m.url|| '')+'\n'+(m.comment|| '')).trim()
-				bigplayercomment.innerHTML = linker(bigplayercomment.innerHTML).replace(/\n/g, '<br/>')
-				bigplayerinfo.style.opacity = 1
-			} else {
-				bigplayercomment.textContent = ''
-				bigplayerinfo.style.opacity = 0
-			}
-		}
-
-		window.nowplayingdata = lastnowplaying
-		if (window.playing) {
-			document.title = window.nowplayingdata + ' - Parasprite Radio'
-		}
-
-		cover.src = '/api/now/art/tiny?t='+Date.now()
-		if (bigcover && bigbackground) {
-			bigcover.style.backgroundImage = bigbackground.style.backgroundImage = 'url("/api/now/art/original?t='+Date.now()+'")'
-			bigcover.style.backgroundImage = bigbackground.style.backgroundImage = 'url("/api/now/art/original?t='+Date.now()+'"), url("/api/now/art/small?t='+Date.now()+'"), url("/api/now/art/tiny?t='+Date.now()+'")'
-		}
-		if (window.playing) {
-			notify.show(title, artist, cover.src)
-		}
-	} else { // No stream
-		//nowplaying.innerHTML = ''
-		nowtitle.textContent = ''
-		nowartist.textContent = ''
-		lastnowplaying = ''
-		//nowplaying.href = ""
-		//radio.style.visibility = 'hidden'
-		window.nowplayingdata = ''
-		document.title = 'Parasprite Radio'
-	}
-	if (m) {
-		lastMeta = m
-	}
+    cover.src = '/api/now/art/tiny?t=' + Date.now()
+    if (bigcover && bigbackground) {
+      bigcover.style.backgroundImage = bigbackground.style.backgroundImage = 'url("/api/now/art/original?t=' + Date.now() + '")'
+      bigcover.style.backgroundImage = bigbackground.style.backgroundImage = 'url("/api/now/art/original?t=' + Date.now() + '"), url("/api/now/art/small?t=' + Date.now() + '"), url("/api/now/art/tiny?t=' + Date.now() + '")'
+    }
+    if (window.playing) {
+      notify.show(title, artist, cover.src)
+    }
+  } else { // No stream
+    // nowplaying.innerHTML = ''
+    nowtitle.textContent = ''
+    nowartist.textContent = ''
+    lastnowplaying = ''
+    // nowplaying.href = ""
+    // radio.style.visibility = 'hidden'
+    window.nowplayingdata = ''
+    document.title = 'Parasprite Radio'
+  }
+  if (m) {
+    lastMeta = m
+  }
 }
 
-function updateProgress() {
-	let m = lastMeta
-	if (m && m.duration > 10) { // at least 10 seconds long
-		let duration = m.duration*1000
-		let time = Math.min(duration, Math.max(0, Date.now()-m.on_air-window.serverTimeDiff-2000))
-		bigplayerprogress.style.width = (time/duration)*100+'%'
-		bigplayertime.textContent = dateFormat(new Date(time), 'M:ss')
-		bigplayerduration.textContent = dateFormat(new Date(duration), 'M:ss')
-	}
+function updateProgress () {
+  let m = lastMeta
+  if (m && m.duration > 10) { // at least 10 seconds long
+    let duration = m.duration * 1000
+    let time = Math.min(duration, Math.max(0, Date.now() - m.on_air - window.serverTimeDiff - 2000))
+    bigplayerprogress.style.width = (time / duration) * 100 + '%'
+    bigplayertime.textContent = dateFormat(new Date(time), 'M:ss')
+    bigplayerduration.textContent = dateFormat(new Date(duration), 'M:ss')
+  }
 }
 
 if (bigplayerprogress) {
-	setInterval(updateProgress, 100)
+  setInterval(updateProgress, 100)
 }
 
 events.on('metadata', updateMetadata)
 
 events.on('icecaststatus', function (info) {
-	isOnline = info.online
-	updateMetadata(lastMeta)
+  isOnline = info.online
+  updateMetadata(lastMeta)
 })
 
 events.on('listenercount', function (count) {
-	listenercount.textContent = count
+  listenercount.textContent = count
 })

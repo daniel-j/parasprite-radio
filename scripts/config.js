@@ -1,14 +1,14 @@
-var fs = require('fs')
-var toml = require('toml')
-var filename = __dirname+'/../config.toml'
+const fs = require('fs')
+const toml = require('toml')
+const path = require('path')
+const filename = path.join(__dirname, '../config.toml')
 
-var config
+let config
 
 try {
-	config = toml.parse(fs.readFileSync(filename))
+  config = toml.parse(fs.readFileSync(filename))
 } catch (e) {
-	throw 'config.toml parse error: ' + e
+  throw new Error('config.toml parse error: ' + e)
 }
-
 
 module.exports = config

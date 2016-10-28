@@ -5,7 +5,6 @@ import config from '../scripts/config'
 import { fetchJSON } from '../scripts/fetcher'
 
 export default function (passport) {
-
   // used to serialize the user for the session
   passport.serializeUser(function (user, done) {
     // console.log("SERIALIZE", user.id)
