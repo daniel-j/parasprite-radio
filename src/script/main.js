@@ -9,6 +9,7 @@ import { formattime, timeago } from './utils/time'
 import api from './entities/api'
 import './incl/snow'
 import dateFormat from 'dateformat-light'
+import jstz from 'jstz'
 
 const radio = radioPlayer({
   baseurl: window.config.general_streamurl,
@@ -167,7 +168,7 @@ window.toSpotifyPlaylist = toSpotifyPlaylist
 */
 
 // Schedule
-let tz = window.jstz.determine()
+let tz = jstz.determine()
 let timezone = tz.name()
 
 let bgcolor = '444444'

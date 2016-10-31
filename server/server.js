@@ -9,7 +9,7 @@ import passport from 'passport'
 import flash from 'connect-flash'
 import session from 'express-session'
 import bodyParser from 'body-parser'
-import SessionStore from 'express-mysql-session'
+import expressMysqlSession from 'express-mysql-session'
 import cookieParser from 'cookie-parser'
 import config from '../scripts/config'
 import IO from 'socket.io'
@@ -21,6 +21,8 @@ import icecastManager from './icecast'
 import Scheduler from './scheduler'
 import livestreamManager from './livestream'
 import routes from './routes'
+
+const MySQLStore = expressMysqlSession(session)
 
 export async function startServer (args = {}) {
   config.server.port = args.port
@@ -57,7 +59,7 @@ export async function startServer (args = {}) {
       secret: config.server.sessionSecret,
       resave: false,
       saveUninitialized: false,
-      store: new SessionStore(config.mysql),
+      store: new MySQLStore(config.mysql),
       unset: 'destroy',
       cookie: {
         maxAge: 365 * 24 * 60 * 60 * 1000
