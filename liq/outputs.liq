@@ -30,6 +30,7 @@ mumbleOut = output.external(id="mumble",
 if inDev then
 	clock.assign_new(id="output_clock",[
 		out(
+			id = "radio_dev",
 			mount = "radio_dev",
 			%mp3.cbr(
 				bitrate = 128,
@@ -44,6 +45,7 @@ else
 
 	clock.assign_new(id="output_clock",[
 	out(
+		id = "radio",
 		mount = "radio",
 		%mp3.cbr(
 			bitrate = 320,
@@ -57,6 +59,7 @@ else
 	),
 
 	out(
+		id = "radio_normal",
 		mount = "radio_normal",
 		%mp3.cbr(
 			bitrate = 128,
@@ -70,6 +73,7 @@ else
 	),
 
 	out(
+		id = "radio_mobile",
 		mount = "radio_mobile",
 		%fdkaac(
 			channels = 2,
@@ -83,6 +87,7 @@ else
 	),
 
 	out(
+		id = "radio_opus",
 		mount = "radio_opus",
 		%opus(
 			vbr = "none",
@@ -100,6 +105,7 @@ else
 	),
 
 	# out(
+	# 	id = "radio_flac",
 	# 	mount = "radio_flac",
 	# 	%ogg(%flac(
 	# 		samplerate = 48000,
@@ -113,6 +119,7 @@ else
 
 	# a better FLAC encoder
 	out(
+		id = "radio_flac",
 		mount = "radio_flac",
 		%external(
 			channels = 2,
@@ -129,6 +136,7 @@ else
 	),
 
 	out(
+		id = "radio_mobile_vorbis",
 		mount = "radio_mobile_vorbis",
 		%vorbis(
 			channels = 2,
@@ -145,4 +153,4 @@ else
 end
 
 
-clock.assign_new(sync=false,[mumbleOut(mean(mksafe(buffer(buffer=5.0,source))))])
+clock.assign_new(id="output_clock", sync=false,[mumbleOut(mean(mksafe(buffer(buffer=5.0,source))))])

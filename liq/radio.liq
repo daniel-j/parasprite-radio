@@ -71,12 +71,18 @@ end
 
 
 def scrobble_nowplaying(m)
-	audioscrobbler.nowplaying(user=confstr("lastfm.username"), password=confstr("lastfm.password"), m)
-	tunein.nowplaying(partner_id=confstr("tunein.partnerId"), partner_key=confstr("tunein.partnerKey"), station_id=confstr("tunein.stationId"), m)
+	if confbool("lastfm.enable") then
+		audioscrobbler.nowplaying(user=confstr("lastfm.username"), password=confstr("lastfm.password"), m)
+	end
+	if confbool("tunein.enable") then
+		tunein.nowplaying(partner_id=confstr("tunein.partnerId"), partner_key=confstr("tunein.partnerKey"), station_id=confstr("tunein.stationId"), m)
+	end
 end
 
 def scrobble_submit(t, m)
-	audioscrobbler.submit(user=confstr("lastfm.username"), password=confstr("lastfm.password"), m)
+	if confbool("lastfm.enable") then
+		audioscrobbler.submit(user=confstr("lastfm.username"), password=confstr("lastfm.password"), m)
+	end
 end
 
 # send metadata to server and print the response
