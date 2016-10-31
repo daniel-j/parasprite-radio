@@ -8,4 +8,3 @@ echo $1 | text2wave -scale 1.9 > $2.tmp.wav && sox $2.tmp.wav -c 2 $2
 return=$?
 rm $2.tmp.wav
 exit $return
-
