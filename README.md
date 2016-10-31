@@ -40,14 +40,14 @@ Edit `/etc/icecast.xml` and increase `<sources>` from 2 to 10. Also, change pass
 
 ## Usage
 
-Start MPD: `./startmpd`
+Start MPD: `bin/startmpd`
 
-Start Liquidsoap: in development `./startliq dev` or production `./startliq`
+Start Liquidsoap: in development `bin/startliq dev` or production `bin/startliq`
 
-Start web server: in development `./radio -p` or production `./radio`
+Start web server: in development `bin/radio -d` or production bin./radio`
 
 If you haven't changed the default port, you can view the radio page here: [http://localhost:8002](http://localhost:8002)
 
-For debugging with BrowserSync, run `gulp watch`, `./radio -d` and open [http://localhost:3000](http://localhost:3000)
+For debugging with BrowserSync, run `gulp watch`, `bin/radio -d` and open [http://localhost:3000](http://localhost:3000)
 
-To build the app for production: `./build-release` (or `gulp -p`)
+To build the app for production: `gulp -p`

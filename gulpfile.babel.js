@@ -43,7 +43,7 @@ let sources = {
   style: ['main.styl', 'admin.styl', 'popout.styl', 'livestream.styl'],
   document: ['index.pug', 'admin.pug', 'popout.pug', 'livestream.pug']
 }
-let lintES = ['src/script/**/*.js', 'server/**/*.js', 'scripts/**/*.js', 'liq/scripts/**/*.js', 'gulpfile.babel.js', 'webpack.config.js']
+let lintES = ['src/script/**/*.js', 'server/**/*.js', 'scripts/**/*.js', 'liq/scripts/**/*.js', 'gulpfile.babel.js', 'webpack.config.js', 'bin/radio']
 let lintCS = ['src/script/**/*.coffee', 'server/**/*.coffee']
 
 let inProduction = process.env.NODE_ENV === 'production' || process.argv.indexOf('-p') !== -1
@@ -187,7 +187,7 @@ gulp.task('watch:style', () => {
 
 gulp.task('document', documentTask)
 gulp.task('watch:document', () => {
-  return watch(['src/document/**/*.pug', 'config.toml'], watchOpts, documentTask)
+  return watch(['src/document/**/*.pug', 'conf/radio.toml'], watchOpts, documentTask)
 })
 
 // Generate the icons. This task takes a few seconds to complete.

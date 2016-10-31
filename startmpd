@@ -1,4 +1,0 @@
-#!/bin/bash
-
-echo "Starting MPD..."
-exec mpd mpd.conf --no-daemon

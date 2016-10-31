@@ -1,6 +1,6 @@
 {
-  "presets": [
-    "node5"
-  ],
-  "plugins": ["transform-strict-mode"]
+  "plugins": [
+    "transform-strict-mode",
+    "transform-es2015-modules-commonjs"
+  ]
 }

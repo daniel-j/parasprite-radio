@@ -1,11 +1,10 @@
 #!/bin/bash
 
-# http://stackoverflow.com/a/246128
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd $DIR
+# http://stackoverflow.com/a/3355423
+cd "${0%/*}"
 
 function createConfig {
-	cp -nv config.default.toml config.toml
+	cp -nv conf/radio.default.toml conf/radio.toml
 }
 
 echo "Installing dependencies and building Parasprite Radio..."
