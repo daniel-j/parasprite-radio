@@ -5,11 +5,11 @@ const sse = require('./sse')
 let interval = 5000
 
 module.exports = function (config, io) {
-  var ns = io.of('/livestream')
-  var ioUsers = 0
+  let ns = io.of('/livestream')
+  let ioUsers = 0
 
-  var viewers = 0
-  var online = false
+  let viewers = 0
+  let online = false
 
   sse.broadcast('livestreamstatus', {online: false, viewers: 0}, true)
 
@@ -17,10 +17,10 @@ module.exports = function (config, io) {
     fetchXML(config.livestream.url_stats, null, function (err, data) {
       if (err) console.error(err)
       viewers = 0
-      var isOnline = false
+      let isOnline = false
       try {
-        var stream = data.rtmp.server[0].application[0].live[0].stream[0]
-        var count = 0
+        let stream = data.rtmp.server[0].application[0].live[0].stream[0]
+        let count = 0
         stream.client.forEach(function (client) {
           if ((client.flashver && client.flashver[0] !== 'ngx-local-relay') && !client.publishing) {
             count++

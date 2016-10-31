@@ -1,7 +1,7 @@
 
-var fs = require('fs')
-var path = require('path')
-var mm = require('musicmetadata')
+const fs = require('fs')
+const path = require('path')
+const mm = require('musicmetadata')
 
 function typeToMime (type) {
   switch (type) {
@@ -14,19 +14,19 @@ function typeToMime (type) {
 }
 
 function imageFromFile (filename, cb) {
-  var stream = fs.createReadStream(filename)
-  var gotimg = false
+  let stream = fs.createReadStream(filename)
+  let gotimg = false
   // allowed = ['.mp3', '.ogg', '.flac', '.wma']
   // if allowed.indexOf(path.extname(filename).toLowerCase()) == -1
   //  cb 'non-allowed file type'
   //  return
 
-  var parser = mm(stream, {}, function (err, meta) {
+  let parser = mm(stream, {}, function (err, meta) {
     if (err) console.error(err)
-    var pictures = meta.picture
+    let pictures = meta.picture
 
     if (pictures && pictures[0]) {
-      var type = typeToMime(pictures[0].format)
+      let type = typeToMime(pictures[0].format)
 
       if (type !== null) {
         cb(null, type, meta.picture[0].data)
@@ -35,29 +35,29 @@ function imageFromFile (filename, cb) {
     }
 
     if (!gotimg) {
-      var dir = path.dirname(filename)
+      let dir = path.dirname(filename)
 
       fs.readdir(dir, function (err, result) {
         if (err) {
           cb(err)
           return
         }
-        var valid = ['.png', '.jpg', '.jpeg']
-        var commonFiles = ['cover', 'folder', 'album', 'artist', 'art']
+        let valid = ['.png', '.jpg', '.jpeg']
+        let commonFiles = ['cover', 'folder', 'album', 'artist', 'art']
         result = result.filter(function (f) {
-          var ext = path.extname(f).toLowerCase()
+          let ext = path.extname(f).toLowerCase()
           return valid.indexOf(ext) !== -1
         })
-        var img = null
-        for (var i = 0; i < result.length; i++) {
-          var file = result[i]
+        let img = null
+        for (let i = 0; i < result.length; i++) {
+          let file = result[i]
           if (img !== null) break
-          var f = file.toLowerCase()
+          let f = file.toLowerCase()
           if (commonFiles.indexOf(path.basename(f, path.extname(f))) !== -1) {
             img = file
           } else {
-            for (var j = 0; j < commonFiles.length; j++) {
-              var common = commonFiles[j]
+            for (let j = 0; j < commonFiles.length; j++) {
+              let common = commonFiles[j]
               if (f.indexOf(common) !== -1) {
                 img = file
                 break

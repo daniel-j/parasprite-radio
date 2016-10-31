@@ -45,7 +45,7 @@ function generateArt (input, cb) {
 }
 
 function handleImageData (data, cb) {
-  var type = imageType(data)
+  let type = imageType(data)
   // not an image
   if (!type) {
     cb(null, null)
@@ -57,7 +57,7 @@ function handleImageData (data, cb) {
       cb(err)
       return
     }
-    var o = {
+    let o = {
       original: data,
       type: type,
       sizes: images
@@ -67,13 +67,13 @@ function handleImageData (data, cb) {
 }
 
 function processImage (type, data, cb) {
-  var totalCount = 0
-  var c = 0
-  var images = {}
-  var image = gm(data, 'iamge.' + type.ext)
+  let totalCount = 0
+  let c = 0
+  let images = {}
+  let image = gm(data, 'iamge.' + type.ext)
 
   function handleImage (name) {
-    var batchFunc = imageFormats[name]
+    let batchFunc = imageFormats[name]
     batchFunc(image).toBuffer('png', function (err, buffer) {
       if (err) {
         console.error(err)
@@ -92,7 +92,7 @@ function processImage (type, data, cb) {
     }
   }
 
-  for (var name in imageFormats) {
+  for (let name in imageFormats) {
     images[name] = null
     totalCount++
     handleImage(name)

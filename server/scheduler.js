@@ -109,7 +109,7 @@ export default function (config) {
   }
 
   function eventStarted (ev) {
-    // var diff = (Date.now()-ev.start.getTime())/1000
+    // let diff = (Date.now()-ev.start.getTime())/1000
     eventsJobs[ev.id].start.cancel()
     if (Date.now() - ev.start.getTime() < 10 * 1000) {
       console.log('Schedule: Event started!!', ev.title)
@@ -118,7 +118,7 @@ export default function (config) {
   }
 
   function eventEnded (ev) {
-    // var diff = (Date.now()-ev.start.getTime())/1000
+    // let diff = (Date.now()-ev.start.getTime())/1000
     eventsJobs[ev.id].end.cancel()
     if (Date.now() - ev.end.getTime() < 10 * 1000) {
       console.log('Schedule: Event ended!!', ev.title)

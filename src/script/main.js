@@ -228,7 +228,7 @@ function initMap () {
     center: {lat: 25, lng: 12}
   })
   window.addEventListener('resize', function () {
-    var center = map.getCenter()
+    let center = map.getCenter()
     google.maps.event.trigger(map, 'resize')
     map.setCenter(center)
   }, false)

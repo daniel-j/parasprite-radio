@@ -6,7 +6,7 @@ const recievers = []
 const pastEvents = {}
 
 function handle (req, res) {
-  // var parsedURL = url.parse(req.url, true)
+  // let parsedURL = url.parse(req.url, true)
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
@@ -16,7 +16,7 @@ function handle (req, res) {
   res.write(':' + Array(2049).join(' ') + '\n', 'utf8') // 2kB padding for IE
   res.write('retry: 10000\n', 'utf8')
 
-  // var lastEventId = Number(req.headers['last-event-id']) || Number(parsedURL.query.lastEventId) || 0
+  // let lastEventId = Number(req.headers['last-event-id']) || Number(parsedURL.query.lastEventId) || 0
 
   // keep-alive
   let kaTimer = setInterval(function () {

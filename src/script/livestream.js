@@ -70,7 +70,7 @@ let bitdashConf = {
   }
 }
 
-var jwConfig = {
+let jwConfig = {
   playlist: [
     {
       image: window.config.livestream_url_thumbnail + '?t=' + Date.now(),
