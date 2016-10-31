@@ -101,14 +101,16 @@ url_hls = "/live/hls/stream.m3u8"
 
 # scrobbling
 [lastfm]
+enable=false
 username = "djazzradio"
 password = ""
 [lastfm.api]
+enable=false
 key = ""
 limit = 10
 
 [tunein]
-enable=true
+enable=false
 stationId  = "s225092"
 partnerId  = ""
 partnerKey = ""
