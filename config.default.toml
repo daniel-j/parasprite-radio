@@ -2,7 +2,7 @@
 
 [general]
 media_dir = "~/Music"
-baseurl   = "http://localhost/"
+baseurl   = "http://localhost:8002/"
 streamurl = "http://localhost:8000/"
 userAgent = "ParaspriteRadio/0.0.0"
 clientId  = "paraspriteradio"
@@ -12,7 +12,7 @@ twitter   = "ParaspriteRadio"
 # info about radio - used on the site and for Icecast metadata
 [radio]
 title       = "Parasprite Radio"
-description = "Open source pony radio"
+description = "Open source web radio"
 genre       = "Misc"
 url         = "https://radio.djazz.se"
 
@@ -22,7 +22,6 @@ url         = "https://radio.djazz.se"
 host     = "localhost"
 port     = 8000
 url      = "http://localhost:8000"
-
 # what mounts too look for listeners on
 mounts   = [ "radio", "radio_mobile", "radio_normal", "radio_flac", "radio_opus" ]
 encoding = "UTF-8"
@@ -33,7 +32,7 @@ password = "hackme"
 
 [icecast.admin]
 user     = "admin"
-password = "hackmemore"
+password = "hackme"
 
 #[[icecast.relay]]
 #host = "hostname"
@@ -42,8 +41,6 @@ password = "hackmemore"
 #password = "hackme"
 
 
-
-# the thing where magic happens
 [liquidsoap]
 host = "localhost"
 port_telnet = 7004
@@ -53,9 +50,11 @@ port_input  = 7005
 
 # music database
 [mpd]
+# if socket is defined it will use that instead of host:port
+socket   = "~/.mpd/socket"
 host     = "localhost"
 port     = 6600
-password = ""
+password = "" # leave empty for no password
 mainPlaylist = "radio"
 
 # the nodejs server
@@ -64,7 +63,7 @@ host = "localhost"
 port = 8002
 cookieSecret  = "secret"
 sessionSecret = "secret"
-api_prefix = "http://localhost/api"
+api_prefix = "/api"
 
 # database & session storage
 [mysql]
@@ -92,6 +91,12 @@ callbackURL = "http://localhost/auth/poniverse/callback"
 apiKey = ""
 calendarId = "nj4dn0ck0u66t6f38qtqnj324k@group.calendar.google.com"
 
+[livestream]
+url_stats = "http://vm.djazz.se/stat"
+url_thumbnail = "/live/thumb/stream.jpg"
+url_rtmp = "rtmp://vm.djazz.se/live/stream"
+url_dash = "/live/dash/stream.mpd"
+url_hls = "/live/hls/stream.m3u8"
 
 
 # scrobbling

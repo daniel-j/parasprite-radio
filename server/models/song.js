@@ -1,33 +1,31 @@
 import crypto from 'crypto'
 
 const Song = {
+  // https://github.com/BravelyBlue/PVLive/blob/master/app/models/Entity/Song.php
+  getSongHash (songInfo) {
+    songInfo = {
+      text: songInfo.text || '',
+      title: songInfo.title || '',
+      artist: songInfo.artist || ''
+    }
 
-	// https://github.com/BravelyBlue/PVLive/blob/master/app/models/Entity/Song.php
-	getSongHash(song_info) {
+    let songText = ''
 
-		song_info = {
-			text: song_info.text || '',
-			title: song_info.title || '',
-			artist: song_info.artist || ''
-		}
+    if (songInfo.text) {
+      songText = songInfo.text
+    } else {
+      songText = songInfo.artist + ' - ' + songInfo.title
+    }
 
-		let song_text = ''
+    let hashBase = songText.replace(/[^A-Za-z0-9]/g, '').toLowerCase()
 
-		if (song_info.text) {
-			song_text = song_info.text
-		} else {
-			song_text = song_info.artist + ' - ' + song_info.title
-		}
+    // md5
+    let md5sum = crypto.createHash('md5')
+    md5sum.update(hashBase)
+    let hash = md5sum.digest('hex')
 
-		let hash_base = song_text.replace(/[^A-Za-z0-9]/g, '').toLowerCase()
-
-		// md5
-		let md5sum = crypto.createHash('md5')
-		md5sum.update(hash_base)
-		let hash = md5sum.digest('hex')
-
-		return hash
-	}
+    return hash
+  }
 }
 
 export default Song
