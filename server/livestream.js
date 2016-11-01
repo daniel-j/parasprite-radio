@@ -15,7 +15,7 @@ module.exports = function (config, io) {
 
   function updateStats () {
     fetchXML(config.livestream.url_stats, null, function (err, data) {
-      if (err) console.error(err)
+      if (err) console.error('Livestream:', err)
       viewers = 0
       let isOnline = false
       try {
