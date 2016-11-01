@@ -17,6 +17,6 @@ npm install --no-optional
 echo "Building app for development"
 gulp
 
-echo "Done! Now edit config.json, setup Icecast, MySQL, MPD etc."
-echo "Start server with ./radio -d (or remove the -d for running in production)"
+echo "Done! Now edit conf/radio.toml, setup Icecast, MySQL, MPD etc."
+echo "Start server with bin/startserver -d (remove the -d for running in production)"
 echo "Then open http://localhost:8002 in your web browser."
