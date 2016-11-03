@@ -1,7 +1,8 @@
 
-const imageType = require('image-type')
-const imageFromFile = require('./imageFromFile')
-const fetcher = require('../../scripts/fetcher').fetcher
+import imageType from 'image-type'
+import imageFromFile from './imageFromFile'
+import { fetcher } from '../../scripts/fetcher'
+
 const gm = require('gm').subClass({imageMagick: true})
 
 let imageFormats = {

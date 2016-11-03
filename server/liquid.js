@@ -3,255 +3,253 @@ import net from 'net'
 import path from 'path'
 import generateArt from './utils/generateArt'
 import sse from './sse'
+import config from '../scripts/config'
 
 let timeout = 5000
 
-export default function (config) {
-  let badComment = /^([0-9A-F]{8} ){9}[0-9A-F]{8}$/
+let metadata = {}
+let imagedata = null
+let badComment = /^([0-9A-F]{8} ){9}[0-9A-F]{8}$/
 
-  function liqCommand (command, cb) {
-    command = command + '\r\n'
-    let sentCb = false
-    let errorMsg = null
-    let liqData = ''
+function liqCommand (command, cb) {
+  command = command + '\r\n'
+  let sentCb = false
+  let errorMsg = null
+  let liqData = ''
 
-    function liqOnData (data) {
-      let s = data.toString('utf8')
-      liqData += s
+  function liqOnData (data) {
+    let s = data.toString('utf8')
+    liqData += s
 
-      let a = s.split('\r\n')
-      a.pop()
-      if (a[a.length - 1] === 'END') {
-        let d = liqData.split('\r\n')
-        d.pop() // remove last newline
-        d.pop() // remove END
-        liqData = ''
+    let a = s.split('\r\n')
+    a.pop()
+    if (a[a.length - 1] === 'END') {
+      let d = liqData.split('\r\n')
+      d.pop() // remove last newline
+      d.pop() // remove END
+      liqData = ''
+      if (d.length === 1) {
+        d = d[0].split('\n')
         if (d.length === 1) {
-          d = d[0].split('\n')
-          if (d.length === 1) {
-            d = d[0]
-          }
+          d = d[0]
         }
-        if (Array.isArray(d)) {
-          let out = {}
-          let o = out
-          for (let line of d) {
-            let m = line.match(/^--- (\d*) ---$/)
-            if (m) {
-              o = out[+m[1]] = {}
-            }
-            let pos = line.indexOf('=')
-            if (pos !== -1) {
-              let key = line.substr(0, pos)
-              let val = line.substr(pos + 1)
-              try {
-                o[key] = JSON.parse(val)
-              } catch (err) {
-                // do nothing
-              }
+      }
+      if (Array.isArray(d)) {
+        let out = {}
+        let o = out
+        for (let line of d) {
+          let m = line.match(/^--- (\d*) ---$/)
+          if (m) {
+            o = out[+m[1]] = {}
+          }
+          let pos = line.indexOf('=')
+          if (pos !== -1) {
+            let key = line.substr(0, pos)
+            let val = line.substr(pos + 1)
+            try {
+              o[key] = JSON.parse(val)
+            } catch (err) {
+              // do nothing
             }
           }
-          d = out
         }
-        if (!sentCb) {
-          sentCb = true
-          client.end('quit\r\n')
-          cb(null, d)
-        }
+        d = out
+      }
+      if (!sentCb) {
+        sentCb = true
+        client.end('quit\r\n')
+        cb(null, d)
       }
     }
-
-    let client = net.connect({
-      host: config.liquidsoap.host || 'localhost',
-      port: config.liquidsoap.port_telnet || 1234
-    })
-    client.on('data', liqOnData)
-    client.setTimeout(10 * 1000)
-
-    client.once('connect', function () {
-      client.write(command, 'utf8')
-    })
-    client.once('error', function (err) {
-      console.error('Liquidsoap: ' + err)
-      errorMsg = err
-    })
-    client.once('timeout', function () {
-      client.end()
-    })
-    client.once('end', function () {
-      if (!sentCb) {
-        sentCb = true
-        cb('' + (errorMsg || 'end'))
-      }
-    })
-
-    setTimeout(() => {
-      if (!sentCb) {
-        sentCb = true
-        client.end()
-        cb('timeout')
-      }
-    }, timeout)
   }
 
-  let metadata = {}
-  let imagedata = null
+  let client = net.connect({
+    host: config.liquidsoap.host || 'localhost',
+    port: config.liquidsoap.port_telnet || 1234
+  })
+  client.on('data', liqOnData)
+  client.setTimeout(10 * 1000)
 
-  const API = {
-    queue: {
-      getList (cb) {
-        liqCommand('request.all', function (err, data) {
-          // TODO: Rewrite this if-statement
-          if (err || '' + data === '') {
-            cb(err, [])
-            return
-          }
-          let list = data.split(' ')
-          let meta = []
-          function f (i) {
-            liqCommand('request.metadata ' + list[i], function (err, data) {
-              if (err) {
+  client.once('connect', function () {
+    client.write(command, 'utf8')
+  })
+  client.once('error', function (err) {
+    console.error('Liquidsoap: ' + err)
+    errorMsg = err
+  })
+  client.once('timeout', function () {
+    client.end()
+  })
+  client.once('end', function () {
+    if (!sentCb) {
+      sentCb = true
+      cb('' + (errorMsg || 'end'))
+    }
+  })
 
-              } else {
-                if (typeof data === 'string') {
-                  data = {
-                    error: data,
-                    file: ''
-                  }
-                } else {
-                  data.file = data.filename && data.filename.replace(config.general.media_dir + '/', '') || data.initial_uri
-                  delete data.filename
-                }
-                if (data.source && data.source.indexOf('queue') === 0 && data.status && data.status !== 'destroyed') {
-                  meta.push(data)
-                }
-              }
-              ++i
-              if (i < list.length) {
-                f(i)
-              } else {
-                cb(null, meta)
-              }
-            })
-          }
-          f(0)
-        })
-      },
+  setTimeout(() => {
+    if (!sentCb) {
+      sentCb = true
+      client.end()
+      cb('timeout')
+    }
+  }, timeout)
+}
 
-      add (id, item, cb) {
-        liqCommand('queue' + id + '.push ' + item, function (err, data) {
-          cb && cb(err)
-        })
-      }
-
-      // ignore: (rid, cb) ->
-      //  liqCommand "request.ignore "+rid, (err, data) ->
-      //    cb err
-      // consider: (rid, cb) ->
-      //  liqCommand "request.consider "+rid, (err, data) ->
-      //    cb err
-
-      // smart: (thing, cb) ->
-      //  liqCommand "smartqueue "+thing, (err, data) ->
-      //    cb && cb err
-    },
-
-    announce (message, cb) {
-      liqCommand('announce.push smart:' + message, function (err, data) {
-        cb(err)
-      })
-    },
-
-    skip (cb) {
-      liqCommand('skip', function (err, data) {
-        cb && cb(err)
-      })
-    },
-
-    setMeta (m) {
-      metadata.title = m.title || (m.filename && path.basename(m.filename, path.extname(m.filename))) || null
-      metadata.artist = m.artist || null
-      metadata.album = m.album || null
-      metadata.albumartist = m.albumartist || null
-      metadata.url = m.url || null
-      metadata.year = +m.year || null
-      metadata.art = config.server.api_prefix + '/now/art/small' // m.art || null
-      metadata.bitrate = +m.bitrate || m.bitrate || null
-      metadata.bitrate_mode = m.bitrate_mode || null
-      metadata.ext = path.extname(path.basename(m.filename)).substring(1)
-      metadata.on_air = new Date(m.on_air).getTime()
-      metadata.duration = +m.duration
-      metadata.source = m.source || 'default'
-      metadata.comment = (m.comment !== '0' && !badComment.test(m.comment) && m.comment) || null
-      metadata.live = {
-        active: false,
-        stream_name: m.live_ice_name || m.live_name || null,
-        host: m.live_displayname || m.live_username || null,
-        url: m.live_url || null,
-        twitter_handle: m.live_twitter || null,
-        description: m.live_ice_description || m.live_description || null
-      }
-
-      if (m.live_userId) {
-        metadata.live.active = true
-        metadata.source = 'live'
-      }
-
-      generateArt((m.art || m.filename), function (err, result) {
-        imagedata = result
-        console.log(err)
-        sse.broadcast('metadata', metadata, true)
-      })
-    },
-
-    updateMeta (cb) {
-      liqCommand('sendmetadata', function (err, data) {
-        if (err) {
-          console.error('Liquidsoap: Couldn\'t fetch metadata: ' + err)
-        }
-        cb && cb(err, data)
-      })
-    },
-
-    getMeta () {
-      return metadata
-    },
-
-    getImage () {
-      return imagedata
-    },
-
-    getHistory (cb) {
-      liqCommand('history.get', function (err, data) {
-        if (err) {
-          cb(err)
+const API = {
+  queue: {
+    getList (cb) {
+      liqCommand('request.all', function (err, data) {
+        // TODO: Rewrite this if-statement
+        if (err || '' + data === '') {
+          cb(err, [])
           return
         }
-        let list = []
-        for (let id in data) {
-          let item = data[id]
-          item.timestamp = new Date(item.on_air).getTime()
-          list.push(item)
-        }
-        list.sort((a, b) => b.timestamp - a.timestamp)
+        let list = data.split(' ')
+        let meta = []
+        function f (i) {
+          liqCommand('request.metadata ' + list[i], function (err, data) {
+            if (err) {
 
-        cb(null, list)
+            } else {
+              if (typeof data === 'string') {
+                data = {
+                  error: data,
+                  file: ''
+                }
+              } else {
+                data.file = data.filename && data.filename.replace(config.general.media_dir + '/', '') || data.initial_uri
+                delete data.filename
+              }
+              if (data.source && data.source.indexOf('queue') === 0 && data.status && data.status !== 'destroyed') {
+                meta.push(data)
+              }
+            }
+            ++i
+            if (i < list.length) {
+              f(i)
+            } else {
+              cb(null, meta)
+            }
+          })
+        }
+        f(0)
       })
     },
 
-    eventStarted (ev) {
-      let list = (ev.description || '').trim().split('\n')
-      for (let r in list) {
-        API.queue.add(1, 'smart:' + r)
-      }
-    },
-
-    eventEnded (ev) {
-      // noop
+    add (id, item, cb) {
+      liqCommand('queue' + id + '.push ' + item, function (err, data) {
+        cb && cb(err)
+      })
     }
+
+    // ignore: (rid, cb) ->
+    //  liqCommand "request.ignore "+rid, (err, data) ->
+    //    cb err
+    // consider: (rid, cb) ->
+    //  liqCommand "request.consider "+rid, (err, data) ->
+    //    cb err
+
+    // smart: (thing, cb) ->
+    //  liqCommand "smartqueue "+thing, (err, data) ->
+    //    cb && cb err
+  },
+
+  announce (message, cb) {
+    liqCommand('announce.push smart:' + message, function (err, data) {
+      cb(err)
+    })
+  },
+
+  skip (cb) {
+    liqCommand('skip', function (err, data) {
+      cb && cb(err)
+    })
+  },
+
+  setMeta (m) {
+    metadata.title = m.title || (m.filename && path.basename(m.filename, path.extname(m.filename))) || null
+    metadata.artist = m.artist || null
+    metadata.album = m.album || null
+    metadata.albumartist = m.albumartist || null
+    metadata.url = m.url || null
+    metadata.year = +m.year || null
+    metadata.art = config.server.api_prefix + '/now/art/small' // m.art || null
+    metadata.bitrate = +m.bitrate || m.bitrate || null
+    metadata.bitrate_mode = m.bitrate_mode || null
+    metadata.ext = (m.filename && path.extname(path.basename(m.filename)).substring(1)) || null
+    metadata.on_air = new Date(m.on_air).getTime()
+    metadata.duration = +m.duration
+    metadata.source = m.source || 'default'
+    metadata.comment = (m.comment !== '0' && !badComment.test(m.comment) && m.comment) || null
+    metadata.live = {
+      active: false,
+      stream_name: m.live_ice_name || m.live_name || null,
+      host: m.live_displayname || m.live_username || null,
+      url: m.live_url || null,
+      twitter_handle: m.live_twitter || null,
+      description: m.live_ice_description || m.live_description || null
+    }
+
+    if (m.live_userId) {
+      metadata.live.active = true
+      metadata.source = 'live'
+    }
+
+    generateArt((m.art || m.filename), function (err, result) {
+      imagedata = result
+      console.log(err)
+      sse.broadcast('metadata', metadata, true)
+    })
+  },
+
+  updateMeta (cb) {
+    liqCommand('sendmetadata', function (err, data) {
+      if (err) {
+        console.error('Liquidsoap: Couldn\'t fetch metadata: ' + err)
+      }
+      cb && cb(err, data)
+    })
+  },
+
+  getMeta () {
+    return metadata
+  },
+
+  getImage () {
+    return imagedata
+  },
+
+  getHistory (cb) {
+    liqCommand('history.get', function (err, data) {
+      if (err) {
+        cb(err)
+        return
+      }
+      let list = []
+      for (let id in data) {
+        let item = data[id]
+        item.timestamp = new Date(item.on_air).getTime()
+        list.push(item)
+      }
+      list.sort((a, b) => b.timestamp - a.timestamp)
+
+      cb(null, list)
+    })
+  },
+
+  eventStarted (ev) {
+    let list = (ev.description || '').trim().split('\n')
+    for (let r in list) {
+      API.queue.add(1, 'smart:' + r)
+    }
+  },
+
+  eventEnded (ev) {
+    // noop
   }
-
-  API.updateMeta()
-
-  return API
 }
+
+API.updateMeta()
+
+export default API

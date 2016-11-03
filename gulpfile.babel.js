@@ -43,7 +43,7 @@ let sources = {
   style: ['main.styl', 'admin.styl', 'popout.styl', 'livestream.styl'],
   document: ['index.pug', 'admin.pug', 'popout.pug', 'livestream.pug']
 }
-let lintES = ['src/script/**/*.js', 'server/**/*.js', 'scripts/**/*.js', 'liq/scripts/**/*.js', 'gulpfile.babel.js', 'webpack.config.js', 'bin/radio']
+let lintES = ['src/script/**/*.js', 'server/**/*.js', 'scripts/**/*.js', 'liq/scripts/**/*.js', 'gulpfile.babel.js', 'webpack.config.js', 'bin/startserver', 'knexfile.js', 'migrations/*.js']
 let lintCS = ['src/script/**/*.coffee', 'server/**/*.coffee']
 
 let inProduction = process.env.NODE_ENV === 'production' || process.argv.indexOf('-p') !== -1
@@ -277,6 +277,7 @@ gulp.task('watch:lint', () => {
 gulp.task('browsersync', () => {
   return browserSync.init({
     host: '0.0.0.0',
+    port: 3000,
     proxy: {
       target: config.server.host + ':' + config.server.port,
       ws: true

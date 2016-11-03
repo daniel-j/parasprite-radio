@@ -36,10 +36,9 @@ function initialize () {
 }
 
 api.user.fetch().then(function () {
-  let info = api.user.get()
+  let user = api.user.get()
 
-  if (info.user) {
-    let user = info.user
+  if (user) {
     document.getElementById('body').classList.add('loggedin')
     document.getElementById('inputAccountUsername').value = user.username
     document.getElementById('inputAccountDisplayName').value = user.displayName
