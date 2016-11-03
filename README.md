@@ -44,7 +44,7 @@ Start MPD: `bin/startmpd`
 
 Start Liquidsoap: in development `bin/startliq dev` or production `bin/startliq`
 
-Start web server: in development `bin/startserver -d` or production `bin/startserver`
+Start node server: in development `bin/startserver -d` or production `bin/startserver`
 
 If you haven't changed the default port, you can view the radio page here: [http://localhost:8002](http://localhost:8002)
 
