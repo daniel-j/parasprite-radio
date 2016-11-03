@@ -194,7 +194,7 @@ export default function (app) {
     }
   })
 
-  apiRouter.get('/show/create', (req, res) => {
+  apiRouter.post('/show/create', (req, res) => {
     if (req.user) {
       User
         .createShow(req.user.id, req.body)
