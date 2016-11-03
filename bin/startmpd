@@ -2,5 +2,7 @@
 
 # http://stackoverflow.com/a/3355423
 cd "${0%/*}"
+cd ..
 
-exec gulp watch -p
+echo "Starting MPD..."
+exec mpd conf/mpd.conf --no-daemon

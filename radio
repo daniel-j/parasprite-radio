@@ -1,9 +1,0 @@
-#!/usr/bin/env node
-
-process.env.NODE_ENV = 'production'
-
-require('babel-core/register')({
-	"presets": ["node5"]
-})
-
-require(__dirname+'/server/cluster')

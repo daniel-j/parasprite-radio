@@ -32,7 +32,7 @@ import nib from 'nib'
 import csso from 'gulp-csso'
 
 // document
-import jade from 'gulp-jade'
+import pug from 'gulp-pug'
 import htmlmin from 'gulp-htmlmin'
 
 const browserSync = BrowserSync.create()
@@ -41,9 +41,9 @@ const sequence = Sequence.use(gulp)
 let sources = {
   // script: ['main.js', 'admin.coffee', 'popout.js', 'livestream.js'],
   style: ['main.styl', 'admin.styl', 'popout.styl', 'livestream.styl'],
-  document: ['index.jade', 'admin.jade', 'popout.jade', 'livestream.jade']
+  document: ['index.pug', 'admin.pug', 'popout.pug', 'livestream.pug']
 }
-let lintES = ['src/script/**/*.js', 'server/**/*.js', 'scripts/**/*.js', 'liq/scripts/**/*.js', 'gulpfile.babel.js', 'webpack.config.js']
+let lintES = ['src/script/**/*.js', 'server/**/*.js', 'scripts/**/*.js', 'liq/scripts/**/*.js', 'gulpfile.babel.js', 'webpack.config.js', 'bin/startserver', 'knexfile.js', 'migrations/*.js']
 let lintCS = ['src/script/**/*.coffee', 'server/**/*.coffee']
 
 let inProduction = process.env.NODE_ENV === 'production' || process.argv.indexOf('-p') !== -1
@@ -56,7 +56,7 @@ let cssoOpts = {
   restructure: true
 }
 
-let jadeOpts = {
+let pugOpts = {
   pretty: !inProduction
 }
 
@@ -131,15 +131,15 @@ function styleTask () {
 
 function documentTask () {
   let simple = simpleconfig()
-  let jadeData = {
+  let data = {
     config: require('./scripts/config'),
     env: process.env.NODE_ENV || 'development',
     simpleconfig: simple
   }
   return gulp.src(sources.document.map(function (f) { return 'src/document/' + f }))
     .pipe(plumber())
-    .pipe(gdata(function () { return jadeData }))
-    .pipe(jade(jadeOpts))
+    .pipe(gdata(function () { return data }))
+    .pipe(pug(pugOpts))
     .pipe(realFavicon.injectFaviconMarkups(JSON.parse(fs.readFileSync(faviconDataFile)).favicon.html_code))
     .pipe(gulpif(inProduction, htmlmin(htmlminOpts)))
     .pipe(gulp.dest('build/document/'))
@@ -187,7 +187,7 @@ gulp.task('watch:style', () => {
 
 gulp.task('document', documentTask)
 gulp.task('watch:document', () => {
-  return watch(['src/document/**/*.jade', 'config.toml'], watchOpts, documentTask)
+  return watch(['src/document/**/*.pug', 'conf/radio.toml'], watchOpts, documentTask)
 })
 
 // Generate the icons. This task takes a few seconds to complete.
@@ -277,6 +277,7 @@ gulp.task('watch:lint', () => {
 gulp.task('browsersync', () => {
   return browserSync.init({
     host: '0.0.0.0',
+    port: 3000,
     proxy: {
       target: config.server.host + ':' + config.server.port,
       ws: true

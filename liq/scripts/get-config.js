@@ -24,9 +24,11 @@ let keys = [
   'liquidsoap.port_harbor',
   'liquidsoap.port_input',
 
+  'lastfm.enable',
   'lastfm.username',
   'lastfm.password',
 
+  'tunein.enable',
   'tunein.stationId',
   'tunein.partnerId',
   'tunein.partnerKey',

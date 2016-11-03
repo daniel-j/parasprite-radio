@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# http://stackoverflow.com/a/3355423
+cd "${0%/*}"
+cd ..
+
 echo "Starting Liquidsoap..."
 cd liq
 exec liquidsoap radio.liq -- $@

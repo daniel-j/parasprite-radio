@@ -2,7 +2,7 @@
 'use strict'
 const net = require('net')
 const path = require('path')
-const config = require(path.join(__dirname, '../../scripts/config'))
+const config = require(path.join(__dirname, '../scripts/config'))
 
 let client = net.connect(config.liquidsoap.port_telnet, config.liquidsoap.host)
 client.pipe(process.stdout)

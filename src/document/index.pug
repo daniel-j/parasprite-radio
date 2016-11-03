@@ -2,10 +2,10 @@ doctype html
 html
 	head
 		meta(charset='utf-8')
-		meta(name='og:title', content='#{config.radio.title}')
-		meta(name='og:image', content='#{config.general.baseurl}img/icons/parasprite-radio.png')
-		meta(name='og:url', content='#{config.general.baseurl}')
-		meta(name='og:description', content='Tune in to #{config.radio.title}!')
+		meta(name='og:title', content=config.radio.title)
+		meta(name='og:image', content=config.general.baseurl+'img/icons/parasprite-radio.png')
+		meta(name='og:url', content=config.general.baseurl)
+		meta(name='og:description', content='Tune in to '+config.radio.title+'!')
 		meta(name='viewport', content='width=device-width, initial-scale=1')
 		meta(name='mobile-web-app-capable', content='yes')
 
@@ -27,7 +27,7 @@ html
 		#top
 			.container
 				a(href='')
-					img#logo(src='/img/icons/parasprite-radio-nmn-hex-256.png', alt='Logo', title='#{config.radio.title}')
+					img#logo(src='/img/icons/parasprite-radio-nmn-hex-256.png', alt='Logo', title=config.radio.title)
 				.left
 					h1
 						a(href='/') #{config.radio.title}
@@ -63,7 +63,8 @@ html
 									option(value='radio_mobile_vorbis') Low Quality OGG Vorbis
 									option(value='radio_normal') Low Quality MP3 128k
 									option(value='radio') High Quality MP3 320k
-									option(value='radio_opus') High Quality OPUS 128k
+									option(value='radio_opus', disabled) High Quality OPUS 128k
+									option(value='radio_flac', disabled) Lossless FLAC
 									option(value='gnr') Galaxy News Radio
 									if env == 'development'
 										option(value='radio_dev') Development stream
@@ -227,7 +228,7 @@ html
 					br
 
 					| Direct stream url (for VLC and other media players): #{''}
-					a(target='_blank', href='#{config.general.baseurl}stream/') #{config.general.baseurl}stream/
+					a(target='_blank', href=config.general.baseurl+'stream/') #{config.general.baseurl}stream/
 
 					br
 
@@ -267,6 +268,5 @@ html
 
 		script.
 			var config = !{JSON.stringify(simpleconfig)}
-		script(src='//cdnjs.cloudflare.com/ajax/libs/jstimezonedetect/1.0.4/jstz.min.js')
 		script(type='text/javascript', src='/build/script/main.js')
 

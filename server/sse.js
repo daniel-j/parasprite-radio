@@ -1,4 +1,3 @@
-'use strict'
 // const url = require('url')
 
 const sse = {}
@@ -68,4 +67,4 @@ function formatMessage (event, data) {
 sse.handle = handle
 sse.broadcast = broadcast
 
-module.exports = sse
+export default sse

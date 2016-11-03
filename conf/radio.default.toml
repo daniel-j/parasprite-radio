@@ -88,6 +88,7 @@ callbackURL = "http://localhost/auth/poniverse/callback"
 
 # for scheduling
 [google]
+publicApiKey = ""
 apiKey = ""
 calendarId = "nj4dn0ck0u66t6f38qtqnj324k@group.calendar.google.com"
 

@@ -1,13 +1,8 @@
-import Sequelize from 'sequelize'
-import config from '../scripts/config'
+import Knex from 'knex'
+import Bookshelf from 'bookshelf'
+import knexconfig from '../knexfile'
 
-const sequelize = new Sequelize(config.mysql.database, config.mysql.user, config.mysql.password, {
-  host: config.mysql.host,
-  logging: false,
-  define: {
-    charset: 'utf8'
-  },
-  language: 'en'
-})
+const knex = Knex(knexconfig)
+const bookshelf = Bookshelf(knex)
 
-export default sequelize
+export { bookshelf, knex }
