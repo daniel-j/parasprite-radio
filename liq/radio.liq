@@ -10,7 +10,6 @@ set("log.stdout", true)
 
 # to run in dev mode: liquidsoap radio.liq -- dev
 inDev = argv(1) == "dev"
-inProd = not(inDev)
 
 # Use the telnet server for requests
 set("server.telnet", true)
@@ -58,7 +57,6 @@ skip_source = ref blank()
 archiveEncoder = %mp3.vbr(quality=0, stereo_mode="joint_stereo", internal_quality=0, id3v2=true)
 
 
-
 # temporary solution https://github.com/savonet/liquidsoap/issues/217
 def track_end_cleanup(time, m)
 	if m["temporary"] == "true" and m["filename"] != "" then
@@ -72,15 +70,18 @@ end
 
 def scrobble_nowplaying(m)
 	if confbool("lastfm.enable") then
+		print("Scrobbling now playing to Last.fm")
 		audioscrobbler.nowplaying(user=confstr("lastfm.username"), password=confstr("lastfm.password"), m)
 	end
 	if confbool("tunein.enable") then
+		print("Scrobbling now playing to TuneIn")
 		tunein.nowplaying(partner_id=confstr("tunein.partnerId"), partner_key=confstr("tunein.partnerKey"), station_id=confstr("tunein.stationId"), m)
 	end
 end
 
 def scrobble_submit(t, m)
 	if confbool("lastfm.enable") then
+		print("Scrobbling track to Last.fm")
 		audioscrobbler.submit(user=confstr("lastfm.username"), password=confstr("lastfm.password"), m)
 	end
 end
@@ -245,13 +246,9 @@ source = fallback([queue1, queue2, queue3, songs])
 
 # scrobble music (last.fm & tunein) but not jingles etc..
 source = store_metadata(id="history", size=20, source)
-# if-statements are scoped! workaround below
-# this makes it only scrobble tracks in production
-source = if inProd then
-	source = on_track(scrobble_nowplaying, source)
-	source = on_end(delay=0., scrobble_submit, source)
-	source
-else source end
+
+source = on_track(scrobble_nowplaying, source)
+source = on_end(delay=0., scrobble_submit, source)
 
 # TODO: replace with jingles
 source = rotate(weights=[1,7], [friendship,source])
@@ -265,7 +262,6 @@ announce = on_end(delay=0., track_end_cleanup, announce)
 
 # crossfade songs!
 source = smart_crossfade(conservative=true, start_next=3., fade_in=2., fade_out=3., width=5., source)
-
 
 
 def to_live(old,new)
@@ -324,8 +320,8 @@ live = map_metadata(fun(m) -> begin
 	end
 
 	#list.append([
-	#	("artist", m["live_displayname"]),
-	#	("album", m["live_description"])
+	# ("artist", m["live_displayname"]),
+	# ("album", m["live_description"])
 	#], !l)
 	!l
 end, live)

@@ -2,13 +2,11 @@
 confsrc = get_process_output("node scripts/get-config")
 config = of_json(default=[("error", "json")], confsrc)
 
-
 if config["error"] == "json" then
 	print("Failed to parse config JSON:")
 	print(confsrc)
 	shutdown()
 end
-
 
 def confstr(key,default="") =
 	c = config[key]
