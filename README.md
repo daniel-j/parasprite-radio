@@ -1,4 +1,4 @@
-![Parasprite Radio](https://i.imgbox.com/JGmsmEuC.png)
+![Parasprite Radio](https://i.imgbox.com/GARLVsXm.png)
 
 Under development! See the live site: http://radio.djazz.se
 
