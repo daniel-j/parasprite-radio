@@ -197,8 +197,13 @@ const API = {
     }
 
     generateArt((m.art || m.filename), function (err, result) {
-      imagedata = result
-      console.log(err)
+      if (err) {
+        console.error('Generate art: ' + err, (m.art || m.filename))
+        imagedata = null
+      } else {
+        imagedata = result
+      }
+
       sse.broadcast('metadata', metadata, true)
     })
   },
