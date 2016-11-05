@@ -1,7 +1,4 @@
 /node_modules/
 /build/
-/config.toml
-/Makefile
 .DS_Store
 ._*
-.sync-config.cson
