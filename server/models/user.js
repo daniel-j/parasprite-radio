@@ -34,6 +34,7 @@ const API = {
     let user = await User.forge({id: id}).fetch({
       columns: ['id', 'username', 'displayName', 'email', 'level', 'avatarUrl', 'canMakeShows']
     })
+    if (!user) return null
     user = user.serialize()
     user.auths = null
     if (withAuth) {
