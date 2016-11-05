@@ -1,13 +1,21 @@
 
-import express from 'express'
 import path from 'path'
 import fs from 'fs'
+import express from 'express'
+import passport from 'passport'
 import mm from 'musicmetadata'
 import { fetchJSON } from '../scripts/fetcher'
 import Song from './models/song'
 import User from './models/user'
-import simpleconfig from '../scripts/simpleconfig'
+import EqBeats from './models/eqbeats'
+import mpd from './mpd'
+import liquid from './liquid'
+import icecast from './icecast'
+import livestream from './livestream'
+import scheduler from './scheduler'
 import sse from './sse'
+import config from '../scripts/config'
+import simpleconfig from '../scripts/simpleconfig'
 
 let htmloptions = {
   root: path.join(__dirname, '../build/document/'),
@@ -55,15 +63,14 @@ function nocache (res) {
   return res
 }
 
-export default function (app, passport, config, mpd, liquid, icecast, scheduler, livestream) {
+export default function (app) {
   // inDev = app.get('env') == 'development'
-
-  const EqBeats = require('./models/eqbeats')(config)
 
   const internalRouter = express.Router()
   const defaultRouter = express.Router()
   const apiRouter = express.Router()
   const adminRouter = express.Router()
+  const passportRouter = express.Router()
 
   internalRouter.post('/meta', (req, res) => {
     let m = req.body
@@ -85,32 +92,26 @@ export default function (app, passport, config, mpd, liquid, icecast, scheduler,
     }
 
     if (username.toLowerCase() === 'source' && password !== '') {
-      User.authUserWithShow(password, function (err, show, user, userAuth) {
-        if (err) {
-          console.error(err)
+      User
+        .authUserWithShow(password)
+        .then(({user, show}) => {
+          out.live_unique = user.id + '_' + show.id
+          out.live_userId = user.id + ''
+          out.live_showId = show.id + ''
+          out.live_username = user.username || ''
+          out.live_displayname = user.displayName || ''
+          out.live_twitter = show.twitter || ''
+          out.live_name = show.name || ''
+          out.live_description = show.description || ''
+          out.url = show.url || user.url || ''
+          out.art = show.art || user.avatarUrl || ''
+          send()
+        })
+        .catch((err) => {
+          console.error('Auth live: ' + err)
           out.error = 'Invalid token: ' + err
           send()
-          return
-        }
-
-        let userTwitter = ''
-        for (let a of userAuth) {
-          if (a.provider === 'twitter') {
-            userTwitter = a.username
-          }
-        }
-        out.live_unique = user.id + '_' + show.id
-        out.live_userId = user.id + ''
-        out.live_showId = show.id + ''
-        out.live_username = user.username || ''
-        out.live_displayname = user.displayName || ''
-        out.live_twitter = show.twitter || userTwitter || ''
-        out.live_name = show.name || ''
-        out.live_description = show.description || ''
-        out.url = show.url || user.url || ''
-        out.art = show.art || user.avatarUrl || ''
-        send()
-      })
+        })
     } else {
       out.error = 'Wrong username or password'
       send()
@@ -156,23 +157,23 @@ export default function (app, passport, config, mpd, liquid, icecast, scheduler,
 
   defaultRouter.get('/stream', (req, res) => res.redirect(config.streamurl + config.icecast.mounts[0]))
 
-  defaultRouter.get('/auth/twitter', passport.authenticate('twitter'))
-  defaultRouter.get('/auth/twitter/callback', passport.authenticate('twitter', {
+  passportRouter.get('/auth/twitter', passport.authenticate('twitter'))
+  passportRouter.get('/auth/twitter/callback', passport.authenticate('twitter', {
     successRedirect: '/',
-    failureRedirect: '/login',
-    failureFlash: 'Login failed'
+    failureRedirect: '/login'
+    // failureFlash: 'Login failed'
     // successFlash: 'Login succeeded'
   }))
 
-  defaultRouter.get('/auth/poniverse', passport.authenticate('poniverse'))
-  defaultRouter.get('/auth/poniverse/callback', passport.authenticate('poniverse', {
+  passportRouter.get('/auth/poniverse', passport.authenticate('poniverse'))
+  passportRouter.get('/auth/poniverse/callback', passport.authenticate('poniverse', {
     successRedirect: '/',
-    failureRedirect: '/login',
-    failureFlash: 'Login failed'
+    failureRedirect: '/login'
+    // failureFlash: 'Login failed'
     // successFlash: 'Login succeeded'
   }))
 
-  defaultRouter.get('/logout', (req, res) => {
+  passportRouter.get('/logout', (req, res) => {
     if (req.isAuthenticated()) {
       req.logout()
       delete req.session
@@ -185,25 +186,25 @@ export default function (app, passport, config, mpd, liquid, icecast, scheduler,
 
   apiRouter.get('/user', (req, res) => {
     if (req.user) {
-      User.findWithAuth(req.user.id, (err, user) => {
-        if (err) console.error(err)
-        return res.json(user)
+      User.findById(req.user.id, true).then((user) => {
+        res.json(user)
       })
     } else {
-      res.json({})
+      res.json(null)
     }
   })
 
   apiRouter.post('/show/create', (req, res) => {
     if (req.user) {
-      User.createShow(req.user.id, req.body, (err) => {
-        if (err) {
+      User
+        .createShow(req.user.id, req.body)
+        .then((show) => {
+          res.json('ok')
+        })
+        .catch((err) => {
           console.error('Error creating show: ' + err)
           res.json({error: '' + err})
-          return
-        }
-        res.json('ok')
-      })
+        })
     } else {
       res.json({error: 'not logged in'})
     }
@@ -211,14 +212,15 @@ export default function (app, passport, config, mpd, liquid, icecast, scheduler,
 
   apiRouter.delete('/show/:id', (req, res) => {
     if (req.user) {
-      User.removeShow(req.user.id, req.params.id, (err) => {
-        if (err) {
+      User
+        .removeShow(req.user.id, req.params.id)
+        .then(() => {
+          res.json('ok')
+        })
+        .catch((err) => {
           console.error('Error removing show: ' + err)
           res.json({error: '' + err})
-          return
-        }
-        res.json('ok')
-      })
+        })
     } else {
       res.json({error: 'not logged in'})
     }
@@ -226,14 +228,13 @@ export default function (app, passport, config, mpd, liquid, icecast, scheduler,
 
   apiRouter.get('/show', (req, res) => {
     if (req.user) {
-      User.getShows(req.user.id, (err, list) => {
-        if (err) {
+      User
+        .getShows(req.user.id)
+        .then((list) => res.json(list))
+        .catch((err) => {
           console.error('Error fetching show: ' + err)
           res.json({error: '' + err})
-          return
-        }
-        res.json(list)
-      })
+        })
     } else {
       res.json({error: 'not logged in'})
     }
@@ -241,26 +242,17 @@ export default function (app, passport, config, mpd, liquid, icecast, scheduler,
 
   apiRouter.get('/show/:id/updatetoken', (req, res) => {
     if (req.user) {
-      User.updateToken(req.user.id, req.params.id, (err, token) => {
-        if (err) {
+      User
+        .updateToken(req.user.id, req.params.id)
+        .then((token) => res.json({token: token}))
+        .catch((err) => {
           console.error('Error updating token: ' + err)
           res.json({error: '' + err})
-          return
-        }
-        res.json({token: token})
-      })
+        })
     } else {
       res.json({error: 'not logged in'})
     }
   })
-
-  /*
-  apiRouter.get '/flash', (req, res) ->
-    res.json req.flash()
-
-  defaultRouter.get '/flash/:name', (req, res) ->
-    res.json req.flash req.params.name
-  */
 
   apiRouter.get('/now/art/:size', (req, res) => {
     let size = req.params.size
@@ -442,7 +434,14 @@ export default function (app, passport, config, mpd, liquid, icecast, scheduler,
 
   // \/ ADMIN ENDPOINTS \/ //
 
-  adminRouter.get('/*', (req, res) => res.sendFile('admin.html', htmloptions))
+  adminRouter.get('/*', (req, res) => {
+    // check if range is requested, then end the response
+    if (req.get('range')) {
+      res.end()
+    } else {
+      res.sendFile('admin.html', htmloptions)
+    }
+  })
   adminRouter.get('/', (req, res) => res.redirect('/admin/'))
 
   apiRouter.get('/update', isAdmin, (req, res) => {
@@ -701,11 +700,16 @@ export default function (app, passport, config, mpd, liquid, icecast, scheduler,
 
   apiRouter.get('/listeners', isAdmin, (req, res) => res.json(icecast.getListeners()))
 
-  app.use('/api', apiRouter)
   app.use('/', defaultRouter)
   app.use('/build/', express.static(path.join(__dirname, '../build/'), { maxAge: 365 * 24 * 60 * 60 * 1000 }))
   app.use('/', express.static(path.join(__dirname, '../build/icons/'), { maxAge: 365 * 24 * 60 * 60 * 1000 }))
   app.use('/', express.static(path.join(__dirname, '../static'), { maxAge: 365 * 24 * 60 * 60 * 1000 }))
+
+  app.use(passport.initialize())
+  app.use(passport.session())
+
+  app.use('/', passportRouter)
+  app.use('/api', apiRouter)
 
   app.use('/admin', isAdmin, adminRouter)
   app.use('/internal/', isInternal, internalRouter)

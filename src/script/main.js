@@ -9,6 +9,7 @@ import { formattime, timeago } from './utils/time'
 import api from './entities/api'
 import './incl/snow'
 import dateFormat from 'dateformat-light'
+import jstz from 'jstz'
 
 const radio = radioPlayer({
   baseurl: window.config.general_streamurl,
@@ -35,10 +36,9 @@ function initialize () {
 }
 
 api.user.fetch().then(function () {
-  let info = api.user.get()
+  let user = api.user.get()
 
-  if (info.user) {
-    let user = info.user
+  if (user) {
     document.getElementById('body').classList.add('loggedin')
     document.getElementById('inputAccountUsername').value = user.username
     document.getElementById('inputAccountDisplayName').value = user.displayName
@@ -167,7 +167,7 @@ window.toSpotifyPlaylist = toSpotifyPlaylist
 */
 
 // Schedule
-let tz = window.jstz.determine()
+let tz = jstz.determine()
 let timezone = tz.name()
 
 let bgcolor = '444444'

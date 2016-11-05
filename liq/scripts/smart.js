@@ -4,7 +4,7 @@
 const url = require('url')
 const utils = require('./utils')
 
-let arg = process.argv[2].trim()
+let arg = (process.argv[2] || '').trim()
 let parsedUrl = url.parse(arg, true)
 
 let handler = null
@@ -40,7 +40,7 @@ switch (parsedUrl.protocol) {
 
     if (!handler) {
       if (/^.*bandcamp\.com$/.test(parsedUrl.hostname)) {
-        handler = require('./protocols/youtube-dl')
+        handler = require('./protocols/bandcamp')
         break
       }
     }

@@ -25,7 +25,8 @@ function protocol (arg, parsedUrl, handleCb) {
   }
 
   function outputTrack (track) {
-    let arturl = track.artwork_url || track.user.avatar_url
+    let arturl = track.artwork_url || track.user.avatar_url || ''
+    arturl = arturl.replace('large', 't500x500')
     let year = parseInt(track.created_at, 10) // format: '2015/04/22 22:12:30 +0000'
     let audiourl = ''
     let format = 'mp3'
@@ -44,7 +45,7 @@ function protocol (arg, parsedUrl, handleCb) {
       title: track.title,
       artist: track.user.username,
       url: track.permalink_url,
-      art: arturl,
+      art: arturl || null,
       duration: Math.round(track.duration / 1000),
       year: year,
 

@@ -1,7 +1,7 @@
 
-const fs = require('fs')
-const path = require('path')
-const mm = require('musicmetadata')
+import fs from 'fs'
+import path from 'path'
+import mm from 'musicmetadata'
 
 function typeToMime (type) {
   switch (type) {
@@ -22,7 +22,10 @@ function imageFromFile (filename, cb) {
   //  return
 
   let parser = mm(stream, {}, function (err, meta) {
-    if (err) console.error(err)
+    if (err) {
+      cb(err)
+      return
+    }
     let pictures = meta.picture
 
     if (pictures && pictures[0]) {
@@ -96,4 +99,4 @@ function imageFromFile (filename, cb) {
   })
 }
 
-module.exports = imageFromFile
+export default imageFromFile

@@ -1,0 +1,15 @@
+#!/usr/bin/env node
+
+const path = require('path')
+
+process.env.NODE_ENV = 'production'
+
+require('babel-core/register')({
+  plugins: [
+    'transform-es2015-modules-commonjs',
+    'syntax-async-functions',
+    'transform-async-to-generator'
+  ]
+})
+
+require(path.join(__dirname, '../server/cluster'))
