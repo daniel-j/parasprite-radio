@@ -196,9 +196,9 @@ const API = {
       metadata.source = 'live'
     }
 
-    generateArt((m.art || m.filename), function (err, result) {
+    generateArt((m.art || m.filename), (err, result) => {
       imagedata = result
-      console.log(err)
+      if (err) console.error('Generate art: ' + err)
       sse.broadcast('metadata', metadata, true)
     })
   },
