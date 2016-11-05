@@ -19,6 +19,8 @@ import Sequence from 'run-sequence'
 import watch from 'gulp-watch'
 import lazypipe from 'lazypipe'
 import realFavicon from 'gulp-real-favicon'
+import debug from 'gulp-debug'
+import filter from 'gulp-filter'
 
 // script
 import standard from 'gulp-standard'
@@ -34,6 +36,7 @@ import csso from 'gulp-csso'
 // document
 import pug from 'gulp-pug'
 import htmlmin from 'gulp-htmlmin'
+import watchPug from 'gulp-watch-pug'
 
 const browserSync = BrowserSync.create()
 const sequence = Sequence.use(gulp)
@@ -106,7 +109,7 @@ function webpackTask (callback) {
   // run webpack
   wpCompiler.run(function (err, stats) {
     if (err) throw new gutil.PluginError('webpack', err)
-    gutil.log('[webpack]', stats.toString({
+    gutil.log('[script]', stats.toString({
       colors: true,
       hash: false,
       version: false,
@@ -125,24 +128,26 @@ function styleTask () {
       .pipe(stylus(stylusOpts))
       .pipe(gulpif(inProduction, csso(cssoOpts)))
     .pipe(gulpif(!inProduction, sourcemaps.write()))
+    .pipe(debug({title: '[style]'}))
     .pipe(gulp.dest('build/style/'))
     .pipe(browserSync.stream())
 }
 
-function documentTask () {
+function documentTask (p) {
   let simple = simpleconfig()
   let data = {
     config: require('./scripts/config'),
     env: process.env.NODE_ENV || 'development',
     simpleconfig: simple
   }
-  return gulp.src(sources.document.map(function (f) { return 'src/document/' + f }))
+  return p
     .pipe(plumber())
     .pipe(gdata(function () { return data }))
     .pipe(pug(pugOpts))
     .pipe(realFavicon.injectFaviconMarkups(JSON.parse(fs.readFileSync(faviconDataFile)).favicon.html_code))
     .pipe(gulpif(inProduction, htmlmin(htmlminOpts)))
     .pipe(gulp.dest('build/document/'))
+    .pipe(debug({title: '[document]'}))
     .pipe(browserSync.stream())
 }
 
@@ -172,22 +177,27 @@ gulp.task('clean:icons', () => {
 })
 
 // Main tasks
-gulp.task('webpack', webpackTask)
-gulp.task('script', ['webpack'])
+gulp.task('script', ['clean:script'], webpackTask)
 gulp.task('watch:script', () => {
   return watch(['src/script/**/*.coffee', 'src/script/**/*.js', 'src/script/template/**/*.mustache'], watchOpts, function () {
     return sequence('script')
   })
 })
 
-gulp.task('style', styleTask)
+gulp.task('style', ['clean:style'], styleTask)
 gulp.task('watch:style', () => {
   return watch('src/style/**/*.styl', watchOpts, styleTask)
 })
 
-gulp.task('document', documentTask)
+gulp.task('document', ['clean:document', 'update-favicon'], () => {
+  return documentTask(gulp.src(sources.document.map(function (f) { return 'src/document/' + f })))
+})
 gulp.task('watch:document', () => {
-  return watch(['src/document/**/*.pug', 'conf/radio.toml'], watchOpts, documentTask)
+  return documentTask(
+    watch(['src/document/**/*.pug', 'conf/radio.toml'], watchOpts)
+    .pipe(watchPug('src/document/**/*.pug', {delay: 100}))
+    .pipe(filter(sources.document.map(function (f) { return 'src/document/' + f })))
+  )
 })
 
 // Generate the icons. This task takes a few seconds to complete.
@@ -253,7 +263,7 @@ gulp.task('update-favicon', (done) => {
       done()
     })
   } else {
-    sequence('generate-favicon', 'document', done)
+    sequence('generate-favicon', done)
   }
 })
 
@@ -292,7 +302,7 @@ gulp.task('browsersync', () => {
 
 // Default task
 gulp.task('default', (done) => {
-  sequence('clean:quick', 'update-favicon', ['script', 'style', 'document', 'lint'], done)
+  sequence('script', 'style', 'document', 'lint', done)
 })
 
 // Watch task
