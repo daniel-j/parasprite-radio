@@ -1,7 +1,18 @@
 'use strict'
 
+// to be able to include ES6 modules
+require('babel-core/register')({
+  plugins: [
+    'transform-es2015-modules-commonjs',
+    'syntax-async-functions',
+    'transform-async-to-generator'
+  ]
+})
+
 const scrapeIt = require('scrape-it')
 const vm = require('vm')
+const mpd = require('../../../server/mpd').default
+const config = require('../../../scripts/config')
 
 function protocol (arg, parsedUrl, handleCb) {
   let path = parsedUrl.pathname.substr(1).split('/')
@@ -38,22 +49,50 @@ function protocol (arg, parsedUrl, handleCb) {
       let url = data.url
       let duration = track.duration || null
       let art = page.art || null
-      let comment = ((data.current.about || '') + '\n\n' + (data.current.credits || '')).trim()
+      let comment = ((data.current.about || '') + '\n\n' + (data.current.credits || '')).trim() || null
       let year = new Date(data.current.release_date || data.current.publish_date || '').getFullYear() || null
       let source = track.file['mp3-128'].replace(/^\/\//, 'https://') + '&liquidtype=.mp3'
 
-      handleCb({
+      mpd.enableLogging(false)
+
+      mpd.find({
         title: title,
         artist: artist,
         album: album,
-        albumartist: albumartist,
-        url: url,
-        duration: duration,
-        art: art,
-        comment: comment,
-        year: year,
+        albumartist: albumartist
+      }).then((tracks) => {
+        mpd.disconnect()
 
-        source: source
+        let found = null
+        for (let i = 0; i < tracks.length; i++) {
+          let t = tracks[i]
+          if ((year !== null && t.date === year) && (t.time === Math.round(duration))) {
+            found = t
+            break
+          }
+        }
+
+        if (found) {
+          handleCb({
+            source: config.general.media_dir + '/' + found.file,
+            comment: comment,
+            url: url
+          })
+        } else {
+          handleCb({
+            title: title,
+            artist: artist,
+            album: album,
+            albumartist: albumartist,
+            url: url,
+            duration: duration,
+            art: art,
+            comment: comment,
+            year: year,
+
+            source: source
+          })
+        }
       })
     })
   }
