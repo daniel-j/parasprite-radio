@@ -1,5 +1,5 @@
 
-const fetchXML = require('../scripts/fetcher').fetchXML
+import { fetchXML } from '../scripts/fetcher'
 import sse from './sse'
 import config from '../scripts/config'
 
