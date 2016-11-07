@@ -117,7 +117,7 @@ function webpackTask (callback) {
       chunkModules: false
     }))
     browserSync.reload()
-    callback()
+    if (typeof callback === 'function') callback()
   })
 }
 
@@ -179,9 +179,7 @@ gulp.task('clean:icons', () => {
 // Main tasks
 gulp.task('script', ['clean:script'], webpackTask)
 gulp.task('watch:script', () => {
-  return watch(['src/script/**/*.coffee', 'src/script/**/*.js', 'src/script/template/**/*.mustache'], watchOpts, function () {
-    return sequence('script')
-  })
+  return watch(['src/script/**/*.coffee', 'src/script/**/*.js', 'src/script/template/**/*.mustache'], watchOpts, webpackTask)
 })
 
 gulp.task('style', ['clean:style'], styleTask)
