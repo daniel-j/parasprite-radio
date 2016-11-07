@@ -46,7 +46,7 @@ class Entity.SortableCollection extends Backbone.Collection
 class Entity.Track extends Backbone.Model
 	idAttribute: 'file'
 	url: ->
-		config.apiPath+"/track?f="+encodeURIComponent(@get('file'))
+		config.server_api_prefix+"/track?f="+encodeURIComponent(@get('file'))
 	defaults:
 		track: null
 		file: ''
@@ -81,18 +81,18 @@ class Entity.Album extends Backbone.Model
 		album: ''
 
 class Entity.Albums extends Backbone.Collection
-	url: config.apiPath+'/albums'
+	url: config.server_api_prefix+'/albums'
 
 class Entity.Search extends Entity.Tracks
 	url: ->
-		config.apiPath+"/search?q="+encodeURIComponent(@query)+"&t="+encodeURIComponent(@type)
+		config.server_api_prefix+"/search?q="+encodeURIComponent(@query)+"&t="+encodeURIComponent(@type)
 
 
 class Entity.Browse extends Entity.Tracks
 	url: ->
 		while @path.indexOf('/') == 0
 			@path = @path.substr 1
-		config.apiPath+"/files/"+encodeURI(@path).replace(/#/, "%23")
+		config.server_api_prefix+"/files/"+encodeURI(@path).replace(/#/, "%23")
 
 class Entity.BrowsePathItem extends Backbone.Model
 
@@ -103,14 +103,14 @@ class Entity.BrowsePath extends Backbone.Collection
 class Entity.Playlist extends Backbone.Collection
 	idAttribute: 'playlist'
 	url: ->
-		config.apiPath+"/playlist/"+encodeURI(@playlist).replace(/#/, "%23")
+		config.server_api_prefix+"/playlist/"+encodeURI(@playlist).replace(/#/, "%23")
 
 class Entity.Playlists extends Backbone.Collection
-	url: config.apiPath+'/playlists'
+	url: config.server_api_prefix+'/playlists'
 
 class Entity.QueueList extends Backbone.Collection
 	idAttribute: 'rid'
 	url: ->
-		config.apiPath+"/queue/list"
+		config.server_api_prefix+"/queue/list"
 
 module.exports = Entity

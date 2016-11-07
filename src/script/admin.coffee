@@ -1,4 +1,4 @@
-
+path = require 'path'
 app = require './app'
 
 #Backbone.emulateHTTP = true
@@ -40,9 +40,10 @@ app.commands.setHandler 'play:track', (file) ->
 	audioTag.play()
 
 app.commands.setHandler "queue:track", (track) ->
-	path = if track.get('file') then '/audio/'+track.get('file') else track.get('url')
+	filename = if track.get('file') then path.join(window.config.general_media_dir, track.get('file')) else track.get('url')
+	console.log(filename)
 	$.ajax
-		url: config.apiPath+"/queue?add="+encodeURIComponent(path)+"&id=3"
+		url: config.server_api_prefix+"/queue?add="+encodeURIComponent(filename)+"&id=3"
 
 app.on 'start', (options) ->
 	app.module('search').start()

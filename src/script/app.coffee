@@ -2,7 +2,6 @@
 
 window.Behavior = {}
 
-require './config'
 require './custom/marionette.application'
 require './custom/marionette.render'
 require './base/base.controller'

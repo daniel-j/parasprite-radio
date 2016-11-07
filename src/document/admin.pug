@@ -50,5 +50,7 @@ html
 				#queueList
 
 
-
+		script.
+			var config = !{JSON.stringify(simpleconfig)}
+			config.general_media_dir = !{JSON.stringify(config.general.media_dir)}
 		script(type="text/javascript", src="/build/script/admin.js")
