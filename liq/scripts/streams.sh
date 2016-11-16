@@ -3,8 +3,7 @@
 cd "${0%/*}"
 cd ../..
 
-# TODO: FIX!!!
-streams_dir="/tmp/pr/streams"
+streams_dir=`node -e "console.log(require('./scripts/config').server.streams_dir)"`
 
 mkdir -pv "$streams_dir/hls/radio"
 rm -fv "$streams_dir/hls/radio/"*
