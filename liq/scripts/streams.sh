@@ -3,7 +3,8 @@
 cd "${0%/*}"
 cd ../..
 
-streams_dir="/tmp/prdev/streams"
+# TODO: FIX!!!
+streams_dir="/tmp/pr/streams"
 
 mkdir -pv "$streams_dir/hls/radio"
 rm -fv "$streams_dir/hls/radio/"*
