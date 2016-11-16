@@ -6,22 +6,21 @@ Under development! See the live site: http://radio.djazz.se
 
 Note: Installation instructions are not complete!
 
-The app uses Twitter authentication, so you have to [set up an app key](https://apps.twitter.com/).
-
 ### Install dependencies
+
+#### Ubuntu
+
+TODO
 
 #### Arch Linux
 
-`sudo pacman -S nodejs npm mariadb mpd icecast mediainfo ffmpeg graphicsmagick`
-
-Follow [these instructions](https://wiki.archlinux.org/index.php/MySQL#Installation) to set up the MySQL service.
-
-(optional) For text-to-speech support:
-
-`sudo pacman -S festival sox`
+`sudo pacman -S nodejs npm mariadb mpd icecast mediainfo graphicsmagick flac opus-tools curl festival sox`
 
 Now [install Liquidsoap](http://liquidsoap.fm/download.html) from [AUR](https://aur.archlinux.org/packages/liquidsoap/) or [OPAM](https://opam.ocaml.org/packages/liquidsoap/).
 
+Install [ffmpeg-git](https://aur.archlinux.org/packages/ffmpeg-git/) from AUR or build it yourself. Any recent ffmpeg version with fdkaac enabled should work. You could also install the [ffmpeg-full](https://aur.archlinux.org/packages/ffmpeg-full/) or [ffmpeg-full-git](https://aur.archlinux.org/packages/ffmpeg-full-git/) package, or possibly [ffmpeg-libfdk_aac](https://aur.archlinux.org/packages/ffmpeg-libfdk_aac/).
+
+Follow [these instructions](https://wiki.archlinux.org/index.php/MySQL#Installation) to set up the MySQL service.
 
 ### Set up
 ```

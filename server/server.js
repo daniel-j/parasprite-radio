@@ -10,11 +10,12 @@ import session from 'express-session'
 import bodyParser from 'body-parser'
 import expressMysqlSession from 'express-mysql-session'
 import cookieParser from 'cookie-parser'
-import IO from 'socket.io'
+// import IO from 'socket.io'
 
 import config from '../scripts/config'
 
 import './passport'
+import * as streams from './streams'
 import mpd from './mpd'
 import liquid from './liquid'
 import icecast from './icecast'
@@ -30,11 +31,12 @@ export async function startServer (args = {}) {
 
   const app = express()
   const server = require('http').createServer(app)
-  const io = IO(server, {path: '/socket.io'})
+  // const io = IO(server, {path: '/socket.io'})
 
+  streams.initialize()
   mpd.initialize()
   icecast.initialize()
-  livestream.initialize(io)
+  livestream.initialize()
   scheduler.initialize()
 
   scheduler.on('started', liquid.eventStarted)

@@ -4,6 +4,7 @@ import { fetchXML } from '../scripts/fetcher'
 import iplookup from '../scripts/iplookup'
 import sse from './sse'
 import config from '../scripts/config'
+import { streamInfo } from './streams'
 
 let timeout = 5000
 
@@ -280,7 +281,7 @@ const API = {
       }
       count += Math.max(c, 0)
     }
-    return count
+    return count + streamInfo.radio.length
   },
 
   getListenerPeak () {

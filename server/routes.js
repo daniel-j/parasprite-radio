@@ -8,6 +8,7 @@ import { fetchJSON } from '../scripts/fetcher'
 import Song from './models/song'
 import User from './models/user'
 import EqBeats from './models/eqbeats'
+import * as streams from './streams'
 import mpd from './mpd'
 import liquid from './liquid'
 import icecast from './icecast'
@@ -151,11 +152,47 @@ export default function (app) {
   //      res.end stdout
   //  ###
 
+  internalRouter.get('/rtmp/:stream', (req, res) => {
+    if (req.params.stream === config.livestream.name) {
+      if (req.query.cmd === 'publish') {
+        livestream.publishStart(req.params.stream)
+      } else if (req.query.cmd === 'publish_done') {
+        livestream.publishStop(req.params.stream)
+      } else if (req.query.cmd === 'play') {
+        livestream.viewerChange(req.params.stream, 1)
+      } else if (req.query.cmd === 'play_done') {
+        livestream.viewerChange(req.params.stream, -1)
+      } else if (req.query.cmd) {
+        console.log('Internal: Unknown RTMP command: ' + req.query.cmd)
+      }
+    }
+    res.end('ok')
+  })
+
   defaultRouter.get('/', (req, res) => res.sendFile('index.html', htmloptions))
   defaultRouter.get('/popout', (req, res) => res.sendFile('popout.html', htmloptions))
   defaultRouter.get('/livestream.html', (req, res) => res.sendFile('livestream.html', htmloptions))
 
-  defaultRouter.get('/stream', (req, res) => res.redirect(config.streamurl + config.icecast.mounts[0]))
+  defaultRouter.get('/stream', (req, res) => res.redirect('/streams/radio.m3u8'))
+
+  defaultRouter.get('/streams/radio.m3u8', (req, res, next) => {
+    cors(res)
+    nocache(res)
+    next()
+  }, streams.radioPlaylist)
+  defaultRouter.get('/streams/livestream.m3u8', (req, res, next) => {
+    cors(res)
+    nocache(res)
+    next()
+  }, streams.livestreamPlaylist)
+  defaultRouter.get('/streams/livestream.jpg', (req, res) => res.sendFile(config.livestream.name + '.jpg', {root: path.join(config.server.streams_dir, 'hls/livestream/')}))
+  defaultRouter.use('/streams/', streams.handleRequest, express.static(config.server.streams_dir, {
+    index: false,
+    setHeaders (res, path, stat) {
+      cors(res)
+      nocache(res)
+    }
+  }))
 
   passportRouter.get('/auth/twitter', passport.authenticate('twitter'))
   passportRouter.get('/auth/twitter/callback', passport.authenticate('twitter', {
@@ -287,13 +324,6 @@ export default function (app) {
     }
   })
 
-  /*
-  defaultRouter.get '/now/json', (req, res) ->
-    cors(res)
-    res.setHeader "Content-Type", "application/json"
-    res.sendFile 'json', root: __dirname+'/../util/now/'
-  */
-
   apiRouter.get('/status', (req, res) => {
     cors(res)
     res.json({
@@ -327,6 +357,7 @@ export default function (app) {
     if (limit < 1) limit = 1
     if (limit > config.lastfm.api.limit) limit = config.lastfm.api.limit
 
+    // TODO: rate-limit this
     fetchJSON('http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=' + config.lastfm.username + '&api_key=' + config.lastfm.api.key + '&format=json&limit=' + limit + '&extended=1', null, function (err, data) {
       let tracks = []
       if (err) {
@@ -418,10 +449,7 @@ export default function (app) {
         viewers: livestream.getViewCount(),
         url: config.general.baseurl + '#livestream',
         url_iframe: config.general.baseurl + 'livestream.html',
-        url_thumbnail: config.livestream.url_thumbnail,
-        url_rtmp: config.livestream.url_rtmp,
-        url_dash: config.livestream.url_dash,
-        url_hls: config.livestream.url_hls
+        url_rtmp: config.livestream.url_rtmp.replace('$name', config.livestream.name)
       },
 
       events: events
@@ -698,7 +726,11 @@ export default function (app) {
     })
   })
 
-  apiRouter.get('/listeners', isAdmin, (req, res) => res.json(icecast.getListeners()))
+  apiRouter.get('/mapdata', isAdmin, (req, res) => {
+    let icecastListeners = icecast.getListeners()
+    let streamInfo = streams.getStreamInfo()
+    res.json([].concat(icecastListeners, streamInfo))
+  })
 
   app.use('/', defaultRouter)
   app.use('/build/', express.static(path.join(__dirname, '../build/'), { maxAge: 365 * 24 * 60 * 60 * 1000 }))

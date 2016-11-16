@@ -18,9 +18,9 @@ html
 		//-script(src='//code.jquery.com/jquery-1.10.2.min.js')
 		//- flowplayer javascript component
 		//-script(src="//releases.flowplayer.org/6.0.1/flowplayer.min.js")
-		script(src='//content.jwplatform.com/libraries/GZyKIYr6.js')
-		//- script(src='https://bitmovin-a.akamaihd.net/bitdash/latest/bitdash.min.js')
-		script(src='/socket.io/socket.io.js')
+		//-script(src='//content.jwplatform.com/libraries/GZyKIYr6.js')
+		//-script(src='https://bitmovin-a.akamaihd.net/bitdash/latest/bitdash.min.js')
+		//-script(src='/socket.io/socket.io.js')
 
 	body#body
 
@@ -31,7 +31,7 @@ html
 				.left
 					h1
 						a(href='/') #{config.radio.title}
-					#subtitle by
+					//-#subtitle by
 						= ' '
 						a(href='https://twitter.com/daniel_hede', target='_blank') djazz
 
@@ -59,17 +59,15 @@ html
 								input#radioVolume(type='range', min=0, max=1, step=0.01, value=0.8)
 								select#streamSelect
 									option(value='', selected) Automatic detection
-									option(value='radio_mobile') iPhone AAC+ 64k
-									option(value='radio_mobile_vorbis') Low Quality OGG Vorbis
-									option(value='radio_normal') Low Quality MP3 128k
-									option(value='radio') High Quality MP3 320k
-									option(value='radio_opus', disabled) High Quality OPUS 128k
-									option(value='radio_flac', disabled) Lossless FLAC
+									option(value='radio_mobile') LQ HE-AAC 64k
+									option(value='radio_mobile_vorbis') LQ OGG Vorbis
+									option(value='radio_opus') HQ OGG Opus
+									option(value='radio_hls') HQ Adaptive AAC
+									option(value='radio') HQ MP3 320k
+									option(value='radio_flac') Lossless FLAC
 									option(value='gnr') Galaxy News Radio
-									if env == 'development'
-										option(value='radio_dev') Development stream
 								= ' '
-								a#streamLink(href='/stream', target='_blank')
+								a#streamLink(href='javascript:', target='_blank')
 									img(src='/img/icons/popout.svg', alt='Stream')
 						.legend
 							span#listenercount
@@ -228,7 +226,7 @@ html
 					br
 
 					| Direct stream url (for VLC and other media players): #{''}
-					a(target='_blank', href=config.general.baseurl+'stream/') #{config.general.baseurl}stream/
+					a(target='_blank', href=config.general.baseurl+'stream') #{config.general.baseurl}stream
 
 					br
 

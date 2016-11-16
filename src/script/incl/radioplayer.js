@@ -3,6 +3,7 @@
 import * as notify from '../utils/notify'
 import './raf'
 import ismobile from '../utils/ismobile'
+import Hls from 'hls.js'
 
 let AudioContext = window.AudioContext || window.webkitAudioContext
 
@@ -27,11 +28,11 @@ function radioPlayer (opts = {}) {
 
   let urls
   if (ismobile && navigator.userAgent.indexOf('iPhone') !== -1) {
-    urls = [['radio_mobile', 'audio/aac'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_normal', 'audio/mpeg'], ['radio', 'audio/mpeg']]
+    urls = [['radio_mobile', 'audio/aac'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_hls', 'application/vnd.apple.mpegurl'], ['radio', 'audio/mpeg']]
   } else if (ismobile) {
-    urls = [['radio_mobile', 'audio/aacp'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_normal', 'audio/mpeg'], ['radio', 'audio/mpeg']]
+    urls = [['radio_mobile', 'audio/aacp'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_opus', 'application/ogg; codecs=opus'], ['radio_hls', 'application/vnd.apple.mpegurl'], ['radio', 'audio/mpeg']]
   } else {
-    urls = [['radio', 'audio/mpeg'], /* ['radio_opus', 'application/ogg; codecs=opus'], */ ['radio_normal', 'audio/mpeg'], ['radio_mobile', 'audio/aacp'], ['radio_mobile_vorbis', 'application/ogg']]
+    urls = [['radio_hls', 'application/vnd.apple.mpegurl'], ['radio_opus', 'application/ogg; codecs=opus'], ['radio', 'audio/mpeg'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_mobile', 'audio/aacp']]
   }
 
   let baseurl = opts.baseurl
@@ -41,6 +42,7 @@ function radioPlayer (opts = {}) {
 
   let audioTag = null
   let source = null
+  let hls = null
 
   if (useVisualizer) {
     if (!AudioContext) {
@@ -51,6 +53,8 @@ function radioPlayer (opts = {}) {
   }
 
   let handleStreamEnded = () => {
+    playstopbtn.textContent = 'Buffering'
+    playstopbtn.className = 'loading'
     setTimeout(() => {
       if (isPlaying) {
         startRadio()
@@ -102,6 +106,11 @@ function radioPlayer (opts = {}) {
     window.playing = false
     document.body.classList.remove('radioplaying')
 
+    if (hls) {
+      hls.destroy()
+      hls = null
+    }
+
     if (source) {
       source.disconnect(0)
       source = null
@@ -109,10 +118,12 @@ function radioPlayer (opts = {}) {
     if (audioTag && audioTag !== true) {
       audioTag.removeEventListener('error', handleStreamEnded)
       audioTag.removeEventListener('ended', handleStreamEnded)
+      audioTag.removeEventListener('suspend', handleStreamEnded)
       audioTag.removeEventListener('canplay', handleStreamCanPlay)
+      audioTag.removeEventListener('pause', stopRadio)
       audioTag.pause()
 
-      audioTag.src = ''
+      audioTag.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAVFYAAFRWAAABAAgAZGF0YQAAAAA='
       while (audioTag.firstChild) {
         audioTag.removeChild(audioTag.firstChild)
       }
@@ -142,8 +153,10 @@ function radioPlayer (opts = {}) {
     audioTag = new Audio()
     audioTag.addEventListener('error', handleStreamEnded, false)
     audioTag.addEventListener('ended', handleStreamEnded, false)
+    audioTag.addEventListener('suspend', handleStreamEnded, false)
     audioTag.addEventListener('canplay', handleStreamCanPlay, false)
     audioTag.addEventListener('canplay', canPlayAudio, false)
+    audioTag.addEventListener('pause', stopRadio, false)
 
     if (useVisualizer) {
       gainNode.gain.value = volume
@@ -152,31 +165,46 @@ function radioPlayer (opts = {}) {
       audioTag.volume = volume
     }
 
-    audioTag.crossOrigin = 'anonymous'
-    if (streamName !== '') {
-      let s = document.createElement('source')
-      s.src = baseurl + streamName
-      audioTag.appendChild(s)
-    }
-    for (let i = 0; i < urls.length; i++) {
-      let s = document.createElement('source')
-      s.src = baseurl + urls[i][0]
-      s.type = urls[i][1]
-      audioTag.appendChild(s)
+    if (Hls.isSupported() && ((streamName === '' && !ismobile) || streamName === 'radio_hls')) {
+      hls = new Hls()
+      hls.attachMedia(audioTag)
+      hls.loadSource('/streams/radio.m3u8')
+    } else {
+      audioTag.crossOrigin = 'anonymous'
+      if (streamName !== '') {
+        let s = document.createElement('source')
+        if (streamName === 'radio_hls') {
+          s.src = '/streams/radio.m3u8'
+        } else {
+          s.src = baseurl + streamName
+        }
+        audioTag.appendChild(s)
+      }
+      for (let i = 0; i < urls.length; i++) {
+        let s = document.createElement('source')
+        s.src = baseurl + urls[i][0]
+        s.type = urls[i][1]
+        audioTag.appendChild(s)
+      }
     }
     audioTag.play()
     notify.check()
 
     function canPlayAudio (e) {
+      if (!audioTag) return
       audioTag.removeEventListener('canplay', canPlayAudio)
-      streamName = audioTag.currentSrc.substr(baseurl.length)
-      streamSelect.value = streamName
-      streamLink.href = baseurl + streamName
-      if (streamName.indexOf('radio') !== -1) {
-        try {
-          window.localStorage['pr:streamName'] = streamName
-        } catch (e) {}
+      if (audioTag.currentSrc.startsWith('blob:')) {
+        streamName = 'radio_hls'
+        streamLink.href = '/streams/radio.m3u8'
+      } else {
+        streamName = audioTag.currentSrc.substr(baseurl.length)
+        streamLink.href = baseurl + streamName
       }
+      streamSelect.value = streamName
+
+      try {
+        window.localStorage['pr:streamName'] = streamName
+      } catch (e) {}
       if (audioTag && useVisualizer) {
         audioTag.volume = 1
         source = acx.createMediaElementSource(audioTag)
@@ -206,7 +234,9 @@ function radioPlayer (opts = {}) {
   function setStream (stream) {
     streamName = stream
     if (streamName === '') {
-      streamLink.href = '/stream'
+      streamLink.href = 'javascript:'
+    } else if (streamName === 'radio_hls') {
+      streamLink.href = '/streams/radio.m3u8'
     } else {
       streamLink.href = baseurl + streamName
     }
@@ -258,7 +288,11 @@ function radioPlayer (opts = {}) {
     if (typeof s !== 'undefined') {
       streamName = s
       streamSelect.value = streamName
-      streamLink.href = baseurl + streamName
+      if (streamName === 'radio_hls') {
+        streamLink.href = '/streams/radio.m3u8'
+      } else {
+        streamLink.href = baseurl + streamName
+      }
     }
 
     let v

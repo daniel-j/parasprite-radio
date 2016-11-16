@@ -35,6 +35,9 @@ export default {
       },
       { test: /\.coffee$/, loader: 'coffee-loader', exclude: /node_modules/ },
       { test: /\.mustache$/, loader: 'mustache', exclude: /node_modules/ }
+    ],
+    noParse: [
+      /node_modules\/hls\.js/
     ]
   },
 

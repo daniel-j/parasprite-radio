@@ -12,43 +12,38 @@ twitter   = "ParaspriteRadio"
 # info about radio - used on the site and for Icecast metadata
 [radio]
 title       = "Parasprite Radio"
-description = "Open source web radio"
+description = "Open source web radio station"
 genre       = "Misc"
 url         = "https://radio.djazz.se"
 
-
-# streaming server
+# Icecast server
 [icecast]
 host     = "localhost"
 port     = 8000
 url      = "http://localhost:8000"
 # what mounts too look for listeners on
-mounts   = [ "radio", "radio_mobile", "radio_normal", "radio_flac", "radio_opus" ]
+mounts   = [ "radio", "radio_mobile", "radio_mobile_vorbis", "radio_flac", "radio_opus"]
 encoding = "UTF-8"
-
 [icecast.mount]
 user     = "source"
 password = "hackme"
-
 [icecast.admin]
 user     = "admin"
 password = "hackme"
-
 #[[icecast.relay]]
 #host = "hostname"
 #port = 8000
 #user = "admin"
 #password = "hackme"
 
-
+# Liquidsoap
 [liquidsoap]
 host = "localhost"
 port_telnet = 7004
 port_input  = 7005
 # 7006 for Shoutcast metadata
 
-
-# music database
+# Music database
 [mpd]
 # if socket is defined it will use that instead of host:port
 socket   = "~/.mpd/socket"
@@ -57,28 +52,35 @@ port     = 6600
 password = "" # leave empty for no password
 mainPlaylist = "radio"
 
-# the nodejs server
+# Radio server
 [server]
 host = "localhost"
 port = 8002
 cookieSecret  = "secret"
 sessionSecret = "secret"
 api_prefix = "/api"
+streams_dir = "/tmp/pr/streams"
 
-# database & session storage
+# ngix-rtmp
+[livestream]
+name = "stream"
+url_stats = "http://localhost/stat"
+url_rtmp = "rtmp://localhost/live/$name"
+
+# Database & session storage
 [mysql]
 host     = "localhost"
 user     = "root"
 password = ""
 database = "paraspriteradio"
 
-# for Twitter authentication
+# For Twitter authentication
 [passport.twitter]
 consumerKey = ""
 consumerSecret = ""
 callbackURL = "http://localhost/auth/twitter/callback"
 
-# for Poniverse authentication
+# For Poniverse authentication
 [passport.poniverse]
 clientID = ""
 clientSecret = ""
@@ -86,45 +88,37 @@ authorizationURL = "https://poniverse.net/oauth/authorize"
 tokenURL = "https://poniverse.net/oauth/access_token"
 callbackURL = "http://localhost/auth/poniverse/callback"
 
-# for scheduling
+# Metadata scrobbling
+[lastfm]
+enable = false
+username = "djazzradio"
+password = ""
+[lastfm.api]
+enable = false
+key = ""
+limit = 10
+
+# Now playing on Tunein
+[tunein]
+enable = false
+stationId  = "s225092"
+partnerId  = ""
+partnerKey = ""
+
 [google]
 publicApiKey = ""
 apiKey = ""
 calendarId = "nj4dn0ck0u66t6f38qtqnj324k@group.calendar.google.com"
 
-[livestream]
-url_stats = "http://vm.djazz.se/stat"
-url_thumbnail = "/live/thumb/stream.jpg"
-url_rtmp = "rtmp://vm.djazz.se/live/stream"
-url_dash = "/live/dash/stream.mpd"
-url_hls = "/live/hls/stream.m3u8"
-
-
-# scrobbling
-[lastfm]
-enable=false
-username = "djazzradio"
-password = ""
-[lastfm.api]
-enable=false
-key = ""
-limit = 10
-
-[tunein]
-enable=false
-stationId  = "s225092"
-partnerId  = ""
-partnerKey = ""
-
+# Used to get location of an ip address
 [ipinfodb]
 apiKey = ""
 
-[mumble]
-enable=false
-botname="RadioBot"
-uri="mumble://mumble.djazz.se/Parasprite%20Radio"
-
-
-# external sources
 [soundcloud]
 clientId = ""
+
+# This is experimental
+[mumble]
+enable = false
+botname = "RadioBot"
+uri = "mumble://mumble.djazz.se/Parasprite%20Radio"

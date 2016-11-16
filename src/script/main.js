@@ -184,14 +184,14 @@ setInterval(function () {
 let map
 let mapmarkers = {}
 function fetchMap () {
-  return m.request({method: 'GET', url: '/api/listeners'})
+  return m.request({method: 'GET', url: '/api/mapdata'})
 }
 function updateMap () {
   fetchMap().then(function (list) {
     let idlist = []
     for (let i = 0; i < list.length; i++) {
       let l = list[i]
-      l.id = l.location.lng + ',' + l.location.lat + ',' + l.ip
+      l.id = l.location.lng + ',' + l.location.lat + ',' + l.ip + ',' + l.type
       idlist[i] = l.id
       let content = '<div style="color: black">IP: ' + l.ip + '<br>Mount: ' + l.mount + '<br>Country: ' + l.location.countryName + '<br>Region: ' + l.location.regionName + '<br>City: ' + l.location.cityName + '<br>Connected at ' + new Date(l.connected * 1000) + '<br>Time connected: ' + formattime(Date.now() / 1000 - l.connected) + '<br>User Agent: ' + l.userAgent + '</div>'
       if (mapmarkers[l.id]) {
@@ -203,6 +203,9 @@ function updateMap () {
         map: map,
         animation: google.maps.Animation.DROP
       })
+      if (l.type === 'livestream') {
+        mark.setIcon('http://maps.google.com/mapfiles/ms/icons/purple-dot.png')
+      }
       mark.infowindow = new google.maps.InfoWindow({
         content: content
       })
