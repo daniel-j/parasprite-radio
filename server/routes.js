@@ -240,64 +240,56 @@ export default function (app) {
     }
   })
 
-  apiRouter.post('/show/create', (req, res) => {
-    if (req.user) {
-      User
-        .createShow(req.user.id, req.body)
-        .then((show) => {
-          res.json('ok')
-        })
-        .catch((err) => {
-          console.error('Error creating show: ' + err)
-          res.json({error: '' + err})
-        })
-    } else {
-      res.json({error: 'not logged in'})
-    }
-  })
-
-  apiRouter.delete('/show/:id', (req, res) => {
-    if (req.user) {
-      User
-        .removeShow(req.user.id, req.params.id)
-        .then(() => {
-          res.json('ok')
-        })
-        .catch((err) => {
-          console.error('Error removing show: ' + err)
-          res.json({error: '' + err})
-        })
-    } else {
-      res.json({error: 'not logged in'})
-    }
-  })
-
   apiRouter.get('/show', (req, res) => {
     if (req.user) {
       User
         .getShows(req.user.id)
         .then((list) => res.json(list))
         .catch((err) => {
-          console.error('Error fetching show: ' + err)
+          console.error('Error fetching shows: ' + err)
           res.json({error: '' + err})
         })
     } else {
-      res.json({error: 'not logged in'})
+      res.json({error: 'Not logged in'})
     }
   })
 
   apiRouter.post('/show', (req, res) => {
-    if (req.user) {
+    if (req.user && req.body.id) {
       User
         .updateShow(req.user.id, req.body.id, req.body)
         .then((show) => User.getShows(req.user.id))
         .then((list) => res.json(list))
         .catch((err) => {
-          console.error('Error saving/fetching show: ' + err)
+          console.error('Error saving show: ' + err)
+          res.json({error: '' + err})
+        })
+    } else if (req.user && req.user.canMakeShows) {
+      User
+        .createShow(req.user.id, req.body)
+        .then((show) => User.getShows(req.user.id))
+        .then((list) => res.json(list))
+        .catch((err) => {
+          console.error('Error creating show: ' + err)
           res.json({error: '' + err})
         })
     } else {
-      res.json({error: 'not logged in'})
+      res.json({error: 'Permission denied'})
+    }
+  })
+
+  apiRouter.delete('/show/:id', (req, res) => {
+    if (req.user && req.user.canMakeShows && req.params.id) {
+      User
+        .removeShow(req.user.id, req.params.id)
+        .then((show) => User.getShows(req.user.id))
+        .then((list) => res.json(list))
+        .catch((err) => {
+          console.error('Error removing show: ' + err)
+          res.json({error: '' + err})
+        })
+    } else {
+      res.json({error: 'Permission denied'})
     }
   })
 

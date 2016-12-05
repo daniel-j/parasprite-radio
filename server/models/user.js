@@ -115,15 +115,15 @@ const API = {
   },
 
   getShows (userId) {
-    return Show
-      .forge({UserId: userId})
+    return Show.forge()
+      .where({UserId: userId})
       .orderBy('name', 'ASC')
       .fetchAll({columns: ['id', 'name', 'description', 'twitter', 'art', 'url', 'authToken']})
   },
 
   updateShow (userId, showId, info) {
-    return Show
-      .forge({UserId: userId, id: showId})
+    return Show.forge()
+      .where({UserId: userId, id: showId})
       .save({
         name: info.name,
         description: info.description,
@@ -133,8 +133,8 @@ const API = {
   },
 
   removeShow (userId, showId) {
-    return Show
-      .forge({UserId: userId, id: showId})
+    return Show.forge()
+      .where({UserId: userId, id: showId})
       .destroy()
   },
 

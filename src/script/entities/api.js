@@ -6,11 +6,11 @@ import EventEmitter from 'events'
 function create (uri, def, data) {
   const d = new EventEmitter()
   d.get = m.prop(def)
-  d.fetch = function (override, method = 'GET') {
+  d.fetch = function (overrideData, method = 'GET', query = '') {
     return m.request({
-      url: window.config.server_api_prefix + uri,
+      url: window.config.server_api_prefix + uri + query,
       initialValue: def,
-      data: override || data,
+      data: overrideData || data,
       method: method
     }).then(function (val) {
       d.get(val)

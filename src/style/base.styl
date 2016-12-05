@@ -187,4 +187,9 @@ button, .button
 	&:active
 		color color
 		background-color #2d2d2d
+	&[disabled], &:disabled
+		cursor default
+		color #555
+		background-color desaturate(color, 70%)
+		border 1px solid desaturate(color, 70%)
 
