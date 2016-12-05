@@ -10,6 +10,7 @@ import api from './entities/api'
 import './incl/snow'
 import dateFormat from 'dateformat-light'
 import jstz from 'jstz'
+import Shows from './components/shows'
 
 const radio = radioPlayer({
   baseurl: window.config.general_streamurl,
@@ -20,6 +21,7 @@ radio.activate()
 
 let menudiv = document.getElementById('mainmenu')
 let scheduleiframe = document.getElementById('scheduleiframe')
+let schedulelink = document.getElementById('schedulelink')
 
 let currentPage = 'pageHistory'
 let oldmenu = document.getElementById('menuHistory')
@@ -33,6 +35,7 @@ function initialize () {
     }
     hashMatch.click()
   }
+  m.mount(document.getElementById('shows'), Shows)
 }
 
 api.user.fetch().then(function () {
@@ -53,6 +56,21 @@ api.user.fetch().then(function () {
       document.getElementById('body').classList.add('isadmin')
     }
     document.getElementById('editAccountForm').addEventListener('submit', function (e) {
+      const fields = this.elements
+      m.request({
+        method: 'POST',
+        url: '/api/user',
+        data: {
+          username: fields.inputAccountUsername.value,
+          displayName: fields.inputAccountDisplayName.value,
+          email: fields.inputAccountEmail.value,
+          avatarUrl: fields.inputAccountAvatarUrl.value
+        }
+      }).then((response) => {
+        console.log(response)
+      }).catch((err) => {
+        console.log(err)
+      })
       e.preventDefault()
     }, false)
   }
@@ -173,7 +191,7 @@ let timezone = tz.name()
 let bgcolor = '444444'
 let color = '8C500B'
 
-scheduleiframe.src = 'https://www.google.com/calendar/embed?mode=WEEK&showTitle=0&showCalendars=0&height=350&wkst=2&bgcolor=%23' + bgcolor + '&src=' + window.config.google_calendarId + '&color=%23' + color + '&ctz=' + encodeURIComponent(timezone)
+schedulelink.href = scheduleiframe.src = 'https://www.google.com/calendar/embed?mode=WEEK&showTitle=0&showCalendars=0&height=350&wkst=2&bgcolor=%23' + bgcolor + '&src=' + window.config.google_calendarId + '&color=%23' + color + '&ctz=' + encodeURIComponent(timezone)
 
 // reload every 5 min
 setInterval(function () {

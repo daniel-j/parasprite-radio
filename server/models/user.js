@@ -46,6 +46,17 @@ const API = {
     return user
   },
 
+  update: async function (id, data) {
+    let user = User.forge({id: id})
+    await user.save({
+      username: data.username,
+      displayName: data.displayName,
+      email: data.email,
+      avatarUrl: data.avatarUrl
+    }, {patch: true, method: 'update'})
+    return API.findById(id, true)
+  },
+
   handleAuth: async function (info) {
     let userAuth = await UserAuth.forge({provider: info.provider, uid: info.uid}).fetch()
     if (!userAuth) {
@@ -108,6 +119,17 @@ const API = {
       .forge({UserId: userId})
       .orderBy('name', 'ASC')
       .fetchAll({columns: ['id', 'name', 'description', 'twitter', 'art', 'url', 'authToken']})
+  },
+
+  updateShow (userId, showId, info) {
+    return Show
+      .forge({UserId: userId, id: showId})
+      .save({
+        name: info.name,
+        description: info.description,
+        url: info.url,
+        twitter: info.twitter
+      }, {patch: true, method: 'update'})
   },
 
   removeShow (userId, showId) {

@@ -173,7 +173,7 @@ export default function (app) {
   defaultRouter.get('/popout', (req, res) => res.sendFile('popout.html', htmloptions))
   defaultRouter.get('/livestream.html', (req, res) => res.sendFile('livestream.html', htmloptions))
 
-  defaultRouter.get('/stream', (req, res) => res.redirect('/streams/radio.m3u8'))
+  defaultRouter.get('/stream', (req, res) => res.redirect(config.general.streamurl + 'radio'))
 
   defaultRouter.get('/streams/radio.m3u8', (req, res, next) => {
     cors(res)
@@ -230,6 +230,15 @@ export default function (app) {
       res.json(null)
     }
   })
+  apiRouter.post('/user', (req, res) => {
+    if (req.user) {
+      User.update(req.user.id, req.body).then((user) => {
+        res.json(user)
+      })
+    } else {
+      res.json(null)
+    }
+  })
 
   apiRouter.post('/show/create', (req, res) => {
     if (req.user) {
@@ -270,6 +279,21 @@ export default function (app) {
         .then((list) => res.json(list))
         .catch((err) => {
           console.error('Error fetching show: ' + err)
+          res.json({error: '' + err})
+        })
+    } else {
+      res.json({error: 'not logged in'})
+    }
+  })
+
+  apiRouter.post('/show', (req, res) => {
+    if (req.user) {
+      User
+        .updateShow(req.user.id, req.body.id, req.body)
+        .then((show) => User.getShows(req.user.id))
+        .then((list) => res.json(list))
+        .catch((err) => {
+          console.error('Error saving/fetching show: ' + err)
           res.json({error: '' + err})
         })
     } else {

@@ -48,6 +48,7 @@ let sources = {
 }
 let lintES = ['src/script/**/*.js', 'server/**/*.js', 'scripts/**/*.js', 'liq/scripts/**/*.js', 'gulpfile.babel.js', 'webpack.config.js', 'bin/startserver', 'knexfile.js', 'migrations/*.js']
 let lintCS = ['src/script/**/*.coffee', 'server/**/*.coffee']
+let fonts = ['node_modules/source-sans-pro/**/*.{eot,otf,ttf,woff}']
 
 let inProduction = process.env.NODE_ENV === 'production' || process.argv.indexOf('-p') !== -1
 
@@ -132,6 +133,10 @@ function styleTask () {
     .pipe(gulp.dest('build/style/'))
     .pipe(browserSync.stream())
 }
+function fontTask () {
+  return gulp.src(fonts)
+    .pipe(gulp.dest('build/style/fonts/'))
+}
 
 function documentTask (p) {
   let simple = simpleconfig()
@@ -166,6 +171,9 @@ gulp.task('clean:quick', ['clean:script', 'clean:style', 'clean:document'], (don
 gulp.task('clean:script', () => {
   return del('build/script')
 })
+gulp.task('clean:font', () => {
+  return del('build/style/fonts')
+})
 gulp.task('clean:style', () => {
   return del('build/style')
 })
@@ -182,7 +190,11 @@ gulp.task('watch:script', () => {
   return watch(['src/script/**/*.coffee', 'src/script/**/*.js', 'src/script/template/**/*.mustache'], watchOpts, webpackTask)
 })
 
-gulp.task('style', ['clean:style'], styleTask)
+gulp.task('style', ['clean:style'], (done) => {
+  return sequence('font', 'build:style', done)
+})
+gulp.task('font', ['clean:font'], fontTask)
+gulp.task('build:style', styleTask)
 gulp.task('watch:style', () => {
   return watch('src/style/**/*.styl', watchOpts, styleTask)
 })

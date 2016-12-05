@@ -6,11 +6,12 @@ import EventEmitter from 'events'
 function create (uri, def, data) {
   const d = new EventEmitter()
   d.get = m.prop(def)
-  d.fetch = function (override) {
+  d.fetch = function (override, method = 'GET') {
     return m.request({
       url: window.config.server_api_prefix + uri,
       initialValue: def,
-      data: override || data
+      data: override || data,
+      method: method
     }).then(function (val) {
       d.get(val)
       d.emit('change', val)
@@ -37,7 +38,8 @@ function timer (d, time) {
 const api = {
   status: timer(create('/status'), 10 * 1000),
   user: create('/user'),
-  history: timer(create('/history?limit=20&imagesize=1', []), 10 * 1000)
+  history: timer(create('/history?limit=20&imagesize=1', []), 10 * 1000),
+  shows: create('/show', [])
 }
 
 export default api

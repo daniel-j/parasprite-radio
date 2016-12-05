@@ -81,6 +81,7 @@ html
 				//- a#menuPlaylist(data-page='pagePlaylist') Playlist
 				a#menuSchedule(data-page='pageSchedule', data-hash='schedule') Schedule
 				a#menuLivestream(data-page='pageLivestream', data-hash='livestream') Livestream
+				a#menuChat(data-page='chatPage', data-hash='chat') Chat
 				a#menuAbout(data-page='pageAbout', data-hash='about') About
 				a#menuMap(data-page='pageMap', data-hash='map') Map
 
@@ -94,30 +95,32 @@ html
 
 		#content
 			.container
-				#pageHistory.page-wrapper
-					#bigbackground(style='background-image: url("/api/now/art/original")')
+				#pageHistory
+					#musicbox
+						#bigbackground(style='background-image: url("/api/now/art/original")')
 
-					#bigplayertop
-						#bigplayertitle
-						#bigplayerartist
+						#bigplayertop
+							#bigplayertitle
+							#bigplayerartist
 
-					#bigplayer
-						.helper
-							.headline Now playing
-							a(href='/api/now/art/original', target='_blank')
-								#bigcover(style='background-image: url("/api/now/art/original")')
-							#bigplayerinfo
-								#bigplayerprogressbar
-									div
-								#bigplayerformat
-								#bigplayertime
-								#bigplayerduration
-								#bigplayeralbum
-							#bigplayercomment
+						#bigplayer
+							.helper
+								.headline Now playing
+								a(href='/api/now/art/original', target='_blank')
+									#bigcover
+								#bigplayerinfo
+									#bigplayerprogressbar
+										div
+									#bigplayerformat
+									#bigplayertime
+									#bigplayerduration
+									#bigplayeralbum
+								#bigplayercomment
 
 
 
-					#playhistory
+						#playhistory
+
 
 				//- TODO: Remove inline CSS
 				#pagePlaylist.page-wrapper(style='display: none;')
@@ -133,6 +136,10 @@ html
 
 				#pageSchedule(style='display: none;')
 					iframe#scheduleiframe
+					.page-wrapper
+						a#schedulelink(href='javascript:', target='_blank') Open schedule in new tab
+						=' - '
+						a(target='_blank', href='http://www.google.com/calendar/render?cid=' + encodeURIComponent('https://calendar.google.com/calendar/ical/' + encodeURIComponent(config.google.calendarId) + '/public/basic.ics')) Subscribe
 
 				#pageLivestream(style='display: none;')
 					#liveplayer
@@ -140,119 +147,168 @@ html
 						#viewercount
 						#streamoffline
 							span Livestream is offline
+					.page-wrapper
+						a(target='_blank', href='/livestream.html') Open in new tab
+						=' - '
+						a(href=config.livestream.url_rtmp.replace('$name', config.livestream.name)) RTMP stream url
+						=' - '
+						a(href='/streams/livestream.m3u8') HLS stream url
 
 				#pageAbout.page-wrapper(style='display: none')
-					#badges-title Friends & tech:
+					#aboutradio
+						div
+							| I started working on Parasprite Radio in 2013 as an
+							=' '
+							a(href='https://github.com/daniel-j/parasprite-radio', target='_blank') open source
+							=' '
+							| project where I could try out new web technology and create a complete application, all while learning along the way. Since it was launched in May 2014, it has been running almost 24/7.
+						p
+							| Parasprite Radio is powered by
+							=' '
+							a(target='_blank', href='http://liquidsoap.fm/') Liquidsoap
+							=' '
+							| (an audio stream source generator) and the web server is written in
+							=' '
+							a(target='_blank', href='http://nodejs.org') Node.JS
+							| . It uses HTTP Live Streaming and
+							=' '
+							a(target='_blank', href='http://icecast.org/') Icecast
+							=' '
+							| for broadcasting (use the sound menu to switch between streams).
+							=' '
+							a(target='_blank', href='http://mithril.js.org/') Mithril
+							=' '
+							| components and regular JavaScript for the front-end, and
+							=' '
+							a(target='_blank', href='http://stylus-lang.com/') Stylus
+							=' '
+							| for the stylesheets.
+							=' '
+							a(target='_blank', href='http://gulpjs.com/') Gulp
+							=' '
+							| and
+							=' '
+							a(target='_blank', href='https://webpack.js.org/') Webpack
+							=' '
+							| are used as the build system.
+						p
+							| The radio also connects to
+							=' '
+							a(target='_blank', href='http://www.last.fm/user/'+config.lastfm.username) Last.fm
+							=', '
+							a(target='_blank', href='http://tun.in/sffEA') TuneIn
+							=' and '
+							a(target='_blank', href='http://ponyvillelive.com/') Ponyville Live
+							| . Last.fm keeps track of all the music played on the radio, TuneIn have a nice app for listening to broadcasts, and PVL is a network of radio stations and podcasts.
+						p
+							| Why "Parasprite" Radio? The name comes from the creature in the show My Little Pony called a
+							=' '
+							a(href='http://mlp.wikia.com/wiki/Parasprites', target='_blank') Parasprite
+							=' '
+							| - which is a portmanteau of the words 'parasite' and 'sprite'. In one of the episodes, parasprites invade town in a great swarm and the only way the heroes manage to get rid of them was with
+							=' '
+							a(href='https://www.youtube.com/watch?v=nVt7ERxkG6k', target='_blank') music
+							| . Much like the parasprites, I also happen to enjoy listening to music.
+						p Parasprite Radio is dedicated to high quality music from across the MLP fandom. You can suggest and request music in the chatroom. Enjoy!
+						div
+							em - djazz -
+					#aboutlogo
+						img(src='/img/icons/parasprite-radio-logo-small.png', title='Parasprite Radio logo')
+
 					#badges
-						a(target='_blank', href='http://www.bronydom.net/')
-							img(src='/img/badges/bronydom.png', alt='Bronydom Network')
-						a(target='_blank', href='http://canternet.org')
-							img(src='/img/badges/canternet.png', alt='Canternet IRC network')
 						a(target='_blank', href='http://ponyvillelive.com/')
 							img(src='/img/badges/ponyvillelive.png', alt='Ponyville Live!')
-
+						a(target='_blank', href='http://www.bronydom.net/')
+							img(src='/img/badges/bronydom.png', alt='Bronydom Network')
 						a(target='_blank', href='http://cloudsdaleradio.com/')
 							img(src='/img/badges/cloudsdale-radio.jpg', alt='Cloudsdale Radio')
+
+						a(target='_blank', href='http://nodejs.org')
+							img(src='/img/badges/nodejs.png', alt='Node.js')
 						a(target='_blank', href='http://liquidsoap.fm/')
 							img(src='/img/badges/liquidsoap.png', alt='Liquidsoap')
 						a(target='_blank', href='http://icecast.org/')
 							img(src='/img/badges/icecast.png', alt='Icecast')
 
-						a(target='_blank', href='http://gulpjs.com/')
-							img(src='/img/badges/gulp.png', alt='Gulp.js')
-						a(target='_blank', href='http://nodejs.org')
-							img(src='/img/badges/nodejs.png', alt='Node.js')
-						a(target='_blank', href='https://webpack.github.io/')
-							img(src='/img/badges/webpack.png', alt='Webpack')
-
+						a(target='_blank', href='http://canternet.org')
+							img(src='/img/badges/canternet.png', alt='Canternet IRC network')
 						a(target='_blank', href='https://www.citycloud.com/')
 							img(src='/img/badges/citycloud.png', alt='City Cloud')
+
+					.textcenter
+						//- a(target='_blank', href='http://www.last.fm/user/djazzradio/library/recent') new music
+						a(target='_blank', href=config.general.baseurl+'stream') Direct stream url
+						=' - '
+						a(target='_blank', href='img/parasprite-radio-badge.png') Radio badge
 
 
 				#pageMap(style='display: none')
 					#googlemap
 
 				#pageLogin.page-wrapper(style='display: none;')
-					strong Login
-					br
-					br
-					a(href="/auth/poniverse") Auth with Poniverse
-					br
-					a(href="/auth/twitter") Auth with Twitter
+					.textcenter
+						br
+						br
+						a.button(href="/auth/poniverse") Login with Poniverse
+						=' '
+						a.button(href="/auth/twitter") Login with Twitter
+						br
+						br
 				#pageAccount.page-wrapper(style='display: none;')
 					strong Account
 					br
 
 					form#editAccountForm
 						label(for='inputAccountUsername') Username:
-						input#inputAccountUsername(type='text')
+						input#inputAccountUsername(type='text', autocomplete='off')
 						br
 						label(for='inputAccountDisplayName') Display name:
-						input#inputAccountDisplayName(type='text')
+						input#inputAccountDisplayName(type='text', autocomplete='off')
 						br
 						label(for='inputAccountEmail') Email:
-						input#inputAccountEmail(type='email')
+						input#inputAccountEmail(type='email', name='email')
 						br
 						label(for='inputAccountAvatarUrl') Avatar URL
-						input#inputAccountAvatarUrl(type='url')
+						input#inputAccountAvatarUrl(type='url', autocomplete='off')
 						br
 						img#accountAvatar
 						br
 						label
 						button#editAccount(type='submit') Save
 
-				#chatbox
-					#chatwrapper
-						iframe#chat(src='//kiwiirc.com/client?settings=b1a34e3682f988d06a435e884c8d3fef')
-					#reloadchat Reload
-					#togglechat
-						img(src='/img/icons/popout.svg', alt='Fullscreen')
-
-				.page-wrapper
-
-					a(target='_blank', href='http://tun.in/sffEA') TuneIn
-					= ' - '
-					a(target='_blank', href='http://www.last.fm/user/djazzradio') last.fm page
-					= ' - '
-					a(target='_blank', href='http://www.last.fm/user/djazzradio/library') music library
-					= ' - '
-					a(target='_blank', href='http://www.last.fm/user/djazzradio/tracks') full play history
-					= ' - '
-					a(target='_blank', href='http://www.last.fm/user/djazzradio/library/recent') new music
-					= ' - '
-					a(target='_blank', href='img/parasprite-radio-badge.png') parasprite radio badge
-
+					strong My Shows
 					br
-					br
+					#shows
 
-					| Direct stream url (for VLC and other media players): #{''}
-					a(target='_blank', href=config.general.baseurl+'stream') #{config.general.baseurl}stream
-
-					br
-
-					//- div
-						= 'Powered by '
-						a(target='_blank', href='http://liquidsoap.fm') Liquidsoap
-						= ', '
-						a(target='_blank', href='http://nodejs.org') node.js
-						= ', '
-						a(target='_blank', href='http://www.icecast.org') Icecast
-						= ', '
-						a(target='_blank', href='http://www.musicpd.org') MPD
-						= ' and '
-						a(target='_blank', href='http://www.last.fm') last.fm
+				#chatPage(style='display: none;')
+					#chatbox
+						#chatwrapper
+							iframe#chat(src='//kiwiirc.com/client?settings=b1a34e3682f988d06a435e884c8d3fef')
+						#reloadchat Reload
+						#togglechat
+							img(src='/img/icons/popout.svg', alt='Fullscreen')
+					.page-wrapper
+						button(onclick='window.open("https://kiwiirc.com/client?settings=b1a34e3682f988d06a435e884c8d3fef", "kiwiirc", "width=1000,height=500")') Open in new window
 						br
+						br
+						div
+							strong IRC connection details
+						div Host: irc.canternet.org
+						div Port: 6666-6669, 6697 for SSL
+						div Channel: #parasprite
+						div
+							a(href='irc://irc.canternet.org:6667/#parasprite') irc://irc.canternet.org:6667/#parasprite
 
-
-					div Twitter:
-						= ' '
-						a(href="https://twitter.com/ParaspriteRadio", target="_blank") @ParaspriteRadio
-					div Source code on github:
-						= ' '
-						a(href='https://github.com/daniel-j/parasprite-radio', target='_blank') daniel-j/parasprite-radio
-
-					br
-					br
+				#footer.page-wrapper
+					.textcenter
+						a.external(target='_blank', href='http://tun.in/sffEA')
+							img(src='/img/icons/tunein.svg', alt='TuneIn')
+						a.external(target='_blank', href='http://www.last.fm/user/'+config.lastfm.username)
+							img(src='/img/icons/lastfm.svg', alt='last.fm')
+						a.external(target='_blank', href='https://twitter.com/'+config.general.twitter)
+							img(src='/img/icons/twitter.svg', alt='Twitter')
+						a.external(target='_blank', href='https://github.com/daniel-j/parasprite-radio')
+							img(src='/img/icons/github.svg', alt='Github')
 
 
 		script.

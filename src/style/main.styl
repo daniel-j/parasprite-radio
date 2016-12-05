@@ -30,9 +30,14 @@
 		transition opacity .3s ease-out
 
 	h1
+		font-size 34px
+		font-weight 600
+		letter-spacing 1px
 		margin 0
-		padding-top 21px
+		padding-top 17px
 		color color
+		a:hover
+			text-decoration none
 
 	#subtitle
 		padding-left 2px
@@ -115,6 +120,7 @@
 				background-color color
 				color #2d2d2d
 
+
 		#menuAccount, #menuLogout, #menuAdmin, #menuMap
 			display none
 
@@ -131,30 +137,33 @@
 	#menuAdmin, #menuMap
 		display inline-block
 
-
-
 .page-wrapper
 	padding 10px 10px
 
-
 #content .container
-	background-color rgba(0, 0, 0, 0.5)
+	background-color rgba(0, 0, 0, 0.4)
+	margin-bottom 50px
 
 
 #pageHistory
+	overflow hidden
+#musicbox
 	position relative
 	overflow hidden
 	padding 0
 	padding-top 25px
-	//z-index 1
+	padding-bottom 25px
+	padding-right 35px
+	margin-bottom 20px
+	box-shadow 0px 0px 20px 10px black
 
 #bigbackground
 	position absolute
-	top -20px
-	bottom -20px
-	left -20px
-	right -20px
-	z-index -1
+	top -30px
+	bottom -30px
+	left -30px
+	right -30px
+	//z-index -1
 	-webkit-filter blur(20px)
 	-moz-filter blur(20px)
 	-o-filter blur(20px)
@@ -163,9 +172,19 @@
 	background-size cover
 	background-position center
 	overflow hidden
-	box-shadow inset 0 30px 20px 20px #000
+	box-shadow inset 30px 30px 15px 30px #000, inset -30px -30px 15px 30px #000
+	&:after
+		content ''
+		position absolute
+		left 0
+		right 0
+		top 0
+		bottom 0
+		background black
+		background-color rgba(0, 0, 0, 0.55)
 
 #bigplayertop
+	position relative
 	padding-top 10px
 	padding-bottom 10px
 	padding-left 6%
@@ -176,14 +195,16 @@
 	#bigplayerartist
 		font-size 26px
 		color rgba(255,255,255,0.7)
+		font-weight 300
 
 #bigplayer
+	position relative
 	width 50%
 	float left
 	height 100%
 
 	.helper
-		padding 0 12%
+		padding 0 11%
 		margin 0 auto
 
 	.headline
@@ -212,12 +233,15 @@
 		text-align center
 		height 0
 		color rgba(255,255,255,0.5)
+		font-weight 300
 	#bigplayertime
 		margin-left 5px
 		float left
+		font-weight 300
 	#bigplayerduration
 		margin-right 5px
 		float right
+		font-weight 300
 
 	#bigplayerprogressbar
 		margin-bottom 5px
@@ -245,6 +269,7 @@
 #bigplayercomment
 	clear both
 	font-size 12px
+	font-weight 300
 	color rgba(255,255,255,0.6)
 	margin-top 5px
 	margin-bottom 10px
@@ -290,6 +315,7 @@
 			background-color color
 			*
 				color black
+				font-weight normal
 			img
 				opacity 0.7
 
@@ -329,21 +355,23 @@
 
 	.timeago
 		color rgba(255, 255, 255, 0.8)
+		font-weight 300
 
 	.timestamp
 		font-size 13px
 		color rgba(255,255,255,0.5)
+		font-weight 300
 
 
 #chatbox
 	position relative
 	overflow hidden
-	height 400px
+	height 500px
 #reloadchat
 	position absolute
 	left 0
 	top 0
-	padding 10px 10px
+	padding 11px 10px
 	background-color color
 	cursor pointer
 	color black
@@ -352,8 +380,8 @@
 #togglechat
 	position absolute
 	top 0
-	right 70px
-	padding 5px 16px 10px 20px
+	right 0
+	padding 6px 11px 11px 15px
 	background-color color
 	cursor pointer
 	img
@@ -474,7 +502,7 @@
 	display block
 	border none
 	width 100%
-	height 620px
+	height 572px
 	overflow hidden
 
 #liveplayer
@@ -511,6 +539,21 @@
 		max-width 100%
 		margin 2px
 
+#aboutradio
+	line-height 21px
+	padding 10px 40px
+	padding-bottom 0
+	max-width 550px
+	float left
+	font-weight 300
+	a
+		font-weight normal
+
+#aboutlogo
+	img
+		max-width 35%
+		margin 0 auto
+		display block
 
 #badges-title
 	font-size 18px
@@ -518,6 +561,7 @@
 	font-weight bold
 
 #badges
+	clear both
 	text-align center
 
 	img
