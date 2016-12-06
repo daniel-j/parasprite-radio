@@ -94,22 +94,19 @@ playHistory.controller = function () {
   }
 }
 playHistory.view = function (ctrl) {
-  return [
-    m('div.headline', 'Recently played'),
-    m('div', ctrl.trackList().map(function (track) {
-      if (!track.timestamp) {
-        return null
-      }
-      return m('div.row', {key: track.timestamp + track.text, onclick: m.withAttr('data-url', ctrl.openUrl), 'data-url': track.url}, [
-        m('div.img', m('img', {src: track.art})),
-        m('div.content', [m('div.title', track.title), m('div.artist', track.artist + (track.album ? ' (' + track.album + ')' : ''))]),
-        !track.timestamp ? m('div.right', 'Now playing') : m('div.right', {title: dateFormat(new Date(track.timestamp * 1000))}, [
-          m('div.timeago', timeago(Date.now() / 1000 - track.timestamp, true)),
-          m('div.timestamp', dateFormat(new Date(track.timestamp * 1000), 'd mmm HH:MM'))
-        ])
+  return m('div', ctrl.trackList().map(function (track) {
+    if (!track.timestamp) {
+      return null
+    }
+    return m('div.row', {key: track.timestamp + track.text, onclick: m.withAttr('data-url', ctrl.openUrl), 'data-url': track.url}, [
+      m('div.img', m('img', {src: track.art})),
+      m('div.content', [m('div.title', track.title), m('div.artist', track.artist + (track.album ? ' (' + track.album + ')' : ''))]),
+      !track.timestamp ? m('div.right', 'Now playing') : m('div.right', {title: dateFormat(new Date(track.timestamp * 1000))}, [
+        m('div.timeago', timeago(Date.now() / 1000 - track.timestamp, true)),
+        m('div.timestamp', dateFormat(new Date(track.timestamp * 1000), 'd mmm HH:MM'))
       ])
-    }))
-  ]
+    ])
+  }))
 }
 m.mount(document.getElementById('playhistory'), playHistory)
 
