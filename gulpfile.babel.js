@@ -204,7 +204,7 @@ gulp.task('document', ['clean:document', 'update-favicon'], () => {
 })
 gulp.task('watch:document', () => {
   return documentTask(
-    watch(['src/document/**/*.pug', 'conf/radio.toml'], watchOpts)
+    watch(['src/document/**/*.pug'], watchOpts)
     .pipe(watchPug('src/document/**/*.pug', {delay: 100}))
     .pipe(filter(sources.document.map(function (f) { return 'src/document/' + f })))
   )
