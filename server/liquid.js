@@ -140,6 +140,7 @@ const API = {
     },
 
     add (id, item, cb) {
+      console.log('Liquidsoap: Add to queue:', item)
       liqCommand('queue' + id + '.push ' + item, function (err, data) {
         cb && cb(err)
       })
