@@ -7,7 +7,9 @@ import mm from 'musicmetadata'
 import { fetchJSON } from '../scripts/fetcher'
 import Song from './models/song'
 import User from './models/user'
+import Show from './models/show'
 import EqBeats from './models/eqbeats'
+import PonyFM from './models/ponyfm'
 import * as streams from './streams'
 import mpd from './mpd'
 import liquid from './liquid'
@@ -93,8 +95,8 @@ export default function (app) {
     }
 
     if (username.toLowerCase() === 'source' && password !== '') {
-      User
-        .authUserWithShow(password)
+      Show
+        .authUser(password)
         .then(({user, show}) => {
           out.live_unique = user.id + '_' + show.id
           out.live_userId = user.id + ''
@@ -242,7 +244,7 @@ export default function (app) {
 
   apiRouter.get('/show', (req, res) => {
     if (req.user) {
-      User
+      Show
         .getShows(req.user.id)
         .then((list) => res.json(list))
         .catch((err) => {
@@ -256,18 +258,18 @@ export default function (app) {
 
   apiRouter.post('/show', (req, res) => {
     if (req.user && req.body.id) {
-      User
-        .updateShow(req.user.id, req.body.id, req.body)
-        .then((show) => User.getShows(req.user.id))
+      Show
+        .update(req.user.id, req.body.id, req.body)
+        .then((show) => Show.getShows(req.user.id))
         .then((list) => res.json(list))
         .catch((err) => {
           console.error('Error saving show: ' + err)
           res.json({error: '' + err})
         })
     } else if (req.user && req.user.canMakeShows) {
-      User
-        .createShow(req.user.id, req.body)
-        .then((show) => User.getShows(req.user.id))
+      Show
+        .create(req.user.id, req.body)
+        .then((show) => Show.getShows(req.user.id))
         .then((list) => res.json(list))
         .catch((err) => {
           console.error('Error creating show: ' + err)
@@ -280,9 +282,9 @@ export default function (app) {
 
   apiRouter.delete('/show/:id', (req, res) => {
     if (req.user && req.user.canMakeShows && req.params.id) {
-      User
-        .removeShow(req.user.id, req.params.id)
-        .then((show) => User.getShows(req.user.id))
+      Show
+        .remove(req.user.id, req.params.id)
+        .then((show) => Show.getShows(req.user.id))
         .then((list) => res.json(list))
         .catch((err) => {
           console.error('Error removing show: ' + err)
@@ -295,7 +297,7 @@ export default function (app) {
 
   apiRouter.get('/show/:id/updatetoken', (req, res) => {
     if (req.user) {
-      User
+      Show
         .updateToken(req.user.id, req.params.id)
         .then((token) => res.json({token: token}))
         .catch((err) => {
@@ -507,6 +509,8 @@ export default function (app) {
     let mpdids = null
     let eqres = null
     let eqids = null
+    let pfmres = null
+    let pfmids = null
     let eqbeatsQuery
 
     function finalize () {
@@ -514,7 +518,10 @@ export default function (app) {
       eqres = eqres.filter((t) => {
         return mpdids.indexOf(t.id) === -1
       })
-      final = final.concat(eqres)
+      pfmres = pfmres.filter((t) => {
+        return mpdids.indexOf(t.id) === -1
+      })
+      final = final.concat(pfmres, eqres)
       res.json(final)
     }
 
@@ -530,7 +537,7 @@ export default function (app) {
         })
       }
 
-      if (eqres) {
+      if (eqres && pfmres) {
         finalize()
       }
     })
@@ -563,13 +570,40 @@ export default function (app) {
             eqids.push(o.id)
           })
         }
-        if (mpdres) {
+        if (mpdres && pfmres) {
           finalize()
         }
       })
     } else {
       eqres = []
       eqids = []
+    }
+
+    if (type === 'any' || type === 'title') {
+      PonyFM.querySearch(query, (err, data) => {
+        pfmres = []
+        pfmids = []
+        if (!err && data) {
+          data.forEach((t) => {
+            let o = {
+              title: t.title,
+              artist: t.user.name,
+              url: t.url,
+              art: t.covers.normal,
+              source: 'ponyfm'
+            }
+            o.id = Song.getSongHash(o)
+            pfmres.push(o)
+            pfmids.push(o.id)
+          })
+        }
+        if (mpdres && eqres) {
+          finalize()
+        }
+      })
+    } else {
+      pfmres = []
+      pfmids = []
     }
   })
 

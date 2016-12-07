@@ -1,6 +1,5 @@
 
 import { bookshelf } from '../db'
-import token from '../utils/token'
 
 const User = bookshelf.Model.extend({
   tableName: 'Users',
@@ -13,15 +12,6 @@ const User = bookshelf.Model.extend({
 
 const UserAuth = bookshelf.Model.extend({
   tableName: 'UserAuths',
-  hasTimestamps: true,
-
-  user () {
-    return this.belongsTo(User, 'UserId')
-  }
-})
-
-const Show = bookshelf.Model.extend({
-  tableName: 'Shows',
   hasTimestamps: true,
 
   user () {
@@ -51,7 +41,7 @@ const API = {
     await user.save({
       username: data.username,
       displayName: data.displayName,
-      email: data.email,
+      email: data.email || null,
       avatarUrl: data.avatarUrl
     }, {patch: true, method: 'update'})
     return API.findById(id, true)
@@ -93,68 +83,8 @@ const API = {
       let user = await User.forge({id: userAuth.get('UserId')}).fetch()
       return user.serialize()
     }
-  },
-
-  // TODO: Move show methods to its own file
-  createShow: async function (userId, info) {
-    let user = await User.forge({id: userId, canMakeShows: true}).fetch()
-    if (!user) {
-      throw new Error('permission denied')
-    }
-    return Show
-      .forge({
-        name: info.name,
-        description: info.description,
-        twitter: info.twitter,
-        art: info.art,
-        url: info.url,
-        authToken: token.generate(),
-        UserId: user.id
-      })
-      .save()
-  },
-
-  getShows (userId) {
-    return Show.forge()
-      .where({UserId: userId})
-      .orderBy('name', 'ASC')
-      .fetchAll({columns: ['id', 'name', 'description', 'twitter', 'art', 'url', 'authToken']})
-  },
-
-  updateShow (userId, showId, info) {
-    return Show.forge()
-      .where({UserId: userId, id: showId})
-      .save({
-        name: info.name,
-        description: info.description,
-        url: info.url,
-        twitter: info.twitter
-      }, {patch: true, method: 'update'})
-  },
-
-  removeShow (userId, showId) {
-    return Show.forge()
-      .where({UserId: userId, id: showId})
-      .destroy()
-  },
-
-  authUserWithShow: async function (authToken) {
-    let show = await Show.forge({authToken: authToken}).fetch()
-    if (!show) {
-      throw new Error('Invalid auth token')
-    }
-    let user = await API.findById(show.get('UserId'))
-    if (!user) {
-      throw new Error('Permission denied')
-    }
-    return {show, user}
-  },
-
-  updateToken: async function (userId, showId) {
-    let newToken = token.generate()
-    await Show.forge({UserId: userId, id: showId}).set({authToken: newToken}).save()
-    return newToken
   }
 }
 
 export default API
+export { User, UserAuth }
