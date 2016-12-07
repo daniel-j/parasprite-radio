@@ -79,9 +79,10 @@ html
 			nav#mainmenu
 				a#menuHistory.current(data-page='pageHistory') Music
 				//- a#menuPlaylist(data-page='pagePlaylist') Playlist
-				a#menuSchedule(data-page='pageSchedule', data-hash='schedule') Schedule
 				a#menuLivestream(data-page='pageLivestream', data-hash='livestream') Livestream
 				a#menuChat(data-page='chatPage', data-hash='chat') Chat
+				a#menuAbout(data-page='pageShows', data-hash='shows') Shows
+				a#menuSchedule(data-page='pageSchedule', data-hash='schedule') Schedule
 				a#menuAbout(data-page='pageAbout', data-hash='about') About
 				a#menuMap(data-page='pageMap', data-hash='map') Map
 
@@ -152,6 +153,8 @@ html
 						a(href=config.livestream.url_rtmp.replace('$name', config.livestream.name)) RTMP stream url
 						=' - '
 						a(href='/streams/livestream.m3u8') HLS stream url
+
+				#pageShows.page-wrapper(style='display: none')
 
 				#pageAbout.page-wrapper(style='display: none')
 					#aboutradio
@@ -277,7 +280,7 @@ html
 
 					strong My Shows
 					br
-					#shows
+					#myshows
 
 				#chatPage(style='display: none;')
 					#chatbox

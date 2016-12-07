@@ -1,5 +1,5 @@
 
-import { bookshelf } from '../db'
+import { bookshelf, knex } from '../db'
 import token from '../utils/token'
 import UserAPI, { User } from './user'
 
@@ -31,12 +31,17 @@ const API = {
       .save()
   },
 
-  getShows (userId) {
-    return Show.forge()
-      .where({UserId: userId})
-      .query((qb) => qb.innerJoin('Users', 'Users.id', 'Shows.UserId'))
-      .orderBy('name', 'ASC')
-      .fetchAll({columns: ['Shows.id', 'name', 'description', 'twitter', 'art', 'url', 'authToken', 'UserId', 'displayName']})
+  getShows (userId, onlyUser = false) {
+    let q = Show.forge().query((qb) => {
+      qb.select(knex.raw('IF(`UserId` = ?, `Shows`.`authToken`, NULL) AS authToken', userId))
+      qb.innerJoin('Users', 'Users.id', 'Shows.UserId')
+    })
+    if (onlyUser) {
+      q = q.where({UserId: userId})
+    }
+    return q.orderBy('name', 'ASC').fetchAll({
+      columns: ['Shows.id', 'name', 'description', 'twitter', 'art', 'url', 'UserId', 'displayName']
+    })
   },
 
   update (userId, showId, info) {
@@ -46,7 +51,8 @@ const API = {
         name: info.name,
         description: info.description,
         url: info.url,
-        twitter: info.twitter
+        twitter: info.twitter,
+        art: info.art
       }, {patch: true, method: 'update'})
   },
 

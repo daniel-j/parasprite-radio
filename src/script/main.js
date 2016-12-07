@@ -10,6 +10,7 @@ import api from './entities/api'
 import './incl/snow'
 import dateFormat from 'dateformat-light'
 import jstz from 'jstz'
+import MyShows from './components/myshows'
 import Shows from './components/shows'
 
 const radio = radioPlayer({
@@ -35,7 +36,10 @@ function initialize () {
     }
     hashMatch.click()
   }
-  m.mount(document.getElementById('shows'), Shows)
+  api.shows.fetch().then(() => {
+    m.mount(document.getElementById('myshows'), MyShows)
+    m.mount(document.getElementById('pageShows'), Shows)
+  })
 }
 
 api.user.fetch().then(function () {
