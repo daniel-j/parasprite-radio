@@ -243,17 +243,13 @@ export default function (app) {
   })
 
   apiRouter.get('/show', (req, res) => {
-    if (req.user) {
-      Show
-        .getShows(req.user.id)
-        .then((list) => res.json(list))
-        .catch((err) => {
-          console.error('Error fetching shows: ' + err)
-          res.json({error: '' + err})
-        })
-    } else {
-      res.json({error: 'Not logged in'})
-    }
+    Show
+      .getShows(req.user && req.user.id || null)
+      .then((list) => res.json(list))
+      .catch((err) => {
+        console.error('Error fetching shows: ' + err)
+        res.json({error: '' + err})
+      })
   })
 
   apiRouter.post('/show', (req, res) => {

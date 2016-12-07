@@ -64,7 +64,7 @@ export default {
         this.isSaving = false
       })
     }
-    this.filterMyShows = (s) => s.UserId === this.user().id
+    this.filterMyShows = (s) => this.user() && s.UserId === this.user().id
   },
   view (ctrl) {
     const isEditing = ctrl.editing
@@ -133,7 +133,7 @@ export default {
           ] : null
         ])
       }),
-      ctrl.user().canMakeShows ? m('button', {onclick: ctrl.create.bind(this), disabled: isEditing}, 'Create') : null
+      ctrl.user() && ctrl.user().canMakeShows ? m('button', {onclick: ctrl.create.bind(this), disabled: isEditing}, 'Create') : null
     )
   }
 }
