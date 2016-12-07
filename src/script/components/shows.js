@@ -22,10 +22,7 @@ export default {
             href: 'https://twitter.com/' + s.twitter,
             target: '_blank'
           }, s.twitter) : '(none)'),
-          m('.art', 'Art: ', s.art ? [m('a', {
-            href: s.art,
-            target: '_blank'
-          }, s.art), m('br'), m('img', {src: s.art})] : 'No image')
+          m('.art', s.art ? m('img', {src: s.art}) : null)
         )
       })
     )
