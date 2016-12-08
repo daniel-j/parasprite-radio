@@ -347,6 +347,19 @@ export default function (app) {
     })
   })
 
+  apiRouter.get('/status/icestats', (req, res) => {
+    const m = liquid.getMeta()
+    const o = {
+      icestats: {
+        source: {
+          listeners: streams.streamInfo.radio.length,
+          title: (m.artist || '') + ' - ' + (m.title || '')
+        }
+      }
+    }
+    res.json(o)
+  })
+
   /*
   defaultRouter.get '/lastfm/recent', (req, res) ->
     cors(res)
