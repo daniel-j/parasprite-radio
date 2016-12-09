@@ -12,4 +12,4 @@ require('babel-core/register')({
   ]
 })
 
-require(path.join(__dirname, '../server/cluster'))
+require(path.join(__dirname, '../server/master'))

@@ -8,7 +8,6 @@ import colors from 'colors/safe'
 
 // const numCores = require('os').cpus().length
 
-let args
 let rl
 const workers = []
 
@@ -65,6 +64,10 @@ async function initialize () {
     console.error(colors.red('Cluster: Database error:'), err)
   }
   startReadline()
+  // Fork workers.
+  // for now, only one =)
+  // for (let i = 0; i < numCores; i++)
+  spawnWorker()
 }
 
 function spawnWorker (oldWorker) {
@@ -95,75 +98,44 @@ function spawnWorker (oldWorker) {
   return w
 }
 
-if (cluster.isMaster) {
-  cluster.setupMaster({
-    stdio: ['ignore', 'pipe', 'pipe', 'ipc']
-  })
+cluster.setupMaster({
+  stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
+  exec: path.join(__dirname, './worker.js')
+})
 
-  args = require('commander')
-    .command('startserver')
-    .version(pjson.version)
-    .option('-d, --dev', 'run in debug mode')
-    .option('-v, --verbose', 'run in verbose mode')
-    .option('-p, --port <number>', 'set the server http port', config.server.port || 8002)
-    .parse(process.argv)
+let args = require('commander')
+  .command('startserver')
+  .version(pjson.version)
+  .option('-d, --dev', 'run in debug mode')
+  .option('-v, --verbose', 'run in verbose mode')
+  .option('-p, --port <number>', 'set the server http port', config.server.port || 8002)
+  .parse(process.argv)
 
-  // process will exit here if commander help is displayed
+// process will exit here if commander help is displayed
 
-  args = {
-    dev: args.dev,
-    verbose: args.verbose,
-    port: args.port
-  }
-
-  console.log(colors.yellow.bold('Parasprite Radio'))
-
-  if (args.dev) {
-    console.log(colors.cyan('Running in debug mode'))
-  }
-
-  cluster.on('exit', (worker, code, signal) => {
-    let extra = ((code || '') + ' ' + (signal || '')).trim()
-    console.error(colors.red('Cluster: Worker process ' + worker.process.pid + ' exited ' + (extra ? '(' + extra + ')' : '')))
-    let index = workers.indexOf(worker)
-    if (index !== -1) workers.splice(index, 1)
-    if (code === 0) {
-      return
-    }
-    setTimeout(() => {
-      spawnWorker()
-    }, 10 * 1000)
-  })
-
-  initialize().then(() => {
-    // Fork workers.
-    // for now, only one =)
-    // for (let i = 0; i < numCores; i++)
-    spawnWorker()
-  })
-} else {
-  process.once('message', (args) => {
-    if (args.dev) {
-      process.env.NODE_ENV = 'development'
-    } else {
-      process.env.NODE_ENV = 'production'
-    }
-
-    const server = require(path.join(__dirname, 'server'))
-    server.startServer(args).catch((err) => {
-      console.error('' + err, err.stack || '')
-    })
-
-    process.on('message', (message) => {
-      if (message === 'stop') {
-        console.log('Recieved stop signal')
-        const knex = require('./db').knex
-        knex.destroy(() => {
-          process.exit(0)
-        })
-      }
-    })
-
-    process.send('started')
-  })
+args = {
+  dev: args.dev,
+  verbose: args.verbose,
+  port: args.port
 }
+
+console.log(colors.yellow.bold('Parasprite Radio'))
+
+if (args.dev) {
+  console.log(colors.cyan('Running in debug mode'))
+}
+
+cluster.on('exit', (worker, code, signal) => {
+  let extra = ((code || '') + ' ' + (signal || '')).trim()
+  console.error(colors.red('Cluster: Worker process ' + worker.process.pid + ' exited ' + (extra ? '(' + extra + ')' : '')))
+  let index = workers.indexOf(worker)
+  if (index !== -1) workers.splice(index, 1)
+  if (code === 0) {
+    return
+  }
+  setTimeout(() => {
+    spawnWorker()
+  }, 10 * 1000)
+})
+
+initialize()
