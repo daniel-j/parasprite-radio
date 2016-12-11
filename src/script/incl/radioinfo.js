@@ -38,8 +38,8 @@ function updateMetadata (m) {
     let albumartist = m.albumartist || ''
     let url = m.live.url || m.url || ''
 
-    if (m.live.active && title) {
-      let splitUp = title.split('' - '')
+    if (m.live.active && title && !artist) {
+      let splitUp = title.split(' - ')
       if (splitUp.length === 2) {
         title = splitUp[1]
         artist = artist || splitUp[0]

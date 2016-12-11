@@ -55,8 +55,11 @@ html
 							a#popuplink(href='/popout', target='_blank')
 								img(src='/img/icons/popout.svg', alt='Popout')
 						#volume
-							div
+							#volbutton
+							#voloverlay
+								label Volume
 								input#radioVolume(type='range', min=0, max=1, step=0.01, value=0.8)
+								label Stream format
 								select#streamSelect
 									option(value='', selected) Automatic detection
 									option(value='radio_mobile') LQ HE-AAC 64k
@@ -66,11 +69,10 @@ html
 									option(value='radio') HQ MP3 320k
 									option(value='radio_flac') Lossless FLAC
 									option(value='gnr') Galaxy News Radio
-								= ' '
 								a#streamLink(href='javascript:', target='_blank')
 									img(src='/img/icons/popout.svg', alt='Stream')
 						.legend
-							span#listenercount
+							span#listenercount &nbsp;
 							img.listenersicon(src='/img/icons/listeners.png', alt='listeners')
 
 

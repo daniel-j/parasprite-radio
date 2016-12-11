@@ -43,7 +43,7 @@ a:hover
 		top 80px
 		right 100px
 
-		&:before
+		#volbutton
 			content ""
 			left 0
 			top -40px
@@ -58,20 +58,95 @@ a:hover
 			background-repeat no-repeat
 			background-position center center
 			opacity 0.5
+			cursor pointer
+			text-align left
 
-		& > div
+		#voloverlay
 			z-index 1
 			position absolute
 			visibility hidden
-			background-color #2d2d2d
+			background-color #333
 			padding 10px
-			left -120px
+			top 4px
+			left -124px
+			border 1px solid #2d2d2d
+			opacity 0
+			transition top .15s ease-in-out, visibility .3s ease-in-out, opacity .15s ease-in-out
 
-		&:hover > div, &:active > div
+			label
+				color #AAA
+				font-size 14px
+				display block
+				margin 2px
+				margin-top 4px
+
+			#radioVolume
+				width 200px // Specific width is required for Firefox.
+				-webkit-appearance none // Hides the slider so that custom slider can be made
+				background #555 // Otherwise white in Chrome
+				padding 0
+				margin 0
+				height 20px
+
+				&:focus
+					outline none
+					background #595959
+				&::-webkit-slider-thumb
+					-webkit-appearance none
+					padding 0
+					margin 0
+					height 20px
+					width 40px
+					background #959595
+					cursor pointer
+					border 0
+					&:focus
+						outline none
+				&:active::-webkit-slider-thumb
+					background color
+
+
+				&::-moz-range-thumb
+					height 20px
+					width 40px
+					padding 0
+					margin 0
+					background #959595
+					cursor pointer
+					border-radius 0
+					border 0
+					&:active
+						background color
+					&:focus
+						outline none
+				&:active::-moz-range-thumb
+					background color
+				&::-moz-range-track
+					background transparent
+
+
+			#streamSelect
+				padding 2px
+				margin 2px
+				margin-top 6px
+				font-size 14px
+				background #595959
+				color #CCC
+				border-radius 0
+				border 0
+			#streamLink
+				display inline-block
+				margin-top 10px
+				float right
+				img
+					width 16px
+					height 16px
+
+		#voloverlay.visible
 			visibility visible
+			top -1px
+			opacity 1
 
-		#radioVolume
-			width 200px
 
 
 
@@ -81,16 +156,12 @@ a:hover
 		font-size 15px
 		color rgba(255, 255, 255, 0.5)
 
-		a
-			opacity 0.7
-
-
 		.listenersicon
+			position absolute
 			height 14px
 			opacity 0.5
-			position relative
-			margin-left 4px
-			top 1px
+			top 0px
+			margin-left 5px
 
 	#playstopbtn
 		float right

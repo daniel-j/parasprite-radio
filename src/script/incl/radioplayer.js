@@ -22,6 +22,8 @@ function radioPlayer (opts = {}) {
   let visualizerDiv = document.getElementById('visualizer')
   let streamSelect = document.getElementById('streamSelect')
   let streamLink = document.getElementById('streamLink')
+  let volumeButton = document.getElementById('volbutton')
+  let volumeOverlay = document.getElementById('voloverlay')
 
   let useVisualizer = (AudioContext && !!visualizerDiv && !ismobile)
   let acx, canvas, ctx, gainNode, analyzer, liveFreqData
@@ -73,7 +75,7 @@ function radioPlayer (opts = {}) {
     }
   }
 
-  if (opts.autoplay) {
+  if (opts.autoplay && !ismobile) {
     startRadio()
   }
 
@@ -315,6 +317,26 @@ function radioPlayer (opts = {}) {
       }, false)
 
       radioVolume.value = volume
+    }
+
+    if (volumeButton && volumeOverlay) {
+      volumeButton.addEventListener('click', (e) => {
+        volumeOverlay.classList.toggle('visible')
+        e.preventDefault()
+      }, false)
+      window.addEventListener('mousedown', (e) => {
+        let n = e.target
+        while (n !== null) {
+          if (n === volumeOverlay || n === volumeButton) {
+            return
+          }
+          n = n.parentNode
+        }
+        volumeOverlay.classList.remove('visible')
+      })
+      window.addEventListener('blur', (e) => {
+        // volumeOverlay.classList.remove('visible')
+      }, false)
     }
 
     setVolume(volume)
