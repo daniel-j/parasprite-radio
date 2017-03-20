@@ -212,6 +212,14 @@ export default function (app) {
     // successFlash: 'Login succeeded'
   }))
 
+  passportRouter.get('/auth/trotland', passport.authenticate('trotland'))
+  passportRouter.get('/auth/trotland/callback', passport.authenticate('trotland', {
+    successRedirect: '/',
+    failureRedirect: '/login'
+    // failureFlash: 'Login failed'
+    // successFlash: 'Login succeeded'
+  }))
+
   passportRouter.get('/logout', (req, res) => {
     if (req.isAuthenticated()) {
       req.logout()

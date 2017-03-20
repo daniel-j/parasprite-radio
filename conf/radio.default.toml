@@ -88,6 +88,15 @@ authorizationURL = "https://poniverse.net/oauth/authorize"
 tokenURL = "https://poniverse.net/oauth/access_token"
 callbackURL = "http://localhost/auth/poniverse/callback"
 
+# For Trotland authentication
+[passport.trotland]
+clientID = ""
+clientSecret = ""
+scope="email"
+authorizationURL = "https://trotland.ml/oauth2/authorization"
+tokenURL = "https://trotland.ml/oauth2/token"
+callbackURL = "http://localhost/auth/trotland/callback"
+
 # Metadata scrobbling
 [lastfm]
 enable = false

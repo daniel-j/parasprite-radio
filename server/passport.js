@@ -48,6 +48,36 @@ if (config.passport.poniverse && config.passport.poniverse.clientID) {
   passport.use(poniverse)
 }
 
+if (config.passport.trotland && config.passport.trotland.clientID) {
+  const trotland = new OAuth2Strategy(config.passport.trotland, function (accessToken, refreshToken, profile, done) {
+    let provider = 'trotland'
+    fetchJSON('https://trotland.ml/oauth2/user?access_token=' + accessToken, null, function (err, data) {
+      if (err) {
+        done(err, null)
+        return
+      }
+
+      let userInfo = {
+        provider: provider,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        uid: data.id,
+
+        username: data.username,
+        displayName: data.display_name,
+        email: data.email,
+        level: 0,
+        avatarUrl: ''
+      }
+
+      User.handleAuth(userInfo).then((user) => done(null, user)).catch((err) => { throw err })
+    })
+  })
+
+  trotland.name = 'trotland' // replace 'oauth2'
+  passport.use(trotland)
+}
+
 if (config.passport.twitter && config.passport.twitter.consumerKey) {
   passport.use(new TwitterStrategy(config.passport.twitter, function (accessToken, refreshToken, profile, done) {
     let provider = 'twitter'
