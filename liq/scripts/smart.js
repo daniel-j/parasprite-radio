@@ -10,7 +10,6 @@ let parsedUrl = url.parse(arg, true)
 let handler = null
 
 switch (parsedUrl.protocol) {
-
   default:
     switch (parsedUrl.hostname) {
       case 'm.soundcloud.com':
