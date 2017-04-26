@@ -1,7 +1,7 @@
 'use strict'
 // http://stackoverflow.com/a/19708150
 function replaceURLWithHTMLLinks (text) {
-  let re = /(\(.*?)?\b((?:https?|ftp|file):\/\/[-a-z0-9+&@#\/%?=~_()|!:,.;]*[-a-z0-9+&@#\/%=~_()|])/ig
+  let re = /(\(.*?)?\b((?:https?|ftp|file):\/\/[-a-z0-9+&@#/%?=~_()|!:,.;]*[-a-z0-9+&@#/%=~_()|])/ig
   return text.replace(re, function (match, lParens, url) {
     let rParens = ''
     lParens = lParens || ''

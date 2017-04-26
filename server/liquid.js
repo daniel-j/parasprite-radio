@@ -118,7 +118,7 @@ const API = {
                       file: ''
                     }
                   } else {
-                    data.file = data.filename && data.filename.replace(config.general.media_dir + '/', '') || data.initial_uri
+                    data.file = data.filename ? data.filename.replace(config.general.media_dir + '/', '') : data.initial_uri
                     delete data.filename
                   }
                   if (data.source && data.source.indexOf('queue') === 0 && data.status && data.status !== 'destroyed') {

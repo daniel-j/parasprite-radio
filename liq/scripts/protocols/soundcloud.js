@@ -20,7 +20,6 @@ function protocol (arg, parsedUrl, handleCb) {
       outputTrack(response)
     } else {
       handleCb({what: protocol.title, error: 'Not a track, ' + response.kind})
-      return
     }
   }
 

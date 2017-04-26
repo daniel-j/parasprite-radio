@@ -252,7 +252,7 @@ export default function (app) {
 
   apiRouter.get('/show', (req, res) => {
     Show
-      .getShows(req.user && req.user.id || null)
+      .getShows(req.user ? req.user.id : null)
       .then((list) => res.json(list))
       .catch((err) => {
         console.error('Error fetching shows: ' + err)

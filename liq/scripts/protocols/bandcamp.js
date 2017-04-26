@@ -45,7 +45,7 @@ function protocol (arg, parsedUrl, handleCb) {
       let title = data.current.title
       let artist = data.current.artist || data.artist
       let album = page.album || null
-      let albumartist = album && page.albumartist || null
+      let albumartist = album ? page.albumartist : null
       let url = data.url
       let duration = track.duration || null
       let art = page.art || null

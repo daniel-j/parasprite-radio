@@ -10,4 +10,3 @@ export default function xhr (url, cb) {
   }
   x.send()
 }
-

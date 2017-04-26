@@ -39,7 +39,7 @@ function handleRequest (req, res, next) {
     let ip = req.ips[0]
     let agent = req.get('User-Agent')
     let o = streamConnections.get(t)
-    let connected = o && o._connected || Date.now()
+    let connected = o ? o._connected : Date.now()
     streamConnections.set(t, {
       ip: ip,
       format: format,
