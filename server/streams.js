@@ -8,7 +8,7 @@ let streamInfo = {radio: [], livestream: []}
 let ipcache = new Map()
 
 function radioPlaylist (req, res) {
-  let t = token.generate()
+  let t = token.generateSync()
   res.type('m3u8')
   res.send(`#EXTM3U
 #EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=256000
@@ -21,7 +21,7 @@ hls/radio/low.m3u8?t=${t}
 }
 
 function livestreamPlaylist (req, res) {
-  let t = token.generate()
+  let t = token.generateSync()
   res.type('m3u8')
   res.send(`#EXTM3U
 #EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=1000000
