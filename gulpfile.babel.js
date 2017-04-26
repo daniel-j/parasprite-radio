@@ -102,8 +102,7 @@ if (inProduction) {
 
 let wpCompiler = webpack(assign({}, webpackConfig, {
   cache: {},
-  devtool: inProduction ? null : 'inline-source-map',
-  debug: !inProduction
+  devtool: inProduction ? null : 'inline-source-map'
 }))
 
 function webpackTask (callback) {
