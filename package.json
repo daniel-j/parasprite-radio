@@ -71,7 +71,6 @@
     "morgan": "^1.7.0",
     "mpd": "^1.3.0",
     "musicmetadata": "^2.0.4",
-    "mustache-loader": "^0.4.0",
     "mysql": "^2.12.0",
     "node-schedule": "^1.2.0",
     "passport": "^0.3.2",
