@@ -63,6 +63,7 @@ streams_dir = "/tmp/pr/streams"
 
 # ngix-rtmp
 [livestream]
+enable = false
 name = "stream"
 url_stats = "http://localhost/stat"
 url_rtmp = "rtmp://localhost/live/$name"
