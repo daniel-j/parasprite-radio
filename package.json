@@ -38,7 +38,7 @@
     "jquery": "^3.1.1",
     "jstz": "^1.0.7",
     "lazypipe": "^1.0.1",
-    "loader-utils": "^0.2.16",
+    "loader-utils": "^1.1.0",
     "lodash": "^3.10.1",
     "merge-stream": "^1.0.0",
     "mithril": "^0.2.5",
