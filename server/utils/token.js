@@ -1,7 +1,6 @@
 
-import TokenGenerator from 'uuid-token-generator'
+import UIDGenerator from 'uid-generator'
 
-const token = new TokenGenerator(128, TokenGenerator.BASE16)
+const token = new UIDGenerator(128, UIDGenerator.BASE16).generateSync()
 
 export default token
-
