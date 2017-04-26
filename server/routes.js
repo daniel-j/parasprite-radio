@@ -175,7 +175,7 @@ export default function (app) {
   defaultRouter.get('/popout', (req, res) => res.sendFile('popout.html', htmloptions))
   defaultRouter.get('/livestream.html', (req, res) => res.sendFile('livestream.html', htmloptions))
 
-  defaultRouter.get('/stream', (req, res) => res.redirect(config.general.streamurl + 'radio'))
+  defaultRouter.get('/stream', (req, res) => res.redirect('/streams/radio.m3u8'))
 
   defaultRouter.get('/streams/radio.m3u8', (req, res, next) => {
     cors(res)
@@ -361,7 +361,10 @@ export default function (app) {
       icestats: {
         source: {
           listeners: streams.streamInfo.radio.length,
-          title: (m.artist || '') + ' - ' + (m.title || '')
+          title: m.title || '',
+          artist: m.artist || '',
+          bitrate: 1337,
+          format: 'application/x-mpegURL'
         }
       }
     }
