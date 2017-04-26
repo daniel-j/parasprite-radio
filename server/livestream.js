@@ -54,6 +54,8 @@ function updateStats () {
 
 const API = {
   initialize () {
+    if (config.livestream.enable === false) return
+
     console.log('Initializing Livestream...')
 
     sse.broadcast('livestreamstatus', API.getInfo(), true)
