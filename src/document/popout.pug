@@ -30,13 +30,19 @@ html
 								input#radioVolume(type='range', min=0, max=1, step=0.01, value=0.8)
 								select#streamSelect
 									option(value='', selected) Automatic detection
-									option(value='radio_mobile') LQ HE-AAC 64k
-									option(value='radio_mobile_vorbis') LQ OGG Vorbis
-									option(value='radio_opus') HQ OGG Opus
-									option(value='radio_hls') HQ Adaptive AAC
-									option(value='radio') HQ MP3 320k
-									option(value='radio_flac') Lossless FLAC
-									option(value='gnr') Galaxy News Radio
+									option(value='radio_hls') HLS Adaptive AAC
+									if config.icecast.mounts.includes('radio_mobile')
+										option(value='radio_mobile') LQ HE-AAC 64k
+									if config.icecast.mounts.includes('radio_mobile_vorbis')
+										option(value='radio_mobile_vorbis') LQ OGG Vorbis
+									if config.icecast.mounts.includes('radio_opus')
+										option(value='radio_opus') HQ OGG Opus
+									if config.icecast.mounts.includes('radio')
+										option(value='radio') HQ MP3 320k
+									if config.icecast.mounts.includes('radio_flac')
+										option(value='radio_flac') Lossless FLAC
+									if config.icecast.mounts.includes('gnr')
+										option(value='gnr') Galaxy News Radio
 								a#streamLink(href='/stream', target='_blank')
 									img(src='/img/icons/popout.svg', alt='Stream')
 						.legend

@@ -15,7 +15,8 @@ import Shows from './components/shows'
 
 const radio = radioPlayer({
   baseurl: window.config.general_streamurl,
-  autoplay: false
+  autoplay: false,
+  mounts: window.config.icecast_mounts || []
 })
 
 radio.activate()
@@ -224,6 +225,12 @@ function updateMap () {
       })
       if (l.type === 'livestream') {
         mark.setIcon('http://maps.google.com/mapfiles/ms/icons/purple-dot.png')
+      } else if (l.mount === 'gnr') {
+        mark.setIcon('http://maps.google.com/mapfiles/ms/icons/yellow-dot.png')
+      } else if (l.mount === 'radio_flac') {
+        mark.setIcon('http://maps.google.com/mapfiles/ms/icons/pink-dot.png')
+      } else if (window.config.icecast_mounts.includes(l.mount)) {
+        mark.setIcon('http://maps.google.com/mapfiles/ms/icons/orange-dot.png')
       }
       mark.infowindow = new google.maps.InfoWindow({
         content: content

@@ -16,7 +16,7 @@ module.exports = function () {
     'general.baseurl', 'general.streamurl', 'general.irc', 'general.twitter',
     'radio.title',
     'server.api_prefix',
-    'icecast.mounts',
+    'icecast.enable', 'icecast.mounts',
     'google.publicApiKey', 'google.calendarId',
     'livestream.url_thumbnail', 'livestream.url_rtmp', 'livestream.url_dash', 'livestream.url_hls'
   ]

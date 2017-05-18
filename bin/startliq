@@ -6,4 +6,8 @@ cd ..
 
 echo "Starting Liquidsoap..."
 cd liq
-exec liquidsoap radio.liq -- $@
+while true; do
+  liquidsoap radio.liq -- $@
+  echo "Liquidsoap stopped. Restarting in 5 seconds..."
+  sleep 5
+done
