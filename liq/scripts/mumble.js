@@ -3,7 +3,7 @@
 
 const mumble = require('mumble')
 const path = require('path')
-const config = require(path(__dirname, '../../scripts/config'))
+const config = require(path.join(__dirname, '../../scripts/config'))
 
 let options = {
   // not needed for now

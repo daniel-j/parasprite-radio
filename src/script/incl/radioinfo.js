@@ -31,15 +31,15 @@ cover.addEventListener('error', function () {
 }, false)
 
 function updateMetadata (m) {
-  if (isOnline && m && lastMeta !== m) {
+  if ((true || isOnline) && m && lastMeta !== m) {
     let title = m.title || ''
     let artist = m.artist || ''
     let album = m.album || ''
     let albumartist = m.albumartist || ''
     let url = m.live.url || m.url || ''
 
-    if (m.live.active && title) {
-      let splitUp = title.split('' - '')
+    if (m.live.active && title && !artist) {
+      let splitUp = title.split(' - ')
       if (splitUp.length === 2) {
         title = splitUp[1]
         artist = artist || splitUp[0]

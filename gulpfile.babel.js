@@ -48,6 +48,7 @@ let sources = {
 }
 let lintES = ['src/script/**/*.js', 'server/**/*.js', 'scripts/**/*.js', 'liq/scripts/**/*.js', 'gulpfile.babel.js', 'webpack.config.js', 'bin/startserver', 'knexfile.js', 'migrations/*.js']
 let lintCS = ['src/script/**/*.coffee', 'server/**/*.coffee']
+let fonts = ['node_modules/source-sans-pro/**/*.{eot,otf,ttf,woff}']
 
 let inProduction = process.env.NODE_ENV === 'production' || process.argv.indexOf('-p') !== -1
 
@@ -101,8 +102,7 @@ if (inProduction) {
 
 let wpCompiler = webpack(assign({}, webpackConfig, {
   cache: {},
-  devtool: inProduction ? null : 'inline-source-map',
-  debug: !inProduction
+  devtool: inProduction ? null : 'inline-source-map'
 }))
 
 function webpackTask (callback) {
@@ -117,7 +117,7 @@ function webpackTask (callback) {
       chunkModules: false
     }))
     browserSync.reload()
-    callback()
+    if (typeof callback === 'function') callback()
   })
 }
 
@@ -131,6 +131,10 @@ function styleTask () {
     .pipe(debug({title: '[style]'}))
     .pipe(gulp.dest('build/style/'))
     .pipe(browserSync.stream())
+}
+function fontTask () {
+  return gulp.src(fonts)
+    .pipe(gulp.dest('build/style/fonts/'))
 }
 
 function documentTask (p) {
@@ -166,6 +170,9 @@ gulp.task('clean:quick', ['clean:script', 'clean:style', 'clean:document'], (don
 gulp.task('clean:script', () => {
   return del('build/script')
 })
+gulp.task('clean:font', () => {
+  return del('build/style/fonts')
+})
 gulp.task('clean:style', () => {
   return del('build/style')
 })
@@ -179,12 +186,14 @@ gulp.task('clean:icons', () => {
 // Main tasks
 gulp.task('script', ['clean:script'], webpackTask)
 gulp.task('watch:script', () => {
-  return watch(['src/script/**/*.coffee', 'src/script/**/*.js', 'src/script/template/**/*.mustache'], watchOpts, function () {
-    return sequence('script')
-  })
+  return watch(['src/script/**/*.coffee', 'src/script/**/*.js', 'src/script/template/**/*.mustache'], watchOpts, webpackTask)
 })
 
-gulp.task('style', ['clean:style'], styleTask)
+gulp.task('style', ['clean:style'], (done) => {
+  return sequence('font', 'build:style', done)
+})
+gulp.task('font', ['clean:font'], fontTask)
+gulp.task('build:style', styleTask)
 gulp.task('watch:style', () => {
   return watch('src/style/**/*.styl', watchOpts, styleTask)
 })
@@ -194,7 +203,7 @@ gulp.task('document', ['clean:document', 'update-favicon'], () => {
 })
 gulp.task('watch:document', () => {
   return documentTask(
-    watch(['src/document/**/*.pug', 'conf/radio.toml'], watchOpts)
+    watch(['src/document/**/*.pug'], watchOpts)
     .pipe(watchPug('src/document/**/*.pug', {delay: 100}))
     .pipe(filter(sources.document.map(function (f) { return 'src/document/' + f })))
   )

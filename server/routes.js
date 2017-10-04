@@ -7,7 +7,10 @@ import mm from 'musicmetadata'
 import { fetchJSON } from '../scripts/fetcher'
 import Song from './models/song'
 import User from './models/user'
+import Show from './models/show'
 import EqBeats from './models/eqbeats'
+import PonyFM from './models/ponyfm'
+import * as streams from './streams'
 import mpd from './mpd'
 import liquid from './liquid'
 import icecast from './icecast'
@@ -20,7 +23,7 @@ import simpleconfig from '../scripts/simpleconfig'
 let htmloptions = {
   root: path.join(__dirname, '../build/document/'),
   dotfiles: 'deny',
-  maxAge: 365 * 24 * 60 * 60 * 1000
+  maxAge: 1 * 24 * 60 * 60 * 1000
 }
 
 function cleanpath (p) {
@@ -92,8 +95,8 @@ export default function (app) {
     }
 
     if (username.toLowerCase() === 'source' && password !== '') {
-      User
-        .authUserWithShow(password)
+      Show
+        .authUser(password)
         .then(({user, show}) => {
           out.live_unique = user.id + '_' + show.id
           out.live_userId = user.id + ''
@@ -151,11 +154,47 @@ export default function (app) {
   //      res.end stdout
   //  ###
 
+  internalRouter.get('/rtmp/:stream', (req, res) => {
+    if (req.params.stream === config.livestream.name) {
+      if (req.query.cmd === 'publish') {
+        livestream.publishStart(req.params.stream)
+      } else if (req.query.cmd === 'publish_done') {
+        livestream.publishStop(req.params.stream)
+      } else if (req.query.cmd === 'play') {
+        livestream.viewerChange(req.params.stream, 1)
+      } else if (req.query.cmd === 'play_done') {
+        livestream.viewerChange(req.params.stream, -1)
+      } else if (req.query.cmd) {
+        console.log('Internal: Unknown RTMP command: ' + req.query.cmd)
+      }
+    }
+    res.end('ok')
+  })
+
   defaultRouter.get('/', (req, res) => res.sendFile('index.html', htmloptions))
   defaultRouter.get('/popout', (req, res) => res.sendFile('popout.html', htmloptions))
   defaultRouter.get('/livestream.html', (req, res) => res.sendFile('livestream.html', htmloptions))
 
-  defaultRouter.get('/stream', (req, res) => res.redirect(config.streamurl + config.icecast.mounts[0]))
+  defaultRouter.get('/stream', (req, res) => res.redirect('/streams/radio.m3u8'))
+
+  defaultRouter.get('/streams/radio.m3u8', (req, res, next) => {
+    cors(res)
+    nocache(res)
+    next()
+  }, streams.radioPlaylist)
+  defaultRouter.get('/streams/livestream.m3u8', (req, res, next) => {
+    cors(res)
+    nocache(res)
+    next()
+  }, streams.livestreamPlaylist)
+  defaultRouter.get('/streams/livestream.jpg', (req, res) => res.sendFile(config.livestream.name + '.jpg', {root: path.join(config.server.streams_dir, 'hls/livestream/')}))
+  defaultRouter.use('/streams/', streams.handleRequest, express.static(config.server.streams_dir, {
+    index: false,
+    setHeaders (res, path, stat) {
+      cors(res)
+      nocache(res)
+    }
+  }))
 
   passportRouter.get('/auth/twitter', passport.authenticate('twitter'))
   passportRouter.get('/auth/twitter/callback', passport.authenticate('twitter', {
@@ -167,6 +206,14 @@ export default function (app) {
 
   passportRouter.get('/auth/poniverse', passport.authenticate('poniverse'))
   passportRouter.get('/auth/poniverse/callback', passport.authenticate('poniverse', {
+    successRedirect: '/',
+    failureRedirect: '/login'
+    // failureFlash: 'Login failed'
+    // successFlash: 'Login succeeded'
+  }))
+
+  passportRouter.get('/auth/trotland', passport.authenticate('trotland'))
+  passportRouter.get('/auth/trotland/callback', passport.authenticate('trotland', {
     successRedirect: '/',
     failureRedirect: '/login'
     // failureFlash: 'Login failed'
@@ -193,56 +240,68 @@ export default function (app) {
       res.json(null)
     }
   })
-
-  apiRouter.post('/show/create', (req, res) => {
+  apiRouter.post('/user', (req, res) => {
     if (req.user) {
-      User
-        .createShow(req.user.id, req.body)
-        .then((show) => {
-          res.json('ok')
+      User.update(req.user.id, req.body).then((user) => {
+        res.json(user)
+      })
+    } else {
+      res.json(null)
+    }
+  })
+
+  apiRouter.get('/show', (req, res) => {
+    Show
+      .getShows(req.user ? req.user.id : null)
+      .then((list) => res.json(list))
+      .catch((err) => {
+        console.error('Error fetching shows: ' + err)
+        res.json({error: '' + err})
+      })
+  })
+
+  apiRouter.post('/show', (req, res) => {
+    if (req.user && req.body.id) {
+      Show
+        .update(req.user.id, req.body.id, req.body)
+        .then((show) => Show.getShows(req.user.id))
+        .then((list) => res.json(list))
+        .catch((err) => {
+          console.error('Error saving show: ' + err)
+          res.json({error: '' + err})
         })
+    } else if (req.user && req.user.canMakeShows) {
+      Show
+        .create(req.user.id, req.body)
+        .then((show) => Show.getShows(req.user.id))
+        .then((list) => res.json(list))
         .catch((err) => {
           console.error('Error creating show: ' + err)
           res.json({error: '' + err})
         })
     } else {
-      res.json({error: 'not logged in'})
+      res.json({error: 'Permission denied'})
     }
   })
 
   apiRouter.delete('/show/:id', (req, res) => {
-    if (req.user) {
-      User
-        .removeShow(req.user.id, req.params.id)
-        .then(() => {
-          res.json('ok')
-        })
+    if (req.user && req.user.canMakeShows && req.params.id) {
+      Show
+        .remove(req.user.id, req.params.id)
+        .then((show) => Show.getShows(req.user.id))
+        .then((list) => res.json(list))
         .catch((err) => {
           console.error('Error removing show: ' + err)
           res.json({error: '' + err})
         })
     } else {
-      res.json({error: 'not logged in'})
-    }
-  })
-
-  apiRouter.get('/show', (req, res) => {
-    if (req.user) {
-      User
-        .getShows(req.user.id)
-        .then((list) => res.json(list))
-        .catch((err) => {
-          console.error('Error fetching show: ' + err)
-          res.json({error: '' + err})
-        })
-    } else {
-      res.json({error: 'not logged in'})
+      res.json({error: 'Permission denied'})
     }
   })
 
   apiRouter.get('/show/:id/updatetoken', (req, res) => {
     if (req.user) {
-      User
+      Show
         .updateToken(req.user.id, req.params.id)
         .then((token) => res.json({token: token}))
         .catch((err) => {
@@ -287,13 +346,6 @@ export default function (app) {
     }
   })
 
-  /*
-  defaultRouter.get '/now/json', (req, res) ->
-    cors(res)
-    res.setHeader "Content-Type", "application/json"
-    res.sendFile 'json', root: __dirname+'/../util/now/'
-  */
-
   apiRouter.get('/status', (req, res) => {
     cors(res)
     res.json({
@@ -301,6 +353,22 @@ export default function (app) {
       info: icecast.getInfo(),
       livestream: livestream.getInfo()
     })
+  })
+
+  apiRouter.get('/status/icestats', (req, res) => {
+    const m = liquid.getMeta()
+    const o = {
+      icestats: {
+        source: {
+          listeners: streams.streamInfo.radio.length,
+          title: m.title || '',
+          artist: m.artist || '',
+          bitrate: 1337,
+          format: 'application/x-mpegURL'
+        }
+      }
+    }
+    res.json(o)
   })
 
   /*
@@ -327,6 +395,7 @@ export default function (app) {
     if (limit < 1) limit = 1
     if (limit > config.lastfm.api.limit) limit = config.lastfm.api.limit
 
+    // TODO: rate-limit this
     fetchJSON('http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=' + config.lastfm.username + '&api_key=' + config.lastfm.api.key + '&format=json&limit=' + limit + '&extended=1', null, function (err, data) {
       let tracks = []
       if (err) {
@@ -418,10 +487,7 @@ export default function (app) {
         viewers: livestream.getViewCount(),
         url: config.general.baseurl + '#livestream',
         url_iframe: config.general.baseurl + 'livestream.html',
-        url_thumbnail: config.livestream.url_thumbnail,
-        url_rtmp: config.livestream.url_rtmp,
-        url_dash: config.livestream.url_dash,
-        url_hls: config.livestream.url_hls
+        url_rtmp: config.livestream.url_rtmp.replace('$name', config.livestream.name)
       },
 
       events: events
@@ -463,6 +529,8 @@ export default function (app) {
     let mpdids = null
     let eqres = null
     let eqids = null
+    let pfmres = null
+    let pfmids = null
     let eqbeatsQuery
 
     function finalize () {
@@ -470,7 +538,10 @@ export default function (app) {
       eqres = eqres.filter((t) => {
         return mpdids.indexOf(t.id) === -1
       })
-      final = final.concat(eqres)
+      pfmres = pfmres.filter((t) => {
+        return mpdids.indexOf(t.id) === -1
+      })
+      final = final.concat(pfmres, eqres)
       res.json(final)
     }
 
@@ -486,7 +557,7 @@ export default function (app) {
         })
       }
 
-      if (eqres) {
+      if (eqres && pfmres) {
         finalize()
       }
     })
@@ -519,13 +590,40 @@ export default function (app) {
             eqids.push(o.id)
           })
         }
-        if (mpdres) {
+        if (mpdres && pfmres) {
           finalize()
         }
       })
     } else {
       eqres = []
       eqids = []
+    }
+
+    if (type === 'any' || type === 'title') {
+      PonyFM.querySearch(query, (err, data) => {
+        pfmres = []
+        pfmids = []
+        if (!err && data) {
+          data.forEach((t) => {
+            let o = {
+              title: t.title,
+              artist: t.user.name,
+              url: t.url,
+              art: t.covers.normal,
+              source: 'ponyfm'
+            }
+            o.id = Song.getSongHash(o)
+            pfmres.push(o)
+            pfmids.push(o.id)
+          })
+        }
+        if (mpdres && eqres) {
+          finalize()
+        }
+      })
+    } else {
+      pfmres = []
+      pfmids = []
     }
   })
 
@@ -698,7 +796,11 @@ export default function (app) {
     })
   })
 
-  apiRouter.get('/listeners', isAdmin, (req, res) => res.json(icecast.getListeners()))
+  apiRouter.get('/mapdata', isAdmin, (req, res) => {
+    let icecastListeners = icecast.getListeners()
+    let streamInfo = streams.getStreamInfo()
+    res.json([].concat(icecastListeners, streamInfo))
+  })
 
   app.use('/', defaultRouter)
   app.use('/build/', express.static(path.join(__dirname, '../build/'), { maxAge: 365 * 24 * 60 * 60 * 1000 }))

@@ -1,8 +1,10 @@
+
 import mpd from 'mpd'
 import genremap from 'id3-genre'
 import config from '../scripts/config'
 
 let timeout = 5000
+let logging = true
 
 function parseArrayMessage (msg, dividers = ['file', 'directory']) {
   // Function taken from
@@ -104,16 +106,16 @@ let client = null
 let mainPlaylist = []
 
 function mpdOnReady () {
-  console.log('MPD: Ready!')
+  if (logging) console.log('MPD: Ready!')
   mpdReady = true
 
   if (typeof config.mpd.password === 'string' && config.mpd.password !== '') {
     client.sendCommand(mpd.cmd('password', [config.mpd.password]), function (err, data) {
       if (err) {
-        console.warn('MPD: Password INCORRECT')
+        console.warn('MPD: Wrong password.')
         return
       }
-      console.log('MPD: Password OK')
+      if (logging) console.log('MPD: Password OK')
       mpdInit()
     })
   } else {
@@ -133,9 +135,9 @@ function mpdOnUpdate () {
       data = parseKeyValueMessage(data)
       let id = data.updating_db || null
       if (id !== null) {
-        console.log('MPD: Updating DB (#' + id + ')')
+        if (logging) console.log('MPD: Updating DB (#' + id + ')')
       } else {
-        console.log('MPD: Update complete')
+        if (logging) console.log('MPD: Update complete')
         let i = 0
         while (i < dbUpdateCallbacks.length) {
           dbUpdateCallbacks[i](null)
@@ -156,7 +158,7 @@ function mpdOnError (err) {
 }
 
 function mpdOnEnd () {
-  console.log('MPD: Socket ended')
+  if (logging) console.log('MPD: Socket ended')
   client = null
   mpdReady = false
 }
@@ -168,7 +170,7 @@ function mpdConnect () {
     host: config.mpd.host || 'localhost',
     port: config.mpd.port || 6600
   })
-  console.log('MPD: Connecting...')
+  if (logging) console.log('MPD: Connecting...')
   client.on('ready', mpdOnReady)
   client.on('system-update', mpdOnUpdate)
   client.on('system-stored_playlist', mpdOnStoredPlaylist)
@@ -248,7 +250,7 @@ function updateMainPlaylist () {
         mainPlaylist.push(list[i].file)
       }
 
-      console.log('MPD: Updated main playlist with ' + mainPlaylist.length + ' tracks')
+      if (logging) console.log('MPD: Updated main playlist with ' + mainPlaylist.length + ' tracks')
     }
   })
 }
@@ -264,8 +266,13 @@ function trackInList (track) {
 }
 
 const API = {
+
+  enableLogging (enable) {
+    logging = !!enable
+  },
+
   initialize () {
-    console.log('Initializing MPD...')
+    if (logging) console.log('Initializing MPD...')
     mpdConnect()
     setInterval(() => {
       if (mpdReady) {
@@ -304,6 +311,36 @@ const API = {
         }
         cb(null, tracks)
       }
+    })
+  },
+
+  find (params, limit = 10) {
+    let list = []
+    for (let key in params) {
+      if (!params[key]) continue
+      list.push(key)
+      list.push(params[key])
+    }
+    return new Promise((resolve, reject) => {
+      mpdCommand('find', list, (err, data) => {
+        if (err) {
+          reject(err)
+        } else {
+          let tracks = parseArrayMessage(data)
+          if (tracks.length > limit) tracks.length = limit
+          let i = 0
+          while (i < tracks.length) {
+            if (tracks[i].hasOwnProperty('file')) {
+              fixGenre(tracks[i])
+              trackInList(tracks[i])
+              i++
+            } else {
+              tracks.splice(i, 1)
+            }
+          }
+          resolve(tracks)
+        }
+      })
     })
   },
 
@@ -409,7 +446,7 @@ const API = {
       if (err) {
         cb(err, null)
       } else {
-        console.log(data)
+        if (logging) console.log(data)
         cb(null, parseArrayMessage(data))
       }
     })

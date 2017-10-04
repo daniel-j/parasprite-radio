@@ -1,18 +1,19 @@
 'use strict'
 
 import events from './entities/events'
+import Hls from 'hls.js'
 
 let viewercount = document.getElementById('viewercount')
 let liveplayer = document.getElementById('liveplayer')
 
 let player = null
 let playerId = 'livevideoplayer'
-let playerType = 'jw'
+let playerType = 'html5'
 let isOnline = false
-let socket = window.io('/livestream', {path: '/socket.io', autoConnect: false})
 let enabled = false
-let bufferTimer
+// let bufferTimer
 
+/*
 let bitdashConf = {
   key: '3c1f43e7-c788-4f4a-a13c-ab3569f63bc0',
   source: {
@@ -42,15 +43,12 @@ let bitdashConf = {
   events: {
     onPlay: function () {
       console.log('PLAY')
-      socket.connect()
     },
     onPause: function () {
       console.log('PAUSE')
-      socket.disconnect()
     },
     onSourceUnloaded: function () {
       console.log('UNLOADED')
-      socket.disconnect()
     },
     onStartBuffering: function () {
       console.log('STALLED')
@@ -108,10 +106,8 @@ function startJwPlayer () {
     if (player.getProvider().indexOf('rtmp') !== -1) {
       return
     }
-    socket.connect()
   })
   player.on('pause', function () {
-    socket.disconnect()
   })
   player.on('buffer', function () {
 
@@ -141,6 +137,30 @@ function startBitDashPlayer () {
     setTimeout(startBitDashPlayer, 5000)
   })
 }
+*/
+
+function startHtml5Player () {
+  if (player || !isOnline || !enabled) {
+    return
+  }
+  playerType = 'html5'
+  let video = document.createElement('video')
+  video.id = 'html5player'
+  video.controls = true
+  video.setAttribute('poster', '/streams/livestream.jpg')
+  player = {video: video, hls: null}
+  window.player = player
+  document.getElementById(playerId).appendChild(video)
+
+  if (Hls.isSupported()) {
+    player.hls = new Hls()
+    player.hls.attachMedia(video)
+    player.hls.loadSource('/streams/livestream.m3u8')
+  } else {
+    video.src = '/streams/livestream.m3u8'
+  }
+  video.play()
+}
 
 events.on('livestreamstatus', function (data) {
   isOnline = data.online
@@ -156,7 +176,7 @@ events.on('livestreamstatus', function (data) {
     document.body.classList.remove('livestreamonline')
   }
 })
-
+/*
 setInterval(function () {
   bitdashConf.source.poster = jwConfig.playlist[0].image = window.config.livestream_url_thumbnail + '?t=' + Date.now()
   if (!player || !isOnline || !enabled) return
@@ -168,6 +188,7 @@ setInterval(function () {
     document.querySelector('.jw-preview').style.backgroundImage = 'url("' + jwConfig.playlist[0].image + '")'
   }
 }, 10 * 1000)
+*/
 
 const API = {
   enable () {
@@ -180,9 +201,11 @@ const API = {
   },
   start () {
     if (playerType === 'bitdash') {
-      startBitDashPlayer()
+      // startBitDashPlayer()
     } else if (playerType === 'jw') {
-      startJwPlayer()
+      // startJwPlayer()
+    } else if (playerType === 'html5') {
+      startHtml5Player()
     }
   },
   stop () {
@@ -193,12 +216,18 @@ const API = {
       if (player.pause) player.pause()
       // if (player.unload) player.unload()
       if (player.destroy) player.destroy()
+    } else if (playerType === 'html5') {
+      if (player.hls) {
+        player.hls.destroy()
+      }
+      player.video.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAVFYAAFRWAAABAAgAZGF0YQAAAAA='
+      player.video.load()
+      player.video.parentNode.removeChild(player.video)
     } else {
       player.stop()
       player.remove()
     }
     player = null
-    socket.disconnect()
   }
 }
 

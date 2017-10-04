@@ -7,11 +7,23 @@ body
 	background-repeat no-repeat
 	color white
 
-
 .container
 	max-width 1000px
 	margin 0 auto
 
-
 #footer
-	padding-bottom 20px
+	font-size 13px
+	padding-bottom 40px
+	color #444
+	a
+		color #888
+	a:hover
+		color #ffb330
+	a.external
+		opacity 0.7
+		img
+			height 15px
+			padding 10px 6px
+		&:hover
+			opacity 0.9
+			filter sepia() saturate(5) hue-rotate(-10deg)

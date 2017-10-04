@@ -50,7 +50,7 @@ function esError () {
   es.close()
   es = null
 
-  setTimeout(esConnect, 5 * 1000)
+  setTimeout(esConnect, 3 * 1000)
 }
 events.activate = esConnect
 

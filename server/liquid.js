@@ -99,45 +99,48 @@ function liqCommand (command, cb) {
 const API = {
   queue: {
     getList (cb) {
-      liqCommand('request.all', function (err, data) {
-        // TODO: Rewrite this if-statement
-        if (err || '' + data === '') {
-          cb(err, [])
-          return
-        }
-        let list = data.split(' ')
-        let meta = []
-        function f (i) {
-          liqCommand('request.metadata ' + list[i], function (err, data) {
-            if (err) {
+      let list = []
+      let meta = []
+      liqCommand('queue1.queue', (err1, data) => {
+        list = list.concat((data || '').split(' '))
+        liqCommand('queue2.queue', (err2, data) => {
+          list = list.concat((data || '').split(' '))
+          liqCommand('queue3.queue', (err3, data) => {
+            list = list.concat((data || '').split(' '))
+            function f (i) {
+              liqCommand('request.metadata ' + list[i], function (err, data) {
+                if (err) {
 
-            } else {
-              if (typeof data === 'string') {
-                data = {
-                  error: data,
-                  file: ''
+                } else {
+                  if (typeof data === 'string') {
+                    data = {
+                      error: data,
+                      file: ''
+                    }
+                  } else {
+                    data.file = data.filename ? data.filename.replace(config.general.media_dir + '/', '') : data.initial_uri
+                    delete data.filename
+                  }
+                  if (data.source && data.source.indexOf('queue') === 0 && data.status && data.status !== 'destroyed') {
+                    meta.push(data)
+                  }
                 }
-              } else {
-                data.file = data.filename && data.filename.replace(config.general.media_dir + '/', '') || data.initial_uri
-                delete data.filename
-              }
-              if (data.source && data.source.indexOf('queue') === 0 && data.status && data.status !== 'destroyed') {
-                meta.push(data)
-              }
+                ++i
+                if (i < list.length) {
+                  f(i)
+                } else {
+                  cb(null, meta)
+                }
+              })
             }
-            ++i
-            if (i < list.length) {
-              f(i)
-            } else {
-              cb(null, meta)
-            }
+            f(0)
           })
-        }
-        f(0)
+        })
       })
     },
 
     add (id, item, cb) {
+      console.log('Liquidsoap: Add to queue:', item)
       liqCommand('queue' + id + '.push ' + item, function (err, data) {
         cb && cb(err)
       })

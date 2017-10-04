@@ -10,16 +10,20 @@ import api from './entities/api'
 import './incl/snow'
 import dateFormat from 'dateformat-light'
 import jstz from 'jstz'
+import MyShows from './components/myshows'
+import Shows from './components/shows'
 
 const radio = radioPlayer({
   baseurl: window.config.general_streamurl,
-  autoplay: false
+  autoplay: false,
+  mounts: window.config.icecast_mounts || []
 })
 
 radio.activate()
 
 let menudiv = document.getElementById('mainmenu')
 let scheduleiframe = document.getElementById('scheduleiframe')
+let schedulelink = document.getElementById('schedulelink')
 
 let currentPage = 'pageHistory'
 let oldmenu = document.getElementById('menuHistory')
@@ -33,6 +37,10 @@ function initialize () {
     }
     hashMatch.click()
   }
+  api.shows.fetch().then(() => {
+    m.mount(document.getElementById('myshows'), MyShows)
+    m.mount(document.getElementById('pageShows'), Shows)
+  })
 }
 
 api.user.fetch().then(function () {
@@ -53,6 +61,21 @@ api.user.fetch().then(function () {
       document.getElementById('body').classList.add('isadmin')
     }
     document.getElementById('editAccountForm').addEventListener('submit', function (e) {
+      const fields = this.elements
+      m.request({
+        method: 'POST',
+        url: '/api/user',
+        data: {
+          username: fields.inputAccountUsername.value,
+          displayName: fields.inputAccountDisplayName.value,
+          email: fields.inputAccountEmail.value,
+          avatarUrl: fields.inputAccountAvatarUrl.value
+        }
+      }).then((response) => {
+        console.log(response)
+      }).catch((err) => {
+        console.log(err)
+      })
       e.preventDefault()
     }, false)
   }
@@ -76,22 +99,19 @@ playHistory.controller = function () {
   }
 }
 playHistory.view = function (ctrl) {
-  return [
-    m('div.headline', 'Recently played'),
-    m('div', ctrl.trackList().map(function (track) {
-      if (!track.timestamp) {
-        return null
-      }
-      return m('div.row', {key: track.timestamp + track.text, onclick: m.withAttr('data-url', ctrl.openUrl), 'data-url': track.url}, [
-        m('div.img', m('img', {src: track.art})),
-        m('div.content', [m('div.title', track.title), m('div.artist', track.artist + (track.album ? ' (' + track.album + ')' : ''))]),
-        !track.timestamp ? m('div.right', 'Now playing') : m('div.right', {title: dateFormat(new Date(track.timestamp * 1000))}, [
-          m('div.timeago', timeago(Date.now() / 1000 - track.timestamp, true)),
-          m('div.timestamp', dateFormat(new Date(track.timestamp * 1000), 'd mmm HH:MM'))
-        ])
+  return m('div', ctrl.trackList().map(function (track) {
+    if (!track.timestamp) {
+      return null
+    }
+    return m('div.row', {key: track.timestamp + track.text, onclick: m.withAttr('data-url', ctrl.openUrl), 'data-url': track.url}, [
+      m('div.img', m('img', {src: track.art})),
+      m('div.content', [m('div.title', track.title), m('div.artist', track.artist + (track.album ? ' (' + track.album + ')' : ''))]),
+      !track.timestamp ? m('div.right', 'Now playing') : m('div.right', {title: dateFormat(new Date(track.timestamp * 1000))}, [
+        m('div.timeago', timeago(Date.now() / 1000 - track.timestamp, true)),
+        m('div.timestamp', dateFormat(new Date(track.timestamp * 1000), 'd mmm HH:MM'))
       ])
-    }))
-  ]
+    ])
+  }))
 }
 m.mount(document.getElementById('playhistory'), playHistory)
 
@@ -173,7 +193,7 @@ let timezone = tz.name()
 let bgcolor = '444444'
 let color = '8C500B'
 
-scheduleiframe.src = 'https://www.google.com/calendar/embed?mode=WEEK&showTitle=0&showCalendars=0&height=350&wkst=2&bgcolor=%23' + bgcolor + '&src=' + window.config.google_calendarId + '&color=%23' + color + '&ctz=' + encodeURIComponent(timezone)
+schedulelink.href = scheduleiframe.src = 'https://www.google.com/calendar/embed?mode=WEEK&showTitle=0&showCalendars=0&height=350&wkst=2&bgcolor=%23' + bgcolor + '&src=' + window.config.google_calendarId + '&color=%23' + color + '&ctz=' + encodeURIComponent(timezone)
 
 // reload every 5 min
 setInterval(function () {
@@ -184,14 +204,14 @@ setInterval(function () {
 let map
 let mapmarkers = {}
 function fetchMap () {
-  return m.request({method: 'GET', url: '/api/listeners'})
+  return m.request({method: 'GET', url: '/api/mapdata'})
 }
 function updateMap () {
   fetchMap().then(function (list) {
     let idlist = []
     for (let i = 0; i < list.length; i++) {
       let l = list[i]
-      l.id = l.location.lng + ',' + l.location.lat + ',' + l.ip
+      l.id = l.location.lng + ',' + l.location.lat + ',' + l.ip + ',' + l.type
       idlist[i] = l.id
       let content = '<div style="color: black">IP: ' + l.ip + '<br>Mount: ' + l.mount + '<br>Country: ' + l.location.countryName + '<br>Region: ' + l.location.regionName + '<br>City: ' + l.location.cityName + '<br>Connected at ' + new Date(l.connected * 1000) + '<br>Time connected: ' + formattime(Date.now() / 1000 - l.connected) + '<br>User Agent: ' + l.userAgent + '</div>'
       if (mapmarkers[l.id]) {
@@ -203,6 +223,15 @@ function updateMap () {
         map: map,
         animation: google.maps.Animation.DROP
       })
+      if (l.type === 'livestream') {
+        mark.setIcon('http://maps.google.com/mapfiles/ms/icons/purple-dot.png')
+      } else if (l.mount === 'gnr') {
+        mark.setIcon('http://maps.google.com/mapfiles/ms/icons/yellow-dot.png')
+      } else if (l.mount === 'radio_flac') {
+        mark.setIcon('http://maps.google.com/mapfiles/ms/icons/pink-dot.png')
+      } else if (window.config.icecast_mounts.includes(l.mount)) {
+        mark.setIcon('http://maps.google.com/mapfiles/ms/icons/orange-dot.png')
+      }
       mark.infowindow = new google.maps.InfoWindow({
         content: content
       })

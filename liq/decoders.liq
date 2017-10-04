@@ -34,4 +34,4 @@ add_decoder(
 	"$(which ffmpeg || which avconv) -loglevel panic -i - -f wav -"
 )
 
-set("decoder.file_decoders", ["META","WAV","IMAGE","FLAC","MAD","OGG","XMP","FFMPEG","GSTREAMER"])
+set("decoder.file_decoders", ["META","WAV","IMAGE","FLAC","MAD","OGG","XMP","FFMPEG"])

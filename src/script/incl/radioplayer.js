@@ -3,6 +3,7 @@
 import * as notify from '../utils/notify'
 import './raf'
 import ismobile from '../utils/ismobile'
+import Hls from 'hls.js'
 
 let AudioContext = window.AudioContext || window.webkitAudioContext
 
@@ -21,18 +22,29 @@ function radioPlayer (opts = {}) {
   let visualizerDiv = document.getElementById('visualizer')
   let streamSelect = document.getElementById('streamSelect')
   let streamLink = document.getElementById('streamLink')
+  let volumeButton = document.getElementById('volbutton')
+  let volumeOverlay = document.getElementById('voloverlay')
 
   let useVisualizer = (AudioContext && !!visualizerDiv && !ismobile)
   let acx, canvas, ctx, gainNode, analyzer, liveFreqData
 
   let urls
-  if (ismobile && navigator.userAgent.indexOf('iPhone') !== -1) {
-    urls = [['radio_mobile', 'audio/aac'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_normal', 'audio/mpeg'], ['radio', 'audio/mpeg']]
+  if ((ismobile && navigator.userAgent.includes('iPhone')) || navigator.userAgent.includes('iPad')) {
+    urls = [['radio_mobile', 'audio/aac'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_hls', 'application/vnd.apple.mpegurl'], ['radio', 'audio/mpeg']]
   } else if (ismobile) {
-    urls = [['radio_mobile', 'audio/aacp'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_normal', 'audio/mpeg'], ['radio', 'audio/mpeg']]
+    urls = [['radio_mobile', 'audio/aacp'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_opus', 'application/ogg; codecs=opus'], ['radio_hls', 'application/vnd.apple.mpegurl'], ['radio', 'audio/mpeg']]
   } else {
-    urls = [['radio', 'audio/mpeg'], /* ['radio_opus', 'application/ogg; codecs=opus'], */ ['radio_normal', 'audio/mpeg'], ['radio_mobile', 'audio/aacp'], ['radio_mobile_vorbis', 'application/ogg']]
+    urls = [['radio_hls', 'application/vnd.apple.mpegurl'], ['radio_opus', 'application/ogg; codecs=opus'], ['radio', 'audio/mpeg'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_mobile', 'audio/aacp']]
   }
+
+  for (let i = 0; i < urls.length; i++) {
+    if (!opts.mounts.includes(urls[i][0]) && urls[i][0] !== 'radio_hls') {
+      urls.splice(i, 1)
+      i--
+    }
+  }
+
+  console.log(urls)
 
   let baseurl = opts.baseurl
   let streamName = ''
@@ -41,6 +53,7 @@ function radioPlayer (opts = {}) {
 
   let audioTag = null
   let source = null
+  let hls = null
 
   if (useVisualizer) {
     if (!AudioContext) {
@@ -51,8 +64,10 @@ function radioPlayer (opts = {}) {
   }
 
   let handleStreamEnded = () => {
+    playstopbtn.textContent = 'Buffering'
+    playstopbtn.className = 'loading'
     setTimeout(() => {
-      if (isPlaying) {
+      if (isPlaying && !(ismobile || navigator.userAgent.includes('iPad'))) {
         startRadio()
       }
     }, 1000)
@@ -69,7 +84,7 @@ function radioPlayer (opts = {}) {
     }
   }
 
-  if (opts.autoplay) {
+  if (opts.autoplay && !(ismobile || navigator.userAgent.includes('iPad'))) {
     startRadio()
   }
 
@@ -102,6 +117,11 @@ function radioPlayer (opts = {}) {
     window.playing = false
     document.body.classList.remove('radioplaying')
 
+    if (hls) {
+      hls.destroy()
+      hls = null
+    }
+
     if (source) {
       source.disconnect(0)
       source = null
@@ -109,10 +129,12 @@ function radioPlayer (opts = {}) {
     if (audioTag && audioTag !== true) {
       audioTag.removeEventListener('error', handleStreamEnded)
       audioTag.removeEventListener('ended', handleStreamEnded)
+      audioTag.removeEventListener('stalled', handleStreamEnded)
       audioTag.removeEventListener('canplay', handleStreamCanPlay)
+      audioTag.removeEventListener('pause', stopRadio)
       audioTag.pause()
 
-      audioTag.src = ''
+      audioTag.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAVFYAAFRWAAABAAgAZGF0YQAAAAA='
       while (audioTag.firstChild) {
         audioTag.removeChild(audioTag.firstChild)
       }
@@ -142,8 +164,10 @@ function radioPlayer (opts = {}) {
     audioTag = new Audio()
     audioTag.addEventListener('error', handleStreamEnded, false)
     audioTag.addEventListener('ended', handleStreamEnded, false)
+    audioTag.addEventListener('stalled', handleStreamEnded, false)
     audioTag.addEventListener('canplay', handleStreamCanPlay, false)
     audioTag.addEventListener('canplay', canPlayAudio, false)
+    audioTag.addEventListener('pause', stopRadio, false)
 
     if (useVisualizer) {
       gainNode.gain.value = volume
@@ -152,31 +176,50 @@ function radioPlayer (opts = {}) {
       audioTag.volume = volume
     }
 
-    audioTag.crossOrigin = 'anonymous'
-    if (streamName !== '') {
-      let s = document.createElement('source')
-      s.src = baseurl + streamName
-      audioTag.appendChild(s)
+    if (Hls.isSupported() && ((streamName === '' && (!ismobile || urls.length === 0)) || streamName === 'radio_hls')) {
+      hls = new Hls()
+      hls.attachMedia(audioTag)
+      hls.loadSource('/streams/radio.m3u8')
+    } else {
+      audioTag.crossOrigin = 'anonymous'
+      if (streamName !== '') {
+        let s = document.createElement('source')
+        if (streamName === 'radio_hls') {
+          s.src = '/streams/radio.m3u8'
+        } else {
+          s.src = baseurl + streamName
+        }
+        audioTag.appendChild(s)
+      }
+      for (let i = 0; i < urls.length; i++) {
+        let s = document.createElement('source')
+        s.src = baseurl + urls[i][0]
+        s.type = urls[i][1]
+        audioTag.appendChild(s)
+      }
     }
-    for (let i = 0; i < urls.length; i++) {
-      let s = document.createElement('source')
-      s.src = baseurl + urls[i][0]
-      s.type = urls[i][1]
-      audioTag.appendChild(s)
-    }
+
+    audioTag.load()
     audioTag.play()
     notify.check()
 
     function canPlayAudio (e) {
+      if (!audioTag) return
       audioTag.removeEventListener('canplay', canPlayAudio)
-      streamName = audioTag.currentSrc.substr(baseurl.length)
-      streamSelect.value = streamName
-      streamLink.href = baseurl + streamName
-      if (streamName.indexOf('radio') !== -1) {
-        try {
-          window.localStorage['pr:streamName'] = streamName
-        } catch (e) {}
+      console.log(audioTag.currentSrc)
+      if (audioTag.currentSrc.startsWith('blob:') || audioTag.currentSrc.endsWith('.m3u8')) {
+        streamName = 'radio_hls'
+        streamLink.href = '/streams/radio.m3u8'
+      } else {
+        streamName = audioTag.currentSrc.substr(baseurl.length)
+        streamLink.href = baseurl + streamName
       }
+      streamSelect.value = streamName
+      console.log(streamName)
+
+      try {
+        window.localStorage['pr:streamName'] = streamName
+      } catch (e) {}
       if (audioTag && useVisualizer) {
         audioTag.volume = 1
         source = acx.createMediaElementSource(audioTag)
@@ -206,12 +249,18 @@ function radioPlayer (opts = {}) {
   function setStream (stream) {
     streamName = stream
     if (streamName === '') {
-      streamLink.href = '/stream'
+      streamLink.href = 'javascript:'
+    } else if (streamName === 'radio_hls') {
+      streamLink.href = '/streams/radio.m3u8'
     } else {
       streamLink.href = baseurl + streamName
     }
     if (isPlaying) {
-      startRadio()
+      if (ismobile || navigator.userAgent.includes('iPad')) {
+        stopRadio()
+      } else {
+        startRadio()
+      }
     }
   }
 
@@ -258,7 +307,11 @@ function radioPlayer (opts = {}) {
     if (typeof s !== 'undefined') {
       streamName = s
       streamSelect.value = streamName
-      streamLink.href = baseurl + streamName
+      if (streamName === 'radio_hls') {
+        streamLink.href = '/streams/radio.m3u8'
+      } else {
+        streamLink.href = baseurl + streamName
+      }
     }
 
     let v
@@ -281,6 +334,26 @@ function radioPlayer (opts = {}) {
       }, false)
 
       radioVolume.value = volume
+    }
+
+    if (volumeButton && volumeOverlay) {
+      volumeButton.addEventListener('click', (e) => {
+        volumeOverlay.classList.toggle('visible')
+        e.preventDefault()
+      }, false)
+      window.addEventListener('mousedown', (e) => {
+        let n = e.target
+        while (n !== null) {
+          if (n === volumeOverlay || n === volumeButton) {
+            return
+          }
+          n = n.parentNode
+        }
+        volumeOverlay.classList.remove('visible')
+      })
+      window.addEventListener('blur', (e) => {
+        // volumeOverlay.classList.remove('visible')
+      }, false)
     }
 
     setVolume(volume)
