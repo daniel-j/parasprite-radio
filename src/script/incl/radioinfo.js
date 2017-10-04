@@ -31,7 +31,7 @@ cover.addEventListener('error', function () {
 }, false)
 
 function updateMetadata (m) {
-  if (isOnline && m && lastMeta !== m) {
+  if ((true || isOnline) && m && lastMeta !== m) {
     let title = m.title || ''
     let artist = m.artist || ''
     let album = m.album || ''

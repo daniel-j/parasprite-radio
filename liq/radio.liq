@@ -32,7 +32,7 @@ set("alsa.buffer_length", 20)
 set("alsa.periods", 0)
 
 set("frame.audio.samplerate",44100)
-set("audio.converter.samplerate.libsamplerate.quality","best")
+set("audio.converter.samplerate.libsamplerate.quality","fast")
 
 #set("decoder.debug",true)
 #set("extproto.use_server_name",true)
@@ -224,9 +224,9 @@ end
 
 
 # playlists
-default = audio_to_stereo(mksafe(playlist(id="default", reload_mode="watch", reload=600, timeout=600., prefix=confstr("general.media_dir")^"/", "/home/djazz/.mpd/playlists/radio.m3u")))
-extra = audio_to_stereo(playlist(id="extra", reload_mode="watch", reload=600, timeout=600., prefix=confstr("general.media_dir")^"/", "/home/djazz/.mpd/playlists/extra.m3u"))
-friendship = audio_to_stereo(amplify(1.1, playlist(id="friendship", reload_mode="watch", reload=600, "friendship.m3u")))
+default = audio_to_stereo(mksafe(playlist(id="default", reload_mode="seconds", reload=600, timeout=600., prefix=confstr("general.media_dir")^"/", "/audio/playlists/radio.m3u")))
+#extra = audio_to_stereo(playlist(id="extra", reload_mode="watch", reload=600, timeout=600., prefix=confstr("general.media_dir")^"/", "/audio/playlists/extra.m3u"))
+#friendship = audio_to_stereo(amplify(1.1, playlist(id="friendship", reload_mode="watch", reload=600, "friendship.m3u")))
 #ads = audio_to_stereo(playlist(id="ads", reload_mode="watch", reload=600, prefix=confstr("general.media_dir")^"/", "/home/djazz/.mpd/playlists/ads.m3u"))
 
 # queues: requests; announce: plays over music
@@ -240,9 +240,9 @@ add_skip_command(command="queue2.skip", queue2)
 add_skip_command(command="queue3.skip", queue3)
 add_skip_command(command="announce.skip", announce)
 
-songs = random(weights=[1,1], [extra,default])
+#songs = random(weights=[1,1], [extra,default])
 
-source = fallback([queue1, queue2, queue3, songs])
+source = fallback([queue1, queue2, queue3, default])
 
 # scrobble music (last.fm & tunein) but not jingles etc..
 source = store_metadata(id="history", size=20, source)
@@ -251,7 +251,7 @@ source = on_track(scrobble_nowplaying, source)
 source = on_end(delay=0., scrobble_submit, source)
 
 # TODO: replace with jingles
-source = rotate(weights=[1,7], [friendship,source])
+#source = rotate(weights=[1,7], [friendship,source])
 
 add_skip_command(command="skip", source)
 skip_source := source

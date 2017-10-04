@@ -43,7 +43,8 @@ mediainfo(process.argv[2]).then(function (res) {
     output.bitrate_mode = res[0].overall_bit_rate_mode.toLowerCase()
   }
   if (res[0].duration) {
-    var d = res[0].duration.match(/^(?:(\d*)h)?\s?(?:(\d*)mn)?\s?(?:(\d*)s)?\s?(?:(\d*)ms)?$/)
+    console.error(res[0].duration)
+    var d = res[0].duration.match(/^(?:(\d*) h)?\s?(?:(\d*) mi?n)?\s?(?:(\d*) s)?\s?(?:(\d*) ms)?$/)
     if (d) {
       var duration = Math.round((d[1] || 0) * 60 * 60 + (d[2] || 0) * 60 + (d[3] || 0) * 1 + (d[4] || 0) * 0.001)
       if (duration > 0) {

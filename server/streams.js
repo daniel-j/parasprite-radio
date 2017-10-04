@@ -2,6 +2,8 @@
 import token from './utils/token'
 import iplookup from '../scripts/iplookup'
 import config from '../scripts/config'
+import icecast from './icecast'
+import sse from './sse'
 
 let streamConnections = new Map()
 let streamInfo = {radio: [], livestream: []}
@@ -11,13 +13,13 @@ function radioPlaylist (req, res) {
   let t = token.generateSync()
   res.type('m3u8')
   res.send(`#EXTM3U
-#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=256000
+#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=192000
 hls/radio/high.m3u8?t=${t}
-#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=96000
-hls/radio/medium.m3u8?t=${t}
-#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=48000
+#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=64000
 hls/radio/low.m3u8?t=${t}
 `)
+  // #EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=96000
+  //hls/radio/medium.m3u8?t=${t}
 }
 
 function livestreamPlaylist (req, res) {
@@ -59,7 +61,7 @@ function updateStreamInfo () {
   streamInfo.radio.length = 0
   streamInfo.livestream.length = 0
   streamConnections.forEach((info, t) => {
-    if (info._updated < now - 5000) {
+    if (info._updated < now - 10 * 1000) {
       streamConnections.delete(t)
       return
     }
@@ -75,6 +77,8 @@ function updateStreamInfo () {
       })
     }
   })
+  let count = icecast.getListenerCount()
+  sse.broadcast('listenercount', count, true)
 }
 
 function addIP (ip) {

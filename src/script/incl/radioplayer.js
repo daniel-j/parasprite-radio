@@ -256,7 +256,11 @@ function radioPlayer (opts = {}) {
       streamLink.href = baseurl + streamName
     }
     if (isPlaying) {
-      startRadio()
+      if (ismobile || navigator.userAgent.includes('iPad')) {
+        stopRadio()
+      } else {
+        startRadio()
+      }
     }
   }
 

@@ -20,6 +20,7 @@ function startReadline () {
   rl.setPrompt('> ')
   rl.on('line', (line) => {
     if (line === 'reload') {
+      console.log(colors.cyan('Reloading...'))
       workers.forEach((w, i) => {
         spawnWorker(w)
       })

@@ -23,7 +23,7 @@ import simpleconfig from '../scripts/simpleconfig'
 let htmloptions = {
   root: path.join(__dirname, '../build/document/'),
   dotfiles: 'deny',
-  maxAge: 365 * 24 * 60 * 60 * 1000
+  maxAge: 1 * 24 * 60 * 60 * 1000
 }
 
 function cleanpath (p) {

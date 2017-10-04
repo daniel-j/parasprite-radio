@@ -196,9 +196,17 @@ function updateListenerInfo (cb) {
           listeners = [listeners]
         }
         listeners.forEach((v) => {
+          let ip = v.IP[0]
+          let ua = v.UserAgent[0]
+          if (v.IP[0] === '127.0.0.1' && ua.includes('|')) {
+            let info = ua.split('|')
+            ip = info[0]
+            ua = info[1]
+          }
+
           list.push({
-            ip: v.IP[0],
-            userAgent: v.UserAgent[0],
+            ip: ip,
+            userAgent: ua,
             time: Math.round(Date.now() / 1000 - v.Connected[0]),
             id: v.ID[0],
             mount: m,
@@ -228,6 +236,7 @@ function fixAudioInfo (m) {
 
 const API = {
   initialize () {
+    if (config.icecast.enable === false) return
     console.log('Initializing Icecast...')
     sse.broadcast('listenercount', 0, true)
     sse.broadcast('icecaststatus', {online: false}, true)
@@ -289,6 +298,7 @@ const API = {
   },
 
   isOnline () {
+    if (config.icecast.enable === false) return true
     return !!iceData[config.icecast.host + ':' + config.icecast.port]['/' + config.icecast.mounts[0]]
   },
 
@@ -328,6 +338,7 @@ const API = {
 
   getStreams () {
     let streams = []
+    if (config.icecast.enable === false) return streams
     config.icecast.mounts.forEach((mount) => {
       let m = iceData[config.icecast.host + ':' + config.icecast.port]['/' + mount]
       if (m) {
