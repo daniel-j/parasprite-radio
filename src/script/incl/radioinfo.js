@@ -92,7 +92,7 @@ function updateMetadata (m) {
 
     window.nowplayingdata = lastnowplaying
     if (window.playing) {
-      document.title = window.nowplayingdata + ' - Parasprite Radio'
+      document.title = window.nowplayingdata + ' - ' + window.config.radio_title
     }
 
     cover.src = '/api/now/art/tiny?t=' + Date.now()
@@ -111,7 +111,7 @@ function updateMetadata (m) {
     // nowplaying.href = ""
     // radio.style.visibility = 'hidden'
     window.nowplayingdata = ''
-    document.title = 'Parasprite Radio'
+    document.title = window.config.radio_title
   }
   if (m) {
     lastMeta = m

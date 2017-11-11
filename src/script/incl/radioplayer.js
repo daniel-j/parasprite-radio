@@ -143,7 +143,7 @@ function radioPlayer (opts = {}) {
     }
     playstopbtn.textContent = 'Play'
     playstopbtn.className = ''
-    document.title = 'Parasprite Radio'
+    document.title = window.config.radio_title
     if (useVisualizer) {
       visualizerDiv.style.display = 'none'
     }
@@ -155,7 +155,7 @@ function radioPlayer (opts = {}) {
     document.body.classList.add('radioplaying')
 
     if (window.nowplayingdata) {
-      document.title = window.nowplayingdata + ' - Parasprite Radio'
+      document.title = window.nowplayingdata + ' - ' + window.config.radio_title
     }
 
     playstopbtn.textContent = 'Buffering'
