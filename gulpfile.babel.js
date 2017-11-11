@@ -215,30 +215,30 @@ gulp.task('watch:document', () => {
 // package (see the update-favicon task below).
 gulp.task('generate-favicon', ['clean:icons'], (done) => {
   realFavicon.generateFavicon({
-    masterPicture: 'static/img/icons/parasprite-radio-logo.png',
+    masterPicture: 'static/img/icons/parasprite-radio-nmn-hex.png',
     dest: 'build/icons/',
     iconsPath: '/',
     design: {
       ios: {
-        masterPicture: 'static/img/icons/parasprite-radio-logo-hex.png',
+        masterPicture: 'static/img/icons/parasprite-radio-nmn-hex.png',
         pictureAspect: 'backgroundAndMargin',
         backgroundColor: '#2d2d2d',
         margin: '0%',
-        appName: 'Parasprite Radio'
+        appName: config.radio.title
       },
       desktopBrowser: {},
       windows: {
         pictureAspect: 'noChange',
         backgroundColor: '#da532c',
         onConflict: 'override',
-        appName: 'Parasprite Radio'
+        appName: config.radio.title
       },
       androidChrome: {
-        masterPicture: 'static/img/icons/parasprite-radio-logo-hex.png',
+        masterPicture: 'static/img/icons/parasprite-radio-nmn-hex.png',
         pictureAspect: 'noChange',
         themeColor: '#2d2d2d',
         manifest: {
-          name: 'Parasprite Radio',
+          name: '',
           display: 'standalone',
           orientation: 'notSet',
           onConflict: 'override',
