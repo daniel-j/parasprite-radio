@@ -8,7 +8,6 @@ import { fetchJSON } from '../scripts/fetcher'
 import Song from './models/song'
 import User from './models/user'
 import Show from './models/show'
-import EqBeats from './models/eqbeats'
 import PonyFM from './models/ponyfm'
 import * as streams from './streams'
 import mpd from './mpd'
@@ -527,21 +526,15 @@ export default function (app) {
     let type = req.query.t || 'any'
     let mpdres = null
     let mpdids = null
-    let eqres = null
-    let eqids = null
     let pfmres = null
     let pfmids = null
-    let eqbeatsQuery
 
     function finalize () {
       let final = [].concat(mpdres)
-      eqres = eqres.filter((t) => {
-        return mpdids.indexOf(t.id) === -1
-      })
       pfmres = pfmres.filter((t) => {
         return mpdids.indexOf(t.id) === -1
       })
-      final = final.concat(pfmres, eqres)
+      final = final.concat(pfmres)
       res.json(final)
     }
 
@@ -557,47 +550,10 @@ export default function (app) {
         })
       }
 
-      if (eqres && pfmres) {
+      if (pfmres) {
         finalize()
       }
     })
-
-    if (type === 'any' || type === 'title' || type === 'artist') {
-      if (type === 'title') {
-        eqbeatsQuery = 'title:' + query
-      } else if (type === 'artist') {
-        eqbeatsQuery = 'artist:' + query
-      } else {
-        eqbeatsQuery = query
-      }
-
-      EqBeats.querySearch(eqbeatsQuery, function (err, data) {
-        eqres = []
-        eqids = []
-        if (!err) {
-          data.forEach((t) => {
-            let o = {
-              title: t.title,
-              artist: t.artist.name,
-              date: new Date(t.timestamp * 1000).getFullYear(),
-              'last-modified': new Date(t.timestamp * 1000),
-              url: t.link,
-              art: t.download.art,
-              source: 'eqbeats'
-            }
-            o.id = Song.getSongHash(o)
-            eqres.push(o)
-            eqids.push(o.id)
-          })
-        }
-        if (mpdres && pfmres) {
-          finalize()
-        }
-      })
-    } else {
-      eqres = []
-      eqids = []
-    }
 
     if (type === 'any' || type === 'title') {
       PonyFM.querySearch(query, (err, data) => {
@@ -617,7 +573,7 @@ export default function (app) {
             pfmids.push(o.id)
           })
         }
-        if (mpdres && eqres) {
+        if (mpdres) {
           finalize()
         }
       })
