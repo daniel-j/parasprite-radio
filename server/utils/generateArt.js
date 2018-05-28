@@ -5,6 +5,20 @@ import { fetcher } from '../../scripts/fetcher'
 
 const gm = require('gm').subClass({imageMagick: true})
 
+function gmToBuffer (data) {
+  return new Promise((resolve, reject) => {
+    data.stream((err, stdout, stderr) => {
+      if (err) { return reject(err) }
+      const chunks = []
+      stdout.on('data', (chunk) => { chunks.push(chunk) })
+      // these are 'once' because they can and do fire multiple times for multiple errors,
+      // but this is a promise so you'll have to deal with them one at a time
+      stdout.once('end', () => { resolve(Buffer.concat(chunks)) })
+      stderr.once('data', (data) => { reject(String(data)) })
+    })
+  })
+}
+
 let imageFormats = {
   tiny: function (image) {
     return image.gravity('Center').geometry(80, 80, '^').crop(80, 80)
@@ -75,13 +89,11 @@ function processImage (type, data, cb) {
 
   function handleImage (name) {
     let batchFunc = imageFormats[name]
-    batchFunc(image).toBuffer('png', function (err, buffer) {
-      if (err) {
-        console.error(err)
-        done()
-        return
-      }
+    gmToBuffer(batchFunc(image).setFormat('png')).then(function (buffer) {
       images[name] = buffer
+      done()
+    }).catch((err) => {
+      console.error(err)
       done()
     })
   }
