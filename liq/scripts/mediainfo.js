@@ -23,7 +23,7 @@ module.exports = async function () {
   let tracks = [] // hold all tracks JSON object
 
   let result = await pify(parseString)(output)
-  result.Mediainfo.File.forEach((fileObj) => {
+  result.MediaInfo.media.forEach((fileObj) => {
     let tmpTrack
     let trackList = [] // hold track JSON in list
     let trackJSON = {} // hold individual track JSON data
