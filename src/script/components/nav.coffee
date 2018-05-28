@@ -6,6 +6,7 @@ class Nav extends Marionette.Module
 
 class Nav.Controller extends Base.Controller
 	initialize: (options) ->
+		@region = options.region
 		@contentRegion = options.contentRegion
 
 		@menuitems = App.request 'nav:menu:items'
@@ -26,9 +27,7 @@ class Nav.Controller extends Base.Controller
 			if model
 				@showContent model
 
-
 	showContent: (model, fromClick) ->
-
 		q = @currentItem.get 'query'
 		el = @contentRegion.$el.find q
 		el.css display: 'none'
