@@ -22,7 +22,7 @@ let bigplayertitle = document.getElementById('bigplayertitle')
 let bigplayerartist = document.getElementById('bigplayerartist')
 let bigplayeralbum = document.getElementById('bigplayeralbum')
 let lastnowplaying = ''
-let isOnline = false
+// let isOnline = false
 let lastMeta = null
 window.nowplayingdata = ''
 
@@ -31,7 +31,7 @@ cover.addEventListener('error', function () {
 }, false)
 
 function updateMetadata (m) {
-  if ((true || isOnline) && m && lastMeta !== m) {
+  if (m && lastMeta !== m) {
     let title = m.title || ''
     let artist = m.artist || ''
     let album = m.album || ''
@@ -136,7 +136,7 @@ if (bigplayerprogress) {
 events.on('metadata', updateMetadata)
 
 events.on('icecaststatus', function (info) {
-  isOnline = info.online
+  // isOnline = info.online
   updateMetadata(lastMeta)
 })
 

@@ -83,26 +83,9 @@ let watchOpts = {
 // File where the favicon markups are stored
 let faviconDataFile = 'build/icons/favicon-data.json'
 
-if (inProduction) {
-  webpackConfig.plugins.push(new webpack.optimize.DedupePlugin())
-  webpackConfig.plugins.push(new webpack.optimize.OccurenceOrderPlugin(false))
-  webpackConfig.plugins.push(new webpack.optimize.UglifyJsPlugin({
-    compress: {
-      warnings: false,
-      screw_ie8: true
-    },
-    comments: false,
-    mangle: {
-      screw_ie8: true
-    },
-    screw_ie8: true,
-    sourceMap: false
-  }))
-}
-
 let wpCompiler = webpack(assign({}, webpackConfig, {
   cache: {},
-  devtool: inProduction ? null : 'inline-source-map'
+  devtool: inProduction ? 'source-map' : 'inline-source-map'
 }))
 
 function webpackTask (callback) {
@@ -125,8 +108,8 @@ function styleTask () {
   return gulp.src(sources.style.map(function (f) { return 'src/style/' + f }))
     .pipe(plumber())
     .pipe(gulpif(!inProduction, sourcemaps.init()))
-      .pipe(stylus(stylusOpts))
-      .pipe(gulpif(inProduction, csso(cssoOpts)))
+    .pipe(stylus(stylusOpts))
+    .pipe(gulpif(inProduction, csso(cssoOpts)))
     .pipe(gulpif(!inProduction, sourcemaps.write()))
     .pipe(debug({title: '[style]'}))
     .pipe(gulp.dest('build/style/'))
@@ -204,8 +187,8 @@ gulp.task('document', ['clean:document', 'update-favicon'], () => {
 gulp.task('watch:document', () => {
   return documentTask(
     watch(['src/document/**/*.pug'], watchOpts)
-    .pipe(watchPug('src/document/**/*.pug', {delay: 100}))
-    .pipe(filter(sources.document.map(function (f) { return 'src/document/' + f })))
+      .pipe(watchPug('src/document/**/*.pug', {delay: 100}))
+      .pipe(filter(sources.document.map(function (f) { return 'src/document/' + f })))
   )
 })
 

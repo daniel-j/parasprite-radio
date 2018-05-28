@@ -1,7 +1,6 @@
 'use strict'
 
 const spawn = require('child_process').spawn
-const os = require('os')
 
 function protocol (arg, parsedUrl, handleCb) {
   let yt = spawn('youtube-dl', ['--no-playlist', '--playlist-end', 1, '-j', '-f', 'm4a/bestaudio/best', arg])

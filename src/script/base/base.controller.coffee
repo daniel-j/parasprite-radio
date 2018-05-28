@@ -4,8 +4,8 @@ if !window.Base then window.Base = Base = {}
 class Base.Controller extends Marionette.Controller
 
 	constructor: (options = {}) ->
-		@region = options.region or App.request "default:region"
 		super options
+		@region = options.region or App.request "default:region"
 		@_instance_id = _.uniqueId("controller")
 		App.execute "register:instance", @, @_instance_id
 

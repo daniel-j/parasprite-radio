@@ -17,15 +17,19 @@ export default {
     chunkFilename: './build/script/[id].js'
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
         loader: 'babel-loader',
         exclude: /node_modules/,
         options: {
-          sourceMaps: inProduction,
-          presets: ['es2015'],
-          plugins: ['transform-strict-mode']
+          presets: [
+            ['@babel/preset-env', {
+              targets: {
+                browsers: ['last 2 versions']
+              }
+            }]
+          ]
         }
       },
       { test: /\.coffee$/, loader: 'coffee-loader', exclude: /node_modules/ },
@@ -46,7 +50,6 @@ export default {
   },
 
   plugins: [
-
     new webpack.ProvidePlugin({
       // Detect and inject
       $: 'jquery',
@@ -56,5 +59,7 @@ export default {
     })
   ],
 
-  devtool: 'inline-source-map'
+  devtool: 'inline-source-map',
+  mode: inProduction ? 'production' : 'development',
+  target: 'web'
 }

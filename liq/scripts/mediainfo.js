@@ -30,7 +30,7 @@ module.exports = async function () {
     fileObj.track.forEach((trackObj) => {
       let tmpTrackJSON = {}
       for (let key in trackObj) {
-        if (key !== "_" & key !== '$') {
+        if (key !== '_' & key !== '$') {
           tmpTrackJSON[key.toLowerCase()] = trackObj[key][0]
         } else if (key === '$') {
           tmpTrackJSON['type'] = trackObj['$'].type
