@@ -3,6 +3,7 @@ import path from 'path'
 import fs from 'fs'
 import express from 'express'
 import passport from 'passport'
+import * as mm from 'music-metadata'
 import { fetchJSON } from '../scripts/fetcher'
 import Song from './models/song'
 import User from './models/user'
@@ -664,16 +665,9 @@ export default function (app) {
 
   apiRouter.get('/metadata/*', isAdmin, (req, res) => {
     let filename = cleanpath(req.params[0])
-    let stream = fs.createReadStream(config.media_dir + '/' + filename)
-    let parser = mm(stream)
-    parser.on('metadata', (result) => res.send(JSON.stringify(result)))
-    parser.on('done', (err) => {
-      if (err) {
-        res.send('' + err)
-      }
-      stream.destroy()
-    })
-    stream.on('error', (err) => res.send('' + err))
+    mm.parseFile(config.general.media_dir + '/' + filename)
+      .then((result) => res.send(JSON.stringify(result)))
+      .catch((err) => res.send('' + err))
   })
 
   /*

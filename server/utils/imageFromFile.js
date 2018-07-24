@@ -2,9 +2,7 @@
 import fs from 'fs'
 import path from 'path'
 
-import mm from 'music-metadata'
-// Maybe:
-// import * as mm from 'music-metadata'
+import * as mm from 'music-metadata'
 
 function typeToMime (type) {
   switch (type) {
@@ -81,7 +79,7 @@ function imageFromFile (filename, cb) {
         }
       })
     }
-  }).catch( function (err) {
+  }).catch(function (err) {
     cb(err)
   })
 }
