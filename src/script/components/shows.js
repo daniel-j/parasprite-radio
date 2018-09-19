@@ -2,13 +2,13 @@ import m from 'mithril'
 import api from '../entities/api'
 
 export default {
-  controller () {
+  oninit () {
     this.user = api.user.get
     this.shows = api.shows.get
   },
-  view (ctrl) {
+  view (vnode) {
     return m('.showlist',
-      ctrl.shows().map((s) => {
+      vnode.state.shows().map((s) => {
         delete s.authToken
         return m('.show',
           m('.user', 'Owner/host: ', s.displayName),
@@ -22,7 +22,7 @@ export default {
             href: 'https://twitter.com/' + s.twitter,
             target: '_blank'
           }, s.twitter) : '(none)'),
-          m('.art', s.art ? m('img', {src: s.art}) : null)
+          m('.art', s.art ? m('img', { src: s.art }) : null)
         )
       })
     )

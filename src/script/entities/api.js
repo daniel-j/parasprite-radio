@@ -1,11 +1,12 @@
 'use strict'
 
 import m from 'mithril'
+import prop from 'mithril/stream'
 import EventEmitter from 'events'
 
 function create (uri, def, data) {
   const d = new EventEmitter()
-  d.get = m.prop(def)
+  d.get = prop(def)
   d.fetch = function (overrideData, method = 'GET', query = '') {
     return m.request({
       url: window.config.server_api_prefix + uri + query,

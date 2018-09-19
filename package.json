@@ -39,7 +39,7 @@
     "loader-utils": "^1.1.0",
     "lodash": "^3.10.1",
     "merge-stream": "^1.0.0",
-    "mithril": "^0.2.8",
+    "mithril": "^1.1.6",
     "mustache-loader": "^1.4.1",
     "nib": "^1.1.2",
     "run-sequence": "^2.2.1",
