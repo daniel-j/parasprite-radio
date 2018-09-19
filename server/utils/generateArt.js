@@ -3,6 +3,10 @@ import imageType from 'image-type'
 import imageFromFile from './imageFromFile'
 import { fetcher } from '../../scripts/fetcher'
 
+process.env['MAGICK_DISK_LIMIT'] = '0'
+process.env['MAGICK_AREA_LIMIT'] = '200Mb'
+process.env['MAGICK_MEMORY_LIMIT'] = '200Mb'
+
 const gm = require('gm').subClass({imageMagick: true})
 
 function gmToBuffer (data) {
