@@ -31,7 +31,7 @@ function esMessage (e) {
   let ev = json.e
   let data = json.d
   // console.log('sse msg', ev, data)
-  if (ev !== 'ka') {
+  if (ev !== 'ka' && ev !== 'timestamp') {
     console.log('Event:', ev, data)
   }
   if (ev === 'timestamp') {

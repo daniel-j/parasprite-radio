@@ -182,6 +182,7 @@ const API = {
     metadata.bitrate_mode = m.bitrate_mode || null
     metadata.ext = (m.filename && path.extname(path.basename(m.filename)).substring(1)) || null
     metadata.on_air = new Date(m.on_air).getTime()
+    metadata.start = +m.start // more precise than on_air
     metadata.duration = +m.duration
     metadata.source = m.source || 'default'
     metadata.comment = (m.comment !== '0' && !badComment.test(m.comment) && m.comment) || null

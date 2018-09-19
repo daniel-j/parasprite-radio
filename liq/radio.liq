@@ -31,8 +31,8 @@ set("alsa.alsa_buffer", 1)
 set("alsa.buffer_length", 20)
 set("alsa.periods", 0)
 
-set("frame.audio.samplerate",44100)
 set("audio.converter.samplerate.libsamplerate.quality","fast")
+set("frame.audio.samplerate",48000)
 
 #set("decoder.debug",true)
 #set("extproto.use_server_name",true)
@@ -88,8 +88,10 @@ end
 
 # send metadata to server and print the response
 def send_metadata(m)
+	data = json_of(m)
+	# print("Sending metadata: "^data)
 	print("META: "^snd(http.post(
-		data    = json_of(compact=true, m),
+		data    = data,
 		headers = [("Content-Type", "application/json; charset=utf-8")],
 		timeout = 10.0,
 		"http://#{confstr('server.host', 'localhost')}:#{serverport}/internal/meta"
@@ -105,6 +107,15 @@ def update_nowplaying(m)
 	m = list.map(f,m)
 	m = list.remove_assoc("cover", m)
 	m = list.remove_assoc("picture", m)
+
+	m = if m != [] then
+		list.append(
+			[("start", string_of(time()))]
+		, m)
+	else
+		m
+	end
+
 	meta := m
 
 	send_metadata(m)
@@ -350,8 +361,6 @@ source = smooth_add(delay=0.3, p=0.3, normal=source, special=amplify(1.5, nrj(an
 
 # audio tweaking
 #source = normalize(gain_max=3., gain_min=-3., source)
-
-
 
 
 %include "outputs.liq"

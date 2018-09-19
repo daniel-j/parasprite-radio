@@ -19,6 +19,7 @@ function handle (req, res) {
 
   // keep-alive
   let kaTimer = setInterval(function () {
+    res.write(formatMessage('timestamp', Date.now()))
     res.write(formatMessage('ka', 1))
     res.flush()
   }, 10 * 1000)

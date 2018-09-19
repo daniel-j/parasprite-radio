@@ -27,7 +27,7 @@ mumbleOut = output.external(id="mumble",
 )
 
 streams = output.external(id="radio_streams",
-	%wav(header=false),
+	%wav(header=true, samplerate=48000),
 	start=true,
 	fallible=true,
 	"scripts/streams.sh"
