@@ -27,7 +27,7 @@ mumbleOut = output.external(id="mumble",
 )
 
 streams = output.external(id="radio_streams",
-	%wav(header=true, samplerate=48000),
+	%wav(header=false, samplerate=48000),
 	start=true,
 	fallible=true,
 	"scripts/streams.sh"
@@ -66,16 +66,17 @@ else
 		out(
 			id = "radio",
 			mount = "radio",
-			%mp3.fxp(
+			%mp3(
 				bitrate = 320,
-				channels = 2,
+				#channels = 2,
 				#quality = 3,
-				#stereo = true,
-				#stereo_mode = "joint_stereo",
-				#internal_quality = 0,
-				#id3v2 = true
+				stereo = true,
+				stereo_mode = "joint_stereo",
+				internal_quality = 0,
+				id3v2 = true,
+				samplerate=48000
 			),
-			start=false,
+			start=true,
 			source
 		),
 
@@ -84,7 +85,7 @@ else
 		#	mount = "radio_mobile",
 		#	%fdkaac(
 		#		channels = 2,
-		#		samplerate = 44100,
+		#		samplerate = 48000,
 		#		bitrate = 64,
 		#		afterburner = true,
 		#		aot="mpeg2_he_aac_v2"
