@@ -4,7 +4,7 @@ const spawn = require('child_process').spawn
 const os = require('os')
 
 function protocol (arg, parsedUrl, handleCb) {
-  let yt = spawn('youtube-dl', ['--no-playlist', '--playlist-end', 1, '-j', '-f', 'm4a/bestaudio/best', arg])
+  let yt = spawn('youtube-dl', ['--no-playlist', '--playlist-end', 1, '-j', '-f', '251/opus/vorbis/bestaudio/best', arg])
 
   let output = ''
 
@@ -19,17 +19,20 @@ function protocol (arg, parsedUrl, handleCb) {
 }
 
 function fetchVideo (data, cb) {
+  console.error('audio codec:', data.acodec)
   if (data.acodec !== 'mp3' || data.vcodec !== 'none') {
-    let tempName = os.tmpdir() + '/tmp.yt.' + data.id + '.mp3'
+    let tempName = os.tmpdir() + '/tmp.yt.' + data.id + '.ogg'
 
-    let ffmpeg = spawn('avconv', ['-i', data.url, '-codec:a', 'libmp3lame', '-q:a', 2, '-y', '-vn', '-f', 'mp3', tempName])
+    // let ffmpeg = spawn('avconv', ['-i', data.url, '-codec:a', 'libmp3lame', '-q:a', 2, '-y', '-vn', '-f', 'mp3', tempName])
     // joint stereo VBR2 mp3
-    // let ffmpeg = spawn('ffmpeg', ['-i', data.url, '-codec:a', 'libmp3lame', '-q:a', 2, '-joint_stereo', 1, '-y', tempName])
+    //let ffmpeg = spawn('ffmpeg', ['-hide_banner', '-i', data.url, '-codec:a', 'libmp3lame', '-q:a', 2, '-joint_stereo', 1, '-y', tempName])
+    let ffmpeg = spawn('ffmpeg', ['-hide_banner', '-i', data.url, '-codec:a', 'copy', '-y', tempName])
 
     ffmpeg.stdout.pipe(process.stderr)
     ffmpeg.stderr.pipe(process.stderr)
+    data.filename = data.url + '&liquidtype=.ogg'
     data.filename = tempName
-    console.error('Downloading ' + data.title + '...')
+    // console.error('Downloading ' + data.title + '...')
 
     // ffmpeg.on('close', function () {
     // })

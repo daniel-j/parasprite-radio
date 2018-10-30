@@ -74,6 +74,8 @@ html
 										option(value='radio_flac') Lossless FLAC
 									if config.icecast.mounts.includes('gnr')
 										option(value='gnr') Galaxy News Radio
+									if config.icecast.mounts.includes('moonradio.opus')
+										option(value='moonradio.opus') セーラームーンラジオ
 								a#streamLink(href='javascript:', target='_blank')
 									img(src='/img/icons/popout.svg', alt='Stream')
 						.legend
@@ -240,10 +242,10 @@ html
 						a(target='_blank', href='http://icecast.org/')
 							img(src='/img/badges/icecast.png', alt='Icecast')
 
-						a(target='_blank', href='http://canternet.org')
-							img(src='/img/badges/canternet.png', alt='Canternet IRC network')
-						a(target='_blank', href='https://www.raspberrypi.org/')
-							img(src='/img/badges/raspberry-pi.png', alt='Raspberry Pi')
+						//- a(target='_blank', href='http://canternet.org')
+						//- 	img(src='/img/badges/canternet.png', alt='Canternet IRC network')
+						//- a(target='_blank', href='https://www.raspberrypi.org/')
+						//- 	img(src='/img/badges/raspberry-pi.png', alt='Raspberry Pi')
 
 					.textcenter
 						//- a(target='_blank', href='http://www.last.fm/user/djazzradio/library/recent') new music

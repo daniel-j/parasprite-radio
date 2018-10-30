@@ -43,6 +43,8 @@ html
 										option(value='radio_flac') Lossless FLAC
 									if config.icecast.mounts.includes('gnr')
 										option(value='gnr') Galaxy News Radio
+									if config.icecast.mounts.includes('moonradio.opus')
+										option(value='moonradio.opus') セーラームーンラジオ
 								a#streamLink(href='/stream', target='_blank')
 									img(src='/img/icons/popout.svg', alt='Stream')
 						.legend

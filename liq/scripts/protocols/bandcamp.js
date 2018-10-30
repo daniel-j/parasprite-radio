@@ -1,13 +1,7 @@
 'use strict'
 
 // to be able to include ES6 modules
-require('babel-core/register')({
-  plugins: [
-    'transform-es2015-modules-commonjs',
-    'syntax-async-functions',
-    'transform-async-to-generator'
-  ]
-})
+require('@babel/register')()
 
 const scrapeIt = require('scrape-it')
 const vm = require('vm')

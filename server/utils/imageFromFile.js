@@ -1,7 +1,8 @@
 
 import fs from 'fs'
 import path from 'path'
-import mm from 'musicmetadata'
+
+import * as mm from 'music-metadata'
 
 function typeToMime (type) {
   switch (type) {
@@ -14,25 +15,20 @@ function typeToMime (type) {
 }
 
 function imageFromFile (filename, cb) {
-  let stream = fs.createReadStream(filename)
   let gotimg = false
   // allowed = ['.mp3', '.ogg', '.flac', '.wma']
   // if allowed.indexOf(path.extname(filename).toLowerCase()) == -1
   //  cb 'non-allowed file type'
   //  return
 
-  let parser = mm(stream, {}, function (err, meta) {
-    if (err) {
-      cb(err)
-      return
-    }
-    let pictures = meta.picture
+  mm.parseFile(filename).then( function(meta) {
+    let pictures = meta.common.picture
 
     if (pictures && pictures[0]) {
-      let type = typeToMime(pictures[0].format)
+      let type = pictures[0].format
 
       if (type !== null) {
-        cb(null, type, meta.picture[0].data)
+        cb(null, type, pictures[0].data)
         gotimg = true
       }
     }
@@ -83,19 +79,8 @@ function imageFromFile (filename, cb) {
         }
       })
     }
-  })
-
-  parser.on('done', function (err) {
-    stream.destroy()
-    if (err && !gotimg) cb(err)
-  })
-  parser.on('error', function (err) {
-    stream.destroy()
-    if (err && !gotimg) cb(err)
-  })
-
-  stream.on('error', function (err) {
-    if (!gotimg) cb(err)
+  }).catch(function (err) {
+    cb(err)
   })
 }
 

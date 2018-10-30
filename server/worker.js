@@ -2,13 +2,7 @@
 
 const path = require('path')
 
-require('babel-core/register')({
-  plugins: [
-    'transform-es2015-modules-commonjs',
-    'syntax-async-functions',
-    'transform-async-to-generator'
-  ]
-})
+require('@babel/register')()
 
 process.once('message', (args) => {
   if (args.dev) {

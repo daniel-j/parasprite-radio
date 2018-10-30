@@ -23,14 +23,14 @@ module.exports = async function () {
   let tracks = [] // hold all tracks JSON object
 
   let result = await pify(parseString)(output)
-  result.Mediainfo.File.forEach((fileObj) => {
+  result.MediaInfo.media.forEach((fileObj) => {
     let tmpTrack
     let trackList = [] // hold track JSON in list
     let trackJSON = {} // hold individual track JSON data
     fileObj.track.forEach((trackObj) => {
       let tmpTrackJSON = {}
       for (let key in trackObj) {
-        if (key !== "_" & key !== '$') {
+        if (key !== '_' & key !== '$') {
           tmpTrackJSON[key.toLowerCase()] = trackObj[key][0]
         } else if (key === '$') {
           tmpTrackJSON['type'] = trackObj['$'].type

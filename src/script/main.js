@@ -91,19 +91,19 @@ document.getElementById('popuplink').addEventListener('click', function (e) {
 
 // History
 let playHistory = {}
-playHistory.controller = function () {
+playHistory.oninit = function () {
   api.history.startTimer()
   this.trackList = api.history.get
   this.openUrl = function (url) {
     window.open(url, '_blank')
   }
 }
-playHistory.view = function (ctrl) {
-  return m('div', ctrl.trackList().map(function (track) {
+playHistory.view = function (vnode) {
+  return m('div', vnode.state.trackList().map(function (track) {
     if (!track.timestamp) {
       return null
     }
-    return m('div.row', {key: track.timestamp + track.text, onclick: m.withAttr('data-url', ctrl.openUrl), 'data-url': track.url}, [
+    return m('div.row', {key: track.timestamp + track.text, onclick: m.withAttr('data-url', vnode.state.openUrl), 'data-url': track.url}, [
       m('div.img', m('img', {src: track.art})),
       m('div.content', [m('div.title', track.title), m('div.artist', track.artist + (track.album ? ' (' + track.album + ')' : ''))]),
       !track.timestamp ? m('div.right', 'Now playing') : m('div.right', {title: dateFormat(new Date(track.timestamp * 1000))}, [
@@ -227,7 +227,7 @@ function updateMap () {
         mark.setIcon('http://maps.google.com/mapfiles/ms/icons/purple-dot.png')
       } else if (l.mount === 'gnr') {
         mark.setIcon('http://maps.google.com/mapfiles/ms/icons/yellow-dot.png')
-      } else if (l.mount === 'radio_flac') {
+      } else if (l.mount.startsWith('moonradio')) {
         mark.setIcon('http://maps.google.com/mapfiles/ms/icons/pink-dot.png')
       } else if (window.config.icecast_mounts.includes(l.mount)) {
         mark.setIcon('http://maps.google.com/mapfiles/ms/icons/orange-dot.png')

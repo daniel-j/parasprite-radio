@@ -31,8 +31,8 @@ set("alsa.alsa_buffer", 1)
 set("alsa.buffer_length", 20)
 set("alsa.periods", 0)
 
-set("frame.audio.samplerate",44100)
-set("audio.converter.samplerate.libsamplerate.quality","fast")
+set("frame.audio.samplerate",48000)
+set("audio.converter.samplerate.libsamplerate.quality","best")
 
 #set("decoder.debug",true)
 #set("extproto.use_server_name",true)
@@ -88,8 +88,10 @@ end
 
 # send metadata to server and print the response
 def send_metadata(m)
+	data = json_of(m)
+	# print("Sending metadata: "^data)
 	print("META: "^snd(http.post(
-		data    = json_of(compact=true, m),
+		data    = data,
 		headers = [("Content-Type", "application/json; charset=utf-8")],
 		timeout = 10.0,
 		"http://#{confstr('server.host', 'localhost')}:#{serverport}/internal/meta"
@@ -105,6 +107,15 @@ def update_nowplaying(m)
 	m = list.map(f,m)
 	m = list.remove_assoc("cover", m)
 	m = list.remove_assoc("picture", m)
+
+	m = if m != [] then
+		list.append(
+			[("start", string_of(time()))]
+		, m)
+	else
+		m
+	end
+
 	meta := m
 
 	send_metadata(m)
@@ -224,8 +235,8 @@ end
 
 
 # playlists
-default = audio_to_stereo(mksafe(playlist(id="default", reload_mode="seconds", reload=600, timeout=600., prefix=confstr("general.media_dir")^"/", "/audio/playlists/radio.m3u")))
-extra = audio_to_stereo(playlist(id="extra", reload_mode="watch", reload=600, timeout=600., prefix=confstr("general.media_dir")^"/", "/audio/playlists/extra.m3u"))
+default = audio_to_stereo(mksafe(playlist(id="default", reload_mode="seconds", reload=600, timeout=600., prefix=confstr("general.media_dir")^"/", "/data/audio/playlists/radio.m3u")))
+extra = audio_to_stereo(playlist(id="extra", reload_mode="seconds", reload=600, timeout=600., prefix=confstr("general.media_dir")^"/", "/data/audio/playlists/extra.m3u"))
 #friendship = audio_to_stereo(amplify(1.1, playlist(id="friendship", reload_mode="watch", reload=600, "friendship.m3u")))
 #ads = audio_to_stereo(playlist(id="ads", reload_mode="watch", reload=600, prefix=confstr("general.media_dir")^"/", "/home/djazz/.mpd/playlists/ads.m3u"))
 
@@ -240,7 +251,7 @@ add_skip_command(command="queue2.skip", queue2)
 add_skip_command(command="queue3.skip", queue3)
 add_skip_command(command="announce.skip", announce)
 
-default = random(weights=[1,8], [extra,default])
+default = random(weights=[1,1], [extra,default])
 
 source = fallback([queue1, queue2, queue3, default])
 
@@ -259,9 +270,6 @@ skip_source := source
 # cleanup temp files
 source = on_end(delay=0., track_end_cleanup, source)
 announce = on_end(delay=0., track_end_cleanup, announce)
-
-# crossfade songs!
-source = smart_crossfade(conservative=true, start_next=3., fade_in=2., fade_out=3., width=5., source)
 
 
 def to_live(old,new)
@@ -344,14 +352,15 @@ end, source)
 # update now playing (and generate cover art..)
 source = on_metadata(update_nowplaying, source)
 
+# crossfade songs!
+source = smart_crossfade(conservative=true, start_next=3., fade_in=2., fade_out=3., width=5., source)
+
 # play announcements over the music
 source = smooth_add(delay=0.3, p=0.3, normal=source, special=amplify(1.5, nrj(announce)))
 #source = add(normalize=false, [source, amplify(1.8, nrj(announce))])
 
 # audio tweaking
 #source = normalize(gain_max=3., gain_min=-3., source)
-
-
 
 
 %include "outputs.liq"

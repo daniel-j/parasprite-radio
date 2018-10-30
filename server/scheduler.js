@@ -1,10 +1,10 @@
 
 import schedule from 'node-schedule'
-import { calendar as GoogleCalendar } from 'googleapis'
+import { google } from 'googleapis'
 import { EventEmitter } from 'events'
 import config from '../scripts/config'
 
-const calendar = GoogleCalendar('v3')
+const calendar = google.calendar({version: 'v3', auth: config.google.apiKey})
 let fetchDelay = 10 * 1000
 
 let eventsMap = {}
@@ -19,50 +19,49 @@ function fetchCalendar () {
   let now = Date.now()
   calendar.events.list({
     calendarId: config.google.calendarId,
-    auth: config.google.apiKey,
-    // maxResults: 100, // default is 250
+    maxResults: 100, // default is 250
     timeMin: new Date(now - 10 * 60 * 1000).toISOString(),
     timeMax: new Date(now + 24 * 60 * 60 * 1000).toISOString(),
     singleEvents: true
-  }, function (err, raw) {
+  }, (err, {data}) => {
     if (err) {
-      console.log('Scheduler: Error fetching events')
-      console.log(err)
-    } else {
-      now = Date.now()
-      let idlist = []
-      for (let item of raw.items) {
-        if (item.visibility === 'private') {
-          continue
-        }
-        let ev = {
-          id: item.id,
-          htmlLink: item.htmlLink,
-          created: new Date(item.created),
-          updated: new Date(item.updated),
+      console.error('Scheduler: Error fetching events')
+      console.error(err)
+      return
+    }
+    now = Date.now()
+    let idlist = []
+    for (let item of data.items) {
+      if (item.visibility === 'private') {
+        continue
+      }
+      let ev = {
+        id: item.id,
+        htmlLink: item.htmlLink,
+        created: new Date(item.created),
+        updated: new Date(item.updated),
 
-          title: item.summary,
-          location: item.location,
-          description: item.description,
+        title: item.summary,
+        location: item.location,
+        description: item.description,
 
-          start: new Date(item.start.dateTime || item.start.date),
-          end: new Date(item.end.dateTime || item.end.date),
+        start: new Date(item.start.dateTime || item.start.date),
+        end: new Date(item.end.dateTime || item.end.date),
 
-          sequence: item.sequence
-        }
-
-        ev.length = (ev.end.getTime() - ev.start.getTime()) / 1000
-
-        if (ev.end.getTime() >= now) {
-          handleEvent(ev)
-          idlist.push(item.id)
-        }
+        sequence: item.sequence
       }
 
-      handleDeleted(idlist)
-      // updated = new Date(raw.updated)
-      // console.log('Last updated:', updated
+      ev.length = (ev.end.getTime() - ev.start.getTime()) / 1000
+
+      if (ev.end.getTime() >= now) {
+        handleEvent(ev)
+        idlist.push(item.id)
+      }
     }
+
+    handleDeleted(idlist)
+    // updated = new Date(data.updated)
+    // console.log('Last updated:', updated
   })
 }
 
@@ -125,6 +124,8 @@ function eventEnded (ev) {
     scheduler.emit('ended', ev)
   }
 }
+
+scheduler.fetchCalendar = fetchCalendar
 
 scheduler.initialize = function () {
   if (config.google.apiKey) {

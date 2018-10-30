@@ -22,7 +22,7 @@ let bigplayertitle = document.getElementById('bigplayertitle')
 let bigplayerartist = document.getElementById('bigplayerartist')
 let bigplayeralbum = document.getElementById('bigplayeralbum')
 let lastnowplaying = ''
-let isOnline = false
+// let isOnline = false
 let lastMeta = null
 window.nowplayingdata = ''
 
@@ -31,7 +31,7 @@ cover.addEventListener('error', function () {
 }, false)
 
 function updateMetadata (m) {
-  if ((true || isOnline) && m && lastMeta !== m) {
+  if (m && lastMeta !== m) {
     let title = m.title || ''
     let artist = m.artist || ''
     let album = m.album || ''
@@ -115,6 +115,7 @@ function updateMetadata (m) {
   }
   if (m) {
     lastMeta = m
+    window.lastMeta = m
   }
 }
 
@@ -122,7 +123,7 @@ function updateProgress () {
   let m = lastMeta
   if (m && m.duration > 10) { // at least 10 seconds long
     let duration = m.duration * 1000
-    let time = Math.min(duration, Math.max(0, Date.now() - m.on_air - window.serverTimeDiff - 2000))
+    let time = Math.min(duration, Math.max(0, Date.now() - m.start*1000  - (window.delay || window.serverTimeDiff)))
     bigplayerprogress.style.width = (time / duration) * 100 + '%'
     bigplayertime.textContent = dateFormat(new Date(time), 'M:ss')
     bigplayerduration.textContent = dateFormat(new Date(duration), 'M:ss')
@@ -130,13 +131,13 @@ function updateProgress () {
 }
 
 if (bigplayerprogress) {
-  setInterval(updateProgress, 100)
+  setInterval(updateProgress, 50)
 }
 
 events.on('metadata', updateMetadata)
 
 events.on('icecaststatus', function (info) {
-  isOnline = info.online
+  // isOnline = info.online
   updateMetadata(lastMeta)
 })
 

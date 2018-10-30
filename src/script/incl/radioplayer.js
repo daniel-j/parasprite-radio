@@ -30,11 +30,11 @@ function radioPlayer (opts = {}) {
 
   let urls
   if ((ismobile && navigator.userAgent.includes('iPhone')) || navigator.userAgent.includes('iPad')) {
-    urls = [['radio_mobile', 'audio/aac'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_hls', 'application/vnd.apple.mpegurl'], ['radio', 'audio/mpeg']]
+    urls = [['radio_hls', 'application/vnd.apple.mpegurl']]
   } else if (ismobile) {
-    urls = [['radio_mobile', 'audio/aacp'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_opus', 'application/ogg; codecs=opus'], ['radio_hls', 'application/vnd.apple.mpegurl'], ['radio', 'audio/mpeg']]
+    urls = [['radio_opus', 'application/ogg; codecs=opus'], ['radio_hls', 'application/vnd.apple.mpegurl']]
   } else {
-    urls = [['radio_hls', 'application/vnd.apple.mpegurl'], ['radio_opus', 'application/ogg; codecs=opus'], ['radio', 'audio/mpeg'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_mobile', 'audio/aacp']]
+    urls = [['radio_hls', 'application/vnd.apple.mpegurl'], ['radio_opus', 'application/ogg; codecs=opus']]
   }
 
   for (let i = 0; i < urls.length; i++) {
@@ -54,6 +54,18 @@ function radioPlayer (opts = {}) {
   let audioTag = null
   let source = null
   let hls = null
+
+  let currentFragment = null
+
+  window.delay = 0
+
+  setInterval(() => {
+    let frag = currentFragment
+    window.delay = 0
+    if (!frag || !audioTag) return
+    window.delay = Date.now() - frag.programDateTime + frag.duration * 1000 - (audioTag.currentTime*1000 - frag.start*1000)
+    // console.log('current frag', (Date.now()/1000 - window.lastMeta.start - window.serverTimeDiff/1000), delay)
+  }, 50)
 
   if (useVisualizer) {
     if (!AudioContext) {
@@ -120,6 +132,7 @@ function radioPlayer (opts = {}) {
     if (hls) {
       hls.destroy()
       hls = null
+      currentFragment = null
     }
 
     if (source) {
@@ -180,6 +193,12 @@ function radioPlayer (opts = {}) {
       hls = new Hls()
       hls.attachMedia(audioTag)
       hls.loadSource('/streams/radio.m3u8')
+      window.hls = hls
+      window.audioTag = audioTag
+      window.Hls = Hls
+      hls.on(Hls.Events.FRAG_CHANGED, function (event, data) {
+        currentFragment = data.frag
+      })
     } else {
       audioTag.crossOrigin = 'anonymous'
       if (streamName !== '') {
@@ -206,7 +225,6 @@ function radioPlayer (opts = {}) {
     function canPlayAudio (e) {
       if (!audioTag) return
       audioTag.removeEventListener('canplay', canPlayAudio)
-      console.log(audioTag.currentSrc)
       if (audioTag.currentSrc.startsWith('blob:') || audioTag.currentSrc.endsWith('.m3u8')) {
         streamName = 'radio_hls'
         streamLink.href = '/streams/radio.m3u8'
