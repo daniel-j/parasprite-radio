@@ -30,11 +30,11 @@ function radioPlayer (opts = {}) {
 
   let urls
   if ((ismobile && navigator.userAgent.includes('iPhone')) || navigator.userAgent.includes('iPad')) {
-    urls = [['radio_mobile', 'audio/aac'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_hls', 'application/vnd.apple.mpegurl'], ['radio', 'audio/mpeg']]
+    urls = [['radio_hls', 'application/vnd.apple.mpegurl']]
   } else if (ismobile) {
-    urls = [['radio_mobile', 'audio/aacp'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_opus', 'application/ogg; codecs=opus'], ['radio_hls', 'application/vnd.apple.mpegurl'], ['radio', 'audio/mpeg']]
+    urls = [['radio_opus', 'application/ogg; codecs=opus'], ['radio_hls', 'application/vnd.apple.mpegurl']]
   } else {
-    urls = [['radio_hls', 'application/vnd.apple.mpegurl'], ['radio_opus', 'application/ogg; codecs=opus'], ['radio', 'audio/mpeg'], ['radio_mobile_vorbis', 'application/ogg'], ['radio_mobile', 'audio/aacp']]
+    urls = [['radio_hls', 'application/vnd.apple.mpegurl'], ['radio_opus', 'application/ogg; codecs=opus']]
   }
 
   for (let i = 0; i < urls.length; i++) {
