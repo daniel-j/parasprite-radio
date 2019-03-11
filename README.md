@@ -16,7 +16,7 @@ TODO
 
 `sudo pacman -S nodejs npm mariadb mpd icecast mediainfo graphicsmagick flac opus-tools curl festival sox`
 
-Now [install Liquidsoap](http://liquidsoap.fm/download.html) from [AUR](https://aur.archlinux.org/packages/liquidsoap/) or [OPAM](https://opam.ocaml.org/packages/liquidsoap/).
+Now [install Liquidsoap](https://www.liquidsoap.info/) from [AUR](https://aur.archlinux.org/packages/liquidsoap/) or [OPAM](https://opam.ocaml.org/packages/liquidsoap/).
 
 Install [ffmpeg-git](https://aur.archlinux.org/packages/ffmpeg-git/) from AUR or build it yourself. Any recent ffmpeg version with fdkaac enabled should work. You could also install the [ffmpeg-full](https://aur.archlinux.org/packages/ffmpeg-full/) or [ffmpeg-full-git](https://aur.archlinux.org/packages/ffmpeg-full-git/) package, or possibly [ffmpeg-libfdk_aac](https://aur.archlinux.org/packages/ffmpeg-libfdk_aac/).
 

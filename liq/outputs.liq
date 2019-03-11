@@ -6,7 +6,7 @@ out = output.icecast(
 
 	name        = confstr("radio.title", "Parasprite Radio"),
 	description = confstr("radio.description", "Liquidsoap Radio!"),
-	url         = confstr("radio.url", "http://liquidsoap.fm/"),
+	url         = confstr("radio.url", "https://www.liquidsoap.info/"),
 	genre       = confstr("radio.genre", "Misc"),
 	encoding    = confstr("icecast.encoding", ""),
 
