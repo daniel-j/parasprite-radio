@@ -101,7 +101,7 @@ function updateMetadata (m) {
       bigcover.style.backgroundImage = bigbackground.style.backgroundImage = 'url("/api/now/art/original?t=' + Date.now() + '"), url("/api/now/art/small?t=' + Date.now() + '"), url("/api/now/art/tiny?t=' + Date.now() + '")'
     }
     if (window.playing) {
-      notify.show(title, artist, cover.src)
+      // notify.show(title, artist, cover.src)
     }
   } else { // No stream
     // nowplaying.innerHTML = ''
@@ -123,7 +123,7 @@ function updateProgress () {
   let m = lastMeta
   if (m && m.duration > 10) { // at least 10 seconds long
     let duration = m.duration * 1000
-    let time = Math.min(duration, Math.max(0, Date.now() - m.start*1000  - (window.delay || window.serverTimeDiff)))
+    let time = Math.min(duration, Math.max(0, Date.now() - m.start * 1000 - (window.delay || window.serverTimeDiff)))
     bigplayerprogress.style.width = (time / duration) * 100 + '%'
     bigplayertime.textContent = dateFormat(new Date(time), 'M:ss')
     bigplayerduration.textContent = dateFormat(new Date(duration), 'M:ss')

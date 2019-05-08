@@ -63,7 +63,7 @@ function radioPlayer (opts = {}) {
     let frag = currentFragment
     window.delay = 0
     if (!frag || !audioTag) return
-    window.delay = Date.now() - frag.programDateTime + frag.duration * 1000 - (audioTag.currentTime*1000 - frag.start*1000)
+    window.delay = Date.now() - frag.programDateTime + frag.duration * 1000 - (audioTag.currentTime * 1000 - frag.start * 1000)
     // console.log('current frag', (Date.now()/1000 - window.lastMeta.start - window.serverTimeDiff/1000), delay)
   }, 50)
 
@@ -220,7 +220,7 @@ function radioPlayer (opts = {}) {
 
     audioTag.load()
     audioTag.play()
-    notify.check()
+    // notify.check()
 
     function canPlayAudio (e) {
       if (!audioTag) return
