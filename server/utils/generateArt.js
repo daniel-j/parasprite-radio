@@ -3,25 +3,11 @@ import imageType from 'image-type'
 import imageFromFile from './imageFromFile'
 import { fetcher } from '../../scripts/fetcher'
 
-process.env['MAGICK_DISK_LIMIT'] = '0'
-process.env['MAGICK_AREA_LIMIT'] = '200Mb'
-process.env['MAGICK_MEMORY_LIMIT'] = '200Mb'
+// process.env['MAGICK_DISK_LIMIT'] = '0'
+// process.env['MAGICK_AREA_LIMIT'] = '200Mb'
+// process.env['MAGICK_MEMORY_LIMIT'] = '200Mb'
 
-const gm = require('gm').subClass({imageMagick: true})
-
-function gmToBuffer (data) {
-  return new Promise((resolve, reject) => {
-    data.stream((err, stdout, stderr) => {
-      if (err) { return reject(err) }
-      const chunks = []
-      stdout.on('data', (chunk) => { chunks.push(chunk) })
-      // these are 'once' because they can and do fire multiple times for multiple errors,
-      // but this is a promise so you'll have to deal with them one at a time
-      stdout.once('end', () => { resolve(Buffer.concat(chunks)) })
-      stderr.once('data', (data) => { reject(String(data)) })
-    })
-  })
-}
+const gm = require('gm').subClass({imageMagick: false})
 
 let imageFormats = {
   tiny: function (image) {
@@ -33,6 +19,7 @@ let imageFormats = {
 }
 
 function generateArt (input, cb) {
+  console.log('Generating cover art from', input)
   if (!input) {
     cb(null, null)
     return
@@ -86,34 +73,36 @@ function handleImageData (data, cb) {
 }
 
 function processImage (type, data, cb) {
-  let totalCount = 0
   let c = 0
   let images = {}
-  let image = gm(data, 'iamge.' + type.ext)
+  let image = gm(data, 'image.' + type.ext)
+  let formats = Object.keys(imageFormats)
 
   function handleImage (name) {
+    images[name] = null
     let batchFunc = imageFormats[name]
-    gmToBuffer(batchFunc(image).setFormat('png')).then(function (buffer) {
+    batchFunc(image).setFormat('png').toBuffer(function (err, buffer) {
+      if (err) {
+        console.error(err)
+        processNext()
+        return
+      }
       images[name] = buffer
-      done()
-    }).catch((err) => {
-      console.error(err)
-      done()
+      processNext()
     })
   }
 
-  function done () {
-    c++
-    if (c === totalCount) {
+  function processNext () {
+    if (c === formats.length) {
       cb(null, images)
+      return
     }
+    let name = formats[c]
+    handleImage(name)
+    c++
   }
 
-  for (let name in imageFormats) {
-    images[name] = null
-    totalCount++
-    handleImage(name)
-  }
+  processNext()
 }
 
 module.exports = generateArt
