@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -e
+
+export PATH="/home/$USER/.opam/system/bin:$PATH"
+export PATH="/home/$USER/.opam/default/bin:$PATH"
+
+echo Starting Server
+bin/startserver &
+
+echo Starting Liquidsoap
+bin/startliq &
+
+wait -n
+kill $(jobs -p)
+exit 1

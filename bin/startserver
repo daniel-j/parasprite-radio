@@ -6,4 +6,8 @@ process.env.NODE_ENV = 'production'
 
 require('@babel/register')()
 
-require(path.join(__dirname, '../server/master'))
+require(path.join(__dirname, '../server/server')).startServer({
+  dev: false,
+  verbose: false,
+  port: 8002
+})
