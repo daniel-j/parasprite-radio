@@ -40,7 +40,7 @@
     "lodash": "^4.17.15",
     "marionette.approuter": "^1.0.2",
     "merge-stream": "^2.0.0",
-    "mithril": "^1.1.7",
+    "mithril": "^2.0.4",
     "mustache-loader": "^1.4.1",
     "nib": "^1.1.2",
     "run-sequence": "^2.2.1",
