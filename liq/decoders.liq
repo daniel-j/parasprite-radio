@@ -26,12 +26,4 @@ add_oblivious_decoder(
 )
 #add_metadata_resolver("XMP", file_metadata)
 
-
-add_decoder(
-	name="FFMPEG",
-	description="Decode audio files using the ffmpeg/avconv decoder binary",
-	test=fun(file) -> -1,
-	"$(which ffmpeg || which avconv) -loglevel panic -i - -f wav -"
-)
-
 set("decoder.file_decoders", ["META","WAV","IMAGE","FLAC","MAD","OGG","XMP","FFMPEG"])

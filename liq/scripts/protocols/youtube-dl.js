@@ -18,14 +18,14 @@ function protocol (arg, parsedUrl, handleCb) {
   })
 }
 
-function fetchVideo (data, cb) {
+function fetchVideo (data, handleCb) {
   console.error('audio codec:', data.acodec)
   if (data.acodec !== 'mp3' || data.vcodec !== 'none') {
     let tempName = os.tmpdir() + '/tmp.yt.' + data.id + '.ogg'
 
     // let ffmpeg = spawn('avconv', ['-i', data.url, '-codec:a', 'libmp3lame', '-q:a', 2, '-y', '-vn', '-f', 'mp3', tempName])
     // joint stereo VBR2 mp3
-    //let ffmpeg = spawn('ffmpeg', ['-hide_banner', '-i', data.url, '-codec:a', 'libmp3lame', '-q:a', 2, '-joint_stereo', 1, '-y', tempName])
+    // let ffmpeg = spawn('ffmpeg', ['-hide_banner', '-i', data.url, '-codec:a', 'libmp3lame', '-q:a', 2, '-joint_stereo', 1, '-y', tempName])
     let ffmpeg = spawn('ffmpeg', ['-hide_banner', '-i', data.url, '-codec:a', 'copy', '-y', tempName])
 
     ffmpeg.stdout.pipe(process.stderr)
@@ -40,14 +40,14 @@ function fetchVideo (data, cb) {
     data.filename = data.url + '&liquidtype=.mp3'
   }
 
-  outputVideo(data, cb)
+  outputVideo(data, handleCb)
 }
 
-function outputVideo (video, cb) {
+function outputVideo (video, handleCb) {
   // let url = video.url.replace(/\./g, '%2E')
   // url += '&filename=' + encodeURIComponent('v.'+video.ext)
 
-  cb({
+  handleCb({
     title: video.title,
     artist: video.uploader,
     url: video.webpage_url,

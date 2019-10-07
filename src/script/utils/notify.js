@@ -1,6 +1,6 @@
 window.notifications = false
 
-function checkNotify (cb) {
+function checkNotify (func) {
   if ('Notification' in window) {
     if (Notification.permission !== 'denied') {
       Notification.requestPermission(function (permission) {
@@ -13,10 +13,10 @@ function checkNotify (cb) {
           permission = Notification.permission
           if (permission === 'granted') {
             window.notifications = true
-            cb && cb(true)
+            func && func(true)
           } else {
             window.notifications = false
-            cb && cb(false)
+            func && func(false)
           }
         }
       })
