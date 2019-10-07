@@ -55,7 +55,8 @@ export default {
       $: 'jquery',
       Backbone: 'backbone',
       _: 'underscore',
-      Marionette: 'backbone.marionette'
+      Marionette: 'backbone.marionette',
+      Radio: 'backbone.radio'
     })
   ],
 

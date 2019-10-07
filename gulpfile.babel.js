@@ -26,7 +26,7 @@ import filter from 'gulp-filter'
 import standard from 'gulp-standard'
 import coffeelint from 'gulp-coffeelint'
 import webpack from 'webpack'
-import webpackConfig from './webpack.config.babel.js'
+import webpackConfig from './webpack.config.js'
 
 // style
 import stylus from 'gulp-stylus'
@@ -147,56 +147,36 @@ let lintCSPipe = lazypipe()
 
 // Cleanup tasks
 gulp.task('clean', () => del('build'))
-gulp.task('clean:quick', ['clean:script', 'clean:style', 'clean:document'], (done) => {
-  done()
-})
-gulp.task('clean:script', () => {
-  return del('build/script')
-})
-gulp.task('clean:font', () => {
-  return del('build/style/fonts')
-})
-gulp.task('clean:style', () => {
-  return del('build/style')
-})
-gulp.task('clean:document', () => {
-  return del('build/document')
-})
-gulp.task('clean:icons', () => {
-  return del('build/icons')
-})
+gulp.task('clean:script', () => del('build/script'))
+gulp.task('clean:font', () => del('build/style/fonts'))
+gulp.task('clean:style', () => del('build/style'))
+gulp.task('clean:document', () => del('build/document'))
+gulp.task('clean:icons', () => del('build/icons'))
+gulp.task('clean:quick', gulp.parallel('clean:script', 'clean:style', 'clean:document'))
 
-// Main tasks
-gulp.task('script', ['clean:script'], webpackTask)
-gulp.task('watch:script', () => {
-  return watch(['src/script/**/*.coffee', 'src/script/**/*.js', 'src/script/template/**/*.mustache'], watchOpts, webpackTask)
-})
+// Subtasks
+gulp.task('update-favicon', (done) => {
+  let currentVersion
+  try {
+    currentVersion = JSON.parse(fs.readFileSync(faviconDataFile)).version
+  } catch (e) {}
 
-gulp.task('style', ['clean:style'], (done) => {
-  return sequence('font', 'build:style', done)
+  if (currentVersion) {
+    realFavicon.checkForUpdates(currentVersion, function (err) {
+      if (err) {
+        throw err
+      }
+      done()
+    })
+  } else {
+    sequence('generate-favicon', done)
+  }
 })
-gulp.task('font', ['clean:font'], fontTask)
-gulp.task('build:style', styleTask)
-gulp.task('watch:style', () => {
-  return watch('src/style/**/*.styl', watchOpts, styleTask)
-})
-
-gulp.task('document', ['clean:document', 'update-favicon'], () => {
-  return documentTask(gulp.src(sources.document.map(function (f) { return 'src/document/' + f })))
-})
-gulp.task('watch:document', () => {
-  return documentTask(
-    watch(['src/document/**/*.pug'], watchOpts)
-      .pipe(watchPug('src/document/**/*.pug', {delay: 100}))
-      .pipe(filter(sources.document.map(function (f) { return 'src/document/' + f })))
-  )
-})
-
 // Generate the icons. This task takes a few seconds to complete.
 // You should run it at least once to create the icons. Then,
 // you should run it whenever RealFaviconGenerator updates its
 // package (see the update-favicon task below).
-gulp.task('generate-favicon', ['clean:icons'], (done) => {
+gulp.task('generate-favicon', gulp.series('clean:icons', (done) => {
   realFavicon.generateFavicon({
     masterPicture: 'static/img/icons/parasprite-radio-nmn-hex.png',
     dest: 'build/icons/',
@@ -240,23 +220,32 @@ gulp.task('generate-favicon', ['clean:icons'], (done) => {
     versioning: true,
     markupFile: faviconDataFile
   }, done)
-})
-gulp.task('update-favicon', (done) => {
-  let currentVersion
-  try {
-    currentVersion = JSON.parse(fs.readFileSync(faviconDataFile)).version
-  } catch (e) {}
+}))
 
-  if (currentVersion) {
-    realFavicon.checkForUpdates(currentVersion, function (err) {
-      if (err) {
-        throw err
-      }
-      done()
-    })
-  } else {
-    sequence('generate-favicon', done)
-  }
+// Main tasks
+gulp.task('script', gulp.series('clean:script', webpackTask))
+gulp.task('watch:script', () => {
+  return watch(['src/script/**/*.coffee', 'src/script/**/*.js', 'src/script/template/**/*.mustache'], watchOpts, webpackTask)
+})
+
+gulp.task('font', gulp.series('clean:font', fontTask))
+gulp.task('build:style', styleTask)
+gulp.task('style', gulp.series('clean:style', 'font', 'build:style'))
+
+
+gulp.task('watch:style', () => {
+  return watch('src/style/**/*.styl', watchOpts, styleTask)
+})
+
+gulp.task('document', gulp.series('clean:document', 'update-favicon', () => {
+  return documentTask(gulp.src(sources.document.map(function (f) { return 'src/document/' + f })))
+}))
+gulp.task('watch:document', () => {
+  return documentTask(
+    watch(['src/document/**/*.pug'], watchOpts)
+      .pipe(watchPug('src/document/**/*.pug', {delay: 100}))
+      .pipe(filter(sources.document.map(function (f) { return 'src/document/' + f })))
+  )
 })
 
 gulp.task('lint', () => {
@@ -293,11 +282,8 @@ gulp.task('browsersync', () => {
 })
 
 // Default task
-gulp.task('default', (done) => {
-  sequence('script', 'style', 'document', 'lint', done)
-})
+gulp.task('default', gulp.series('script', 'style', 'document', 'lint'))
 
 // Watch task
-gulp.task('watch', (done) => {
-  sequence('default', ['watch:lint', 'watch:script', 'watch:style', 'watch:document', 'browsersync'], done)
-})
+gulp.task('watch', gulp.series('default', gulp.parallel('watch:lint', 'watch:script', 'watch:style', 'watch:document', 'browsersync')))
+
