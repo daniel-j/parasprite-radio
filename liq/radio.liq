@@ -251,7 +251,7 @@ add_skip_command(command="queue2.skip", queue2)
 add_skip_command(command="queue3.skip", queue3)
 add_skip_command(command="announce.skip", announce)
 
-default = random(weights=[4,1], [extra,default])
+default = random(weights=[3,1], [extra,default])
 
 source = fallback([queue1, queue2, queue3, default])
 
