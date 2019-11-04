@@ -90,12 +90,13 @@ end
 def send_metadata(m)
 	data = json_of(m)
 	# print("Sending metadata: "^data)
-	print("META: "^snd(http.post(
+	let (_,_,data) = http.post(
 		data    = data,
 		headers = [("Content-Type", "application/json; charset=utf-8")],
 		timeout = 10.0,
 		"http://#{confstr('server.host', 'localhost')}:#{serverport}/internal/meta"
-	)))
+	)
+	print("META: "^data)
 end
 
 def update_nowplaying(m)
@@ -137,12 +138,12 @@ def auth_live(user,password)
 
 	if current_token == "" or current_token == password or !live_busy == false then
 
-		data = snd(http.post(
+		let (_,_,data) = http.post(
 			data    = json_of(compact=true, [("username", user), ("password", password)]),
 			headers = [("Content-Type", "application/json; charset=utf-8")],
 			timeout = 5.0,
 			"http://#{confstr('server.host', 'localhost')}:#{serverport}/internal/authlive"
-		))
+		)
 
 		ret = of_json(default=[("error", "JSON error")], data)
 
@@ -251,7 +252,7 @@ add_skip_command(command="queue2.skip", queue2)
 add_skip_command(command="queue3.skip", queue3)
 add_skip_command(command="announce.skip", announce)
 
-# default = random(weights=[1,1], [extra,default])
+#default = random(weights=[3,1], [extra,default])
 
 source = fallback([queue1, queue2, queue3, default])
 
@@ -353,7 +354,7 @@ end, source)
 source = on_metadata(update_nowplaying, source)
 
 # crossfade songs!
-source = smart_crossfade(conservative=true, start_next=3., fade_in=2., fade_out=3., width=5., source)
+source = crossfade(conservative=true, fade_in=2., fade_out=3., width=5., source)
 
 # play announcements over the music
 source = smooth_add(delay=0.3, p=0.3, normal=source, special=amplify(1.5, nrj(announce)))
