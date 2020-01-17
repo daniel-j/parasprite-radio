@@ -147,11 +147,12 @@ function radioPlayer (opts = {}) {
       audioTag.removeEventListener('pause', stopRadio)
       audioTag.pause()
 
-      audioTag.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAVFYAAFRWAAABAAgAZGF0YQAAAAA='
+      // audioTag.src = '' // 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAVFYAAFRWAAABAAgAZGF0YQAAAAA='
       while (audioTag.firstChild) {
         audioTag.removeChild(audioTag.firstChild)
       }
-      audioTag.load()
+      //audioTag.load()
+      audioTag.parentNode.removeChild(audioTag)
       audioTag = null
     }
     playstopbtn.textContent = 'Play'
@@ -175,6 +176,7 @@ function radioPlayer (opts = {}) {
     playstopbtn.className = 'loading'
 
     audioTag = new Audio()
+    document.body.appendChild(audioTag)
     audioTag.addEventListener('error', handleStreamEnded, false)
     audioTag.addEventListener('ended', handleStreamEnded, false)
     audioTag.addEventListener('stalled', handleStreamEnded, false)
