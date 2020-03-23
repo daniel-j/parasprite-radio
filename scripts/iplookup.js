@@ -9,7 +9,8 @@ function iplookup (ip, cb) {
     cb('no ipinfodb api key')
     return
   }
-  fetchJSON('http://api.ipinfodb.com/v3/ip-city/?key=' + config.ipinfodb.apiKey + '&ip=' + ip + '&format=json&timestamp=' + Date.now(), null, function (err, data) {
+  let url = 'http://api.ipinfodb.com/v3/ip-city/?key=' + config.ipinfodb.apiKey + '&ip=' + ip + '&format=json&timestamp=' + Date.now()
+  fetchJSON(url, null, function (err, data) {
     if (err) {
       cb(err)
       return
