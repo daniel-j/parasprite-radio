@@ -40,17 +40,17 @@ alsa = output.external(id="radio_alsa",
 )
 
 opus = output.external(
-	id="radio_opus",
+	id="radio_opus3",
 	fallible=true,
 	%wav(header=true, samplerate=48000, channels=2),
-	"opusenc --quiet - - | oggfwd -n "^quote(confstr("radio.title", "Parasprite Radio"))^" -d "^quote(confstr("radio.description", "Liquidsoap Radio!"))^" "^quote(confstr("icecast.host", "localhost"))^" "^quote(string_of(confint("icecast.port", 8000)))^" "^confstr("icecast.mount.password", "hackme")^" /radio_opus"
+	"opusenc --quiet - - | oggfwd -n "^string.quote(confstr("radio.title", "Parasprite Radio"))^" -d "^string.quote(confstr("radio.description", "Liquidsoap Radio!"))^" "^string.quote(confstr("icecast.host", "localhost"))^" "^string.quote(string_of(confint("icecast.port", 8000)))^" "^confstr("icecast.mount.password", "hackme")^" /radio_opus3"
 )
 #flac = output.external(
 #	id="radio_flac2",
 #	fallible=true,
 #	start=false,
 #	%wav(header=true),
-#	"flac --best --ogg --no-seektable --silent --decode-through-errors --stdout - | oggfwd -n "^quote(confstr("radio.title", "Parasprite Radio"))^" -d "^quote(confstr("radio.description", "Liquidsoap Radio!"))^" "^quote(confstr("icecast.host", "localhost"))^" "^quote(string_of(confint("icecast.port", 8000)))^" "^confstr("icecast.mount.password", "hackme")^" /radio_flac"
+#	"flac --best --ogg --no-seektable --silent --decode-through-errors --stdout - | oggfwd -n "^string.quote(confstr("radio.title", "Parasprite Radio"))^" -d "^string.quote(confstr("radio.description", "Liquidsoap Radio!"))^" "^string.quote(confstr("icecast.host", "localhost"))^" "^string.quote(string_of(confint("icecast.port", 8000)))^" "^confstr("icecast.mount.password", "hackme")^" /radio_flac"
 #)
 
 
@@ -106,8 +106,8 @@ else
 		),
 
 		out(
-			id = "radio_opus",
-			mount = "radio_opus",
+			id = "radio_opus2",
+			mount = "radio_opus2",
 			%opus(
 				vbr = "constrained",
 				application = "audio",
@@ -119,13 +119,13 @@ else
 				channels = 2,
 				signal = "music"
 			),
-			start = true,
+			start = false,
 			merge_tracks(source)
 		),
 
 		# a better OPUS encoder
 		out(
-			id = "radio_opus2",
+			id = "radio_opus",
 			mount = "radio_opus",
 			%external(
 				channels = 2,
@@ -137,11 +137,11 @@ else
 			),
 			icy_metadata = "false",
 			format = "audio/ogg",
-			start = false,
-			source
+			start = true,
+			merge_tracks(source)
 		),
 
-		# opus(source, start = false),
+		# opus(merge_tracks(source), start = true),
 
 		# out(
 		# 	id = "radio_flac",
