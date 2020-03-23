@@ -208,7 +208,7 @@ function radioPlayer (opts = {}) {
         if (streamName === 'radio_hls') {
           s.src = '/streams/radio.m3u8'
         } else {
-          s.src = baseurl + streamName
+          s.src = baseurl + streamName + '?t=' + Date.now()
         }
         audioTag.appendChild(s)
       }
@@ -231,7 +231,7 @@ function radioPlayer (opts = {}) {
         streamName = 'radio_hls'
         streamLink.href = '/streams/radio.m3u8'
       } else {
-        streamName = audioTag.currentSrc.substr(baseurl.length)
+        streamName = audioTag.currentSrc.substr(baseurl.length).split('?')[0]
         streamLink.href = baseurl + streamName
       }
       streamSelect.value = streamName
