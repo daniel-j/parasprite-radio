@@ -1,6 +1,6 @@
 
 def file_metadata(file)
-	of_json(default=[], get_process_output("node scripts/metadata "^quote(file)))
+	of_json(default=[], get_process_output("node scripts/metadata "^string.quote(file)))
 end
 
 xmp_ext = ['mod','s3m','xm','it','j2b']
@@ -22,7 +22,7 @@ add_oblivious_decoder(
 		end
 
 	end,
-	fun(f) -> "xmp --nocmd -o - -d wav "^quote(f)^" 2>/dev/null"
+	fun(f) -> "xmp --nocmd -o - -d wav "^string.quote(f)^" 2>/dev/null"
 )
 #add_metadata_resolver("XMP", file_metadata)
 

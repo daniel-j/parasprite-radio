@@ -61,8 +61,8 @@ archiveEncoder = %mp3.vbr(quality=0, stereo_mode="joint_stereo", internal_qualit
 def track_end_cleanup(time, m)
 	if m["temporary"] == "true" and m["filename"] != "" then
 		#print("time left: #{time}")
-		print("rm "^quote(m["filename"]))
-		system("rm "^quote(m["filename"]))
+		print("rm "^string.quote(m["filename"]))
+		system("rm "^string.quote(m["filename"]))
 		#print(m)
 	end
 end
@@ -344,7 +344,7 @@ source = fallback(track_sensitive=false, transitions=[to_live, to_songs], [live,
 
 source = map_metadata(fun (m) -> begin
 	if m['filename'] != '' then
-		of_json(default=[], get_process_output('node scripts/metadata '^quote(m['filename'])))
+		of_json(default=[], get_process_output('node scripts/metadata '^string.quote(m['filename'])))
 	else
 		[]
 	end
