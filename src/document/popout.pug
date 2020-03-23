@@ -44,7 +44,9 @@ html
 									if config.icecast.mounts.includes('gnr')
 										option(value='gnr') Galaxy News Radio
 									if config.icecast.mounts.includes('moonradio.opus')
-										option(value='moonradio.opus') セーラームーンラジオ
+										option(value='moonradio.opus') セーラームーンラジオ OPUS
+									if config.icecast.mounts.includes('moonradio.mp3')
+										option(value='moonradio.mp3') セーラームーンラジオ MP3
 								a#streamLink(href='/stream', target='_blank')
 									img(src='/img/icons/popout.svg', alt='Stream')
 						.legend
