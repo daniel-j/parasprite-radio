@@ -99,10 +99,7 @@ playHistory.oninit = function () {
   }
 }
 playHistory.view = function (vnode) {
-  return m('div', vnode.state.trackList().map(function (track) {
-    if (!track.timestamp) {
-      return null
-    }
+  return m('div', vnode.state.trackList().filter((track) => track.timestamp).map(function (track) {
     return m('div.row', {key: track.timestamp + track.text, onclick: (e) => vnode.state.openUrl(e.currentTarget.getAttribute('data-url')), 'data-url': track.url}, [
       m('div.img', m('img', {src: track.art})),
       m('div.content', [m('div.title', track.title), m('div.artist', track.artist + (track.album ? ' (' + track.album + ')' : ''))]),
