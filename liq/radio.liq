@@ -71,7 +71,7 @@ end
 def scrobble_nowplaying(m)
 	if confbool("lastfm.enable") then
 		print("Scrobbling now playing to Last.fm")
-		audioscrobbler.nowplaying(user=confstr("lastfm.username"), password=confstr("lastfm.password"), m)
+		lastfm.nowplaying(user=confstr("lastfm.username"), password=confstr("lastfm.password"), m)
 	end
 	if confbool("tunein.enable") then
 		print("Scrobbling now playing to TuneIn")
@@ -82,7 +82,7 @@ end
 def scrobble_submit(t, m)
 	if confbool("lastfm.enable") then
 		print("Scrobbling track to Last.fm")
-		audioscrobbler.submit(user=confstr("lastfm.username"), password=confstr("lastfm.password"), m)
+		lastfm.submit(user=confstr("lastfm.username"), password=confstr("lastfm.password"), m)
 	end
 end
 
