@@ -61,8 +61,8 @@ archiveEncoder = %mp3.vbr(quality=0, stereo_mode="joint_stereo", internal_qualit
 def track_end_cleanup(time, m)
 	if m["temporary"] == "true" and m["filename"] != "" then
 		#print("time left: #{time}")
-		print("rm "^quote(m["filename"]))
-		system("rm "^quote(m["filename"]))
+		print("rm "^string.quote(m["filename"]))
+		system("rm "^string.quote(m["filename"]))
 		#print(m)
 	end
 end
@@ -71,7 +71,7 @@ end
 def scrobble_nowplaying(m)
 	if confbool("lastfm.enable") then
 		print("Scrobbling now playing to Last.fm")
-		audioscrobbler.nowplaying(user=confstr("lastfm.username"), password=confstr("lastfm.password"), m)
+		lastfm.nowplaying(user=confstr("lastfm.username"), password=confstr("lastfm.password"), m)
 	end
 	if confbool("tunein.enable") then
 		print("Scrobbling now playing to TuneIn")
@@ -82,7 +82,7 @@ end
 def scrobble_submit(t, m)
 	if confbool("lastfm.enable") then
 		print("Scrobbling track to Last.fm")
-		audioscrobbler.submit(user=confstr("lastfm.username"), password=confstr("lastfm.password"), m)
+		lastfm.submit(user=confstr("lastfm.username"), password=confstr("lastfm.password"), m)
 	end
 end
 
@@ -90,12 +90,13 @@ end
 def send_metadata(m)
 	data = json_of(m)
 	# print("Sending metadata: "^data)
-	print("META: "^snd(http.post(
+	let (_,_,data) = http.post(
 		data    = data,
 		headers = [("Content-Type", "application/json; charset=utf-8")],
 		timeout = 10.0,
 		"http://#{confstr('server.host', 'localhost')}:#{serverport}/internal/meta"
-	)))
+	)
+	print("META: "^data)
 end
 
 def update_nowplaying(m)
@@ -137,12 +138,12 @@ def auth_live(user,password)
 
 	if current_token == "" or current_token == password or !live_busy == false then
 
-		data = snd(http.post(
+		let (_,_,data) = http.post(
 			data    = json_of(compact=true, [("username", user), ("password", password)]),
 			headers = [("Content-Type", "application/json; charset=utf-8")],
 			timeout = 5.0,
 			"http://#{confstr('server.host', 'localhost')}:#{serverport}/internal/authlive"
-		))
+		)
 
 		ret = of_json(default=[("error", "JSON error")], data)
 
@@ -236,7 +237,7 @@ end
 
 # playlists
 default = audio_to_stereo(mksafe(playlist(id="default", reload_mode="seconds", reload=600, timeout=600., prefix=confstr("general.media_dir")^"/", "/data/audio/playlists/radio.m3u")))
-extra = audio_to_stereo(playlist(id="extra", reload_mode="seconds", reload=600, timeout=600., prefix=confstr("general.media_dir")^"/", "/data/audio/playlists/extra.m3u"))
+#extra = audio_to_stereo(playlist(id="extra", reload_mode="seconds", reload=600, timeout=600., prefix=confstr("general.media_dir")^"/", "/data/audio/playlists/extra.m3u"))
 #friendship = audio_to_stereo(amplify(1.1, playlist(id="friendship", reload_mode="watch", reload=600, "friendship.m3u")))
 #ads = audio_to_stereo(playlist(id="ads", reload_mode="watch", reload=600, prefix=confstr("general.media_dir")^"/", "/home/djazz/.mpd/playlists/ads.m3u"))
 
@@ -251,7 +252,7 @@ add_skip_command(command="queue2.skip", queue2)
 add_skip_command(command="queue3.skip", queue3)
 add_skip_command(command="announce.skip", announce)
 
-default = random(weights=[3,1], [extra,default])
+#default = random(weights=[3,1], [extra,default])
 
 source = fallback([queue1, queue2, queue3, default])
 
@@ -343,7 +344,7 @@ source = fallback(track_sensitive=false, transitions=[to_live, to_songs], [live,
 
 source = map_metadata(fun (m) -> begin
 	if m['filename'] != '' then
-		of_json(default=[], get_process_output('node scripts/metadata '^quote(m['filename'])))
+		of_json(default=[], get_process_output('node scripts/metadata '^string.quote(m['filename'])))
 	else
 		[]
 	end
@@ -353,7 +354,7 @@ end, source)
 source = on_metadata(update_nowplaying, source)
 
 # crossfade songs!
-source = smart_crossfade(conservative=true, start_next=3., fade_in=2., fade_out=3., width=5., source)
+source = crossfade(conservative=true, fade_in=2., fade_out=3., width=5., source)
 
 # play announcements over the music
 source = smooth_add(delay=0.3, p=0.3, normal=source, special=amplify(1.5, nrj(announce)))
