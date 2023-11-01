@@ -4,6 +4,8 @@
 cd "${0%/*}"
 cd ..
 
+eval $(opam env --switch=4.08.0)
+
 echo "Starting Liquidsoap..."
 cd liq
 while true; do
