@@ -64,7 +64,7 @@
     "googleapis": "^46.0.0",
     "id3-genre": "~0.1.0",
     "image-type": "^4.1.0",
-    "knex": "^0.20.4",
+    "knex": "^2.4.0",
     "morgan": "^1.9.1",
     "mpd": "^1.3.0",
     "music-metadata": "^3.8.0",
