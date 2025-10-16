@@ -53,32 +53,30 @@ opus = output.external(
 #	"flac --best --ogg --no-seektable --silent --decode-through-errors --stdout - | oggfwd -n "^string.quote(confstr("radio.title", "Parasprite Radio"))^" -d "^string.quote(confstr("radio.description", "Liquidsoap Radio!"))^" "^string.quote(confstr("icecast.host", "localhost"))^" "^string.quote(string_of(confint("icecast.port", 8000)))^" "^confstr("icecast.mount.password", "hackme")^" /radio_flac"
 #)
 
+clock.assign_new(id="output_clock", [source])
+
 
 if inDev then
-	clock.assign_new(id="output_clock", [
-		streams(source)
-	])
-
+	streams(source)
 else
-	clock.assign_new(id="output_clock", sync=true, [
-		streams(source),
-		# alsa(source),
-		out(
-			id = "radio",
-			mount = "radio",
-			%mp3(
-				bitrate = 320,
-				#channels = 2,
-				#quality = 3,
-				stereo = true,
-				stereo_mode = "joint_stereo",
-				internal_quality = 0,
-				id3v2 = true,
-				samplerate=48000
-			),
-			start=true,
-			source
+	streams(source)
+
+	out(
+		id = "radio",
+		mount = "radio",
+		%mp3(
+			bitrate = 320,
+			#channels = 2,
+			#quality = 3,
+			stereo = true,
+			stereo_mode = "joint_stereo",
+			internal_quality = 0,
+			id3v2 = true,
+			samplerate=48000
 		),
+		start=true,
+		source
+	)
 
 		#out(
 		#	id = "radio_mobile",
@@ -94,52 +92,52 @@ else
 		#	source
 		#),
 
-		out(
-			id = "radio_mobile_vorbis",
-			mount = "radio_mobile_vorbis",
-			%vorbis(
-				channels = 2,
-				quality = 0.1
-			),
-			start = false,
-			source
+	out(
+		id = "radio_mobile_vorbis",
+		mount = "radio_mobile_vorbis",
+		%vorbis(
+			channels = 2,
+			quality = 0.1
 		),
+		start = false,
+		source
+	)
 
-		out(
-			id = "radio_opus2",
-			mount = "radio_opus2",
-			%opus(
-				vbr = "constrained",
-				application = "audio",
-				complexity = 10,
-				max_bandwidth = "full_band",
-				samplerate = 48000,
-				frame_size = 20.,
-				bitrate = 128,
-				channels = 2,
-				signal = "music"
-			),
-			start = false,
-			merge_tracks(source)
+	out(
+		id = "radio_opus2",
+		mount = "radio_opus2",
+		%opus(
+			vbr = "constrained",
+			application = "audio",
+			complexity = 10,
+			max_bandwidth = "full_band",
+			samplerate = 48000,
+			frame_size = 20.,
+			bitrate = 128,
+			channels = 2,
+			signal = "music"
 		),
+		start = false,
+		merge_tracks(source)
+	)
 
 		# a better OPUS encoder
-		out(
-			id = "radio_opus",
-			mount = "radio_opus",
-			%external(
-				channels = 2,
-				samplerate = 48000,
-				header = true,
-				restart_on_crash = true,
-				#restart_on_new_track = false,
-				"opusenc --ignorelength - -"
-			),
-			icy_metadata = "false",
-			format = "audio/ogg",
-			start = true,
-			merge_tracks(source)
+	out(
+		id = "radio_opus",
+		mount = "radio_opus",
+		%external(
+			channels = 2,
+			samplerate = 48000,
+			header = true,
+			restart_on_crash = true,
+			#restart_on_new_track = false,
+			"opusenc --ignorelength - -"
 		),
+		icy_metadata = "false",
+		format = "audio/ogg",
+		start = false,
+		merge_tracks(source)
+	)
 
 		# opus(merge_tracks(source), start = true),
 
@@ -175,7 +173,7 @@ else
 		# )
 
 		#flac(source)
-	])
+	#])
 
 	# to FM transmitter
 	#output.alsa(id="alsa", bufferize=true, clock_safe=false, fallible = true, source)

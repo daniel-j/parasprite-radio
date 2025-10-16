@@ -1,6 +1,6 @@
 
 def file_metadata(file)
-	of_json(default=[], get_process_output("node scripts/metadata "^string.quote(file)))
+	json.parse(default=[], process.read("node scripts/metadata "^string.quote(file)))
 end
 
 xmp_ext = ['mod','s3m','xm','it','j2b']
@@ -11,7 +11,7 @@ add_oblivious_decoder(
 		f = string.case(lower=true, file)
 		ret = string.extract(pattern='\.(.+)$', f)
 		if list.length(ret) != 0 then
-			ext = ret["1"]
+			ext = ret[1]
 			if list.mem(ext, xmp_ext) then
 				-1
 			else

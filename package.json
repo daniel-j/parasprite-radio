@@ -80,7 +80,6 @@
     "uid-generator": "^1.0.0",
     "xml2js": "^0.4.22"
   },
-  "optionalDependencies": {},
   "standard": {
     "env": {
       "browser": true,
